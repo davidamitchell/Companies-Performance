@@ -17,8 +17,11 @@ config/metrics.yaml. That mapping cannot be defined until spike S-0001
 
 from __future__ import annotations
 
+import re
+from html import unescape
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin
 
 import httpx
 
@@ -27,6 +30,9 @@ from src.logger import get_logger
 logger = get_logger(__name__)
 
 _CHUNK_SIZE = 65_536  # 64 KB
+
+# Matches href attributes whose value contains ".xlsx" (absolute or relative URLs).
+_XLSX_HREF_RE = re.compile(r'href=["\']([^"\']*\.xlsx[^"\']*)["\']', re.IGNORECASE)
 
 
 def download_file(
@@ -69,6 +75,52 @@ def download_file(
                 fh.write(chunk)
     logger.info("Saved %s (%d bytes)", dest, dest.stat().st_size)
     return dest
+
+
+def find_xlsx_url(
+    page_url: str,
+    *,
+    timeout: float = 30.0,
+    headers: dict[str, str] | None = None,
+) -> str | None:
+    """Fetch *page_url* and return the first XLSX download link found.
+
+    Scrapes the HTML for ``href`` attributes pointing at ``.xlsx`` files.
+    Relative links are resolved against *page_url*.
+
+    Parameters
+    ----------
+    page_url:
+        URL of an HTML page that contains a link to an XLSX file
+        (e.g. the RBNZ dashboard summary page).
+    timeout:
+        HTTP request timeout in seconds.
+    headers:
+        Optional HTTP headers (e.g. ``User-Agent``) to include in the request.
+
+    Returns
+    -------
+    str | None
+        The first XLSX URL found on the page (resolved to an absolute URL),
+        or ``None`` if none is found or the request fails.
+    """
+    logger.info("Discovering XLSX URL from %s", page_url)
+    try:
+        response = httpx.get(
+            page_url, follow_redirects=True, timeout=timeout, headers=headers or {}
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        logger.warning("Could not fetch discovery page %s: %s", page_url, exc)
+        return None
+
+    matches = _XLSX_HREF_RE.findall(response.text)
+    if not matches:
+        logger.warning("No XLSX links found on %s", page_url)
+        return None
+
+    link = unescape(matches[0])
+    return link if link.startswith(("http://", "https://")) else urljoin(page_url, link)
 
 
 def enforce_canonical_schema(rows: list[dict[str, Any]], source: str) -> list[dict[str, Any]]:

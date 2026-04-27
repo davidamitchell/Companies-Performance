@@ -7,6 +7,7 @@ rbnz:
   # Fetched via the fetch-data GitHub Actions workflow (manual trigger only).
   xlsx_sources:
     - url: https://bankdashboard.rbnz.govt.nz/datafiles/Bank-Financial-Strength-Dashboard-Data.xlsx
+      discovery_url: https://bankdashboard.rbnz.govt.nz/summary
       name: "RBNZ Bank Financial Strength Dashboard"
       description: >
         Reserve Bank of New Zealand Bank Dashboard data.
