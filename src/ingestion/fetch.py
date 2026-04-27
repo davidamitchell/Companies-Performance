@@ -28,8 +28,22 @@ logger = get_logger(__name__)
 
 _CHUNK_SIZE = 65_536  # 64 KB
 
+_DEFAULT_HEADERS: dict[str, str] = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    ),
+}
 
-def download_file(url: str, dest: Path, *, timeout: float = 60.0) -> Path:
+
+def download_file(
+    url: str,
+    dest: Path,
+    *,
+    timeout: float = 60.0,
+    headers: dict[str, str] | None = None,
+) -> Path:
     """Download a file from *url* and save it to *dest*.
 
     Parameters
@@ -40,6 +54,10 @@ def download_file(url: str, dest: Path, *, timeout: float = 60.0) -> Path:
         Local file path to write to. Parent directories must exist.
     timeout:
         HTTP request timeout in seconds.
+    headers:
+        Additional HTTP headers to send with the request.  These are merged
+        with ``_DEFAULT_HEADERS``; values supplied here take precedence over
+        the defaults.
 
     Returns
     -------
@@ -51,8 +69,11 @@ def download_file(url: str, dest: Path, *, timeout: float = 60.0) -> Path:
     httpx.HTTPError
         If the HTTP request fails.
     """
+    effective_headers = {**_DEFAULT_HEADERS, **(headers or {})}
     logger.info("Downloading %s -> %s", url, dest)
-    with httpx.stream("GET", url, follow_redirects=True, timeout=timeout) as response:
+    with httpx.stream(
+        "GET", url, follow_redirects=True, timeout=timeout, headers=effective_headers
+    ) as response:
         response.raise_for_status()
         with dest.open("wb") as fh:
             for chunk in response.iter_bytes(chunk_size=_CHUNK_SIZE):
