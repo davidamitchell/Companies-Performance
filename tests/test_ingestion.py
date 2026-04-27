@@ -5,7 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from src.ingestion.fetch import _DEFAULT_HEADERS, download_file, enforce_canonical_schema
+from src.ingestion.fetch import (
+    _DEFAULT_HEADERS,
+    discover_xlsx_url,
+    download_file,
+    enforce_canonical_schema,
+)
 
 
 def test_enforce_canonical_schema_valid_row() -> None:
@@ -132,3 +137,107 @@ def test_download_file_custom_headers_merge_and_override(tmp_path: Path) -> None
     for key, value in _DEFAULT_HEADERS.items():
         if key not in custom_headers:
             assert captured_headers[key] == value
+
+
+# ---------------------------------------------------------------------------
+# discover_xlsx_url
+# ---------------------------------------------------------------------------
+
+_INDEX_PAGE_HTML = """
+<html><body>
+<table>
+  <tbody>
+    <tr>
+      <td>S10</td>
+      <td>Bank Financial Strength Dashboard</td>
+      <td><a href="/content/dam/website/docs/datafiles/Bank-Financial-Strength-Dashboard-Data.xlsx">XLSX</a></td>
+    </tr>
+    <tr>
+      <td>B1</td>
+      <td>Exchange Rates</td>
+      <td><a href="/content/dam/website/docs/datafiles/exchange-rates.xlsx">XLSX</a></td>
+    </tr>
+  </tbody>
+</table>
+</body></html>
+"""
+
+_INDEX_PAGE_URL = "https://www.rbnz.govt.nz/statistics/series/data-file-index-page"
+
+
+def _mock_get_response(html: str, status_code: int = 200) -> MagicMock:
+    """Return a MagicMock that looks like an httpx.Response."""
+    mock_resp = MagicMock()
+    mock_resp.text = html
+    if status_code >= 400:
+        import httpx
+
+        mock_resp.raise_for_status.side_effect = httpx.HTTPStatusError(
+            f"{status_code}",
+            request=MagicMock(),
+            response=MagicMock(status_code=status_code),
+        )
+    else:
+        mock_resp.raise_for_status = MagicMock()
+    return mock_resp
+
+
+def test_discover_xlsx_url_returns_url_for_matching_series() -> None:
+    """discover_xlsx_url returns the resolved XLSX URL when the series is found."""
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_get_response(_INDEX_PAGE_HTML)):
+        result = discover_xlsx_url(_INDEX_PAGE_URL, "Bank Financial Strength Dashboard")
+
+    assert result == (
+        "https://www.rbnz.govt.nz"
+        "/content/dam/website/docs/datafiles/Bank-Financial-Strength-Dashboard-Data.xlsx"
+    )
+
+
+def test_discover_xlsx_url_case_insensitive_match() -> None:
+    """discover_xlsx_url matches series_match case-insensitively."""
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_get_response(_INDEX_PAGE_HTML)):
+        result = discover_xlsx_url(_INDEX_PAGE_URL, "bank financial strength dashboard")
+
+    assert result is not None
+    assert result.endswith(".xlsx")
+
+
+def test_discover_xlsx_url_returns_none_when_series_not_found() -> None:
+    """discover_xlsx_url returns None when the series text is not in the page."""
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_get_response(_INDEX_PAGE_HTML)):
+        result = discover_xlsx_url(_INDEX_PAGE_URL, "Nonexistent Series XYZ")
+
+    assert result is None
+
+
+def test_discover_xlsx_url_returns_none_on_http_error() -> None:
+    """discover_xlsx_url returns None (not raises) when the index page returns an error."""
+    with patch(
+        "src.ingestion.fetch.httpx.get", return_value=_mock_get_response("", status_code=403)
+    ):
+        result = discover_xlsx_url(_INDEX_PAGE_URL, "Bank Financial Strength Dashboard")
+
+    assert result is None
+
+
+def test_discover_xlsx_url_resolves_relative_urls() -> None:
+    """discover_xlsx_url resolves relative hrefs against the index page URL."""
+    html = """<table><tr><td>Dashboard</td>
+    <td><a href="/data/file.xlsx">Download</a></td></tr></table>"""
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_get_response(html)):
+        result = discover_xlsx_url("https://example.com/index", "Dashboard")
+
+    assert result == "https://example.com/data/file.xlsx"
+
+
+def test_discover_xlsx_url_returns_none_on_network_error() -> None:
+    """discover_xlsx_url returns None when a network-level error occurs."""
+    import httpx
+
+    with patch(
+        "src.ingestion.fetch.httpx.get",
+        side_effect=httpx.ConnectError("connection refused"),
+    ):
+        result = discover_xlsx_url(_INDEX_PAGE_URL, "Bank Financial Strength Dashboard")
+
+    assert result is None

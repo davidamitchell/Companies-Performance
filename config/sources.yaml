@@ -12,4 +12,10 @@ rbnz:
         Reserve Bank of New Zealand Bank Dashboard data.
         Covers capital adequacy, liquidity, asset quality, and profitability
         metrics for registered banks in New Zealand.
+      # Discovery: scrape the RBNZ Data File Index Page to resolve the current
+      # URL for this series. RBNZ periodically updates media directory paths,
+      # so the url above is a fallback only; the pipeline will prefer the
+      # discovered URL. See https://www.rbnz.govt.nz/statistics/series/data-file-index-page
+      discovery_url: "https://www.rbnz.govt.nz/statistics/series/data-file-index-page"
+      series_match: "Bank Financial Strength Dashboard"
       output_file: data/raw/rbnz-dashboard.xlsx

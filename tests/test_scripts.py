@@ -8,19 +8,24 @@ from unittest.mock import patch
 from scripts.fetch_data import main
 
 
-def _make_sources(tmp_path: Path, url: str = "https://example.com/data.xlsx") -> dict:
+def _make_sources(
+    tmp_path: Path,
+    url: str = "https://example.com/data.xlsx",
+    *,
+    discovery_url: str | None = None,
+    series_match: str | None = None,
+) -> dict:
     """Return a sources dict with a single RBNZ xlsx source pointing at tmp_path."""
-    return {
-        "rbnz": {
-            "xlsx_sources": [
-                {
-                    "url": url,
-                    "name": "Test Source",
-                    "output_file": str(tmp_path / "raw" / "data.xlsx"),
-                }
-            ]
-        }
+    source: dict = {
+        "url": url,
+        "name": "Test Source",
+        "output_file": str(tmp_path / "raw" / "data.xlsx"),
     }
+    if discovery_url is not None:
+        source["discovery_url"] = discovery_url
+    if series_match is not None:
+        source["series_match"] = series_match
+    return {"rbnz": {"xlsx_sources": [source]}}
 
 
 def test_main_success(tmp_path: Path) -> None:
@@ -121,3 +126,71 @@ def test_main_partial_failure_counts_correctly(tmp_path: Path) -> None:
         result = main()
 
     assert result == 1
+
+
+def test_main_uses_discovered_url_when_discovery_succeeds(tmp_path: Path) -> None:
+    """main() downloads from the discovered URL when discovery returns one."""
+    (tmp_path / "raw").mkdir()
+    sources = _make_sources(
+        tmp_path,
+        url="https://fallback.example.com/data.xlsx",
+        discovery_url="https://www.rbnz.govt.nz/statistics/series/data-file-index-page",
+        series_match="Bank Financial Strength Dashboard",
+    )
+    discovered = "https://www.rbnz.govt.nz/content/dam/data.xlsx"
+
+    with (
+        patch("scripts.fetch_data.load_sources", return_value=sources),
+        patch("scripts.fetch_data.discover_xlsx_url", return_value=discovered),
+        patch("scripts.fetch_data.download_file") as mock_download,
+    ):
+        mock_download.return_value = tmp_path / "raw" / "data.xlsx"
+        result = main()
+
+    assert result == 0
+    args, _ = mock_download.call_args
+    assert args[0] == discovered
+
+
+def test_main_falls_back_to_configured_url_when_discovery_fails(tmp_path: Path) -> None:
+    """main() falls back to the configured url when discovery returns None."""
+    (tmp_path / "raw").mkdir()
+    fallback = "https://fallback.example.com/data.xlsx"
+    sources = _make_sources(
+        tmp_path,
+        url=fallback,
+        discovery_url="https://www.rbnz.govt.nz/statistics/series/data-file-index-page",
+        series_match="Bank Financial Strength Dashboard",
+    )
+
+    with (
+        patch("scripts.fetch_data.load_sources", return_value=sources),
+        patch("scripts.fetch_data.discover_xlsx_url", return_value=None),
+        patch("scripts.fetch_data.download_file") as mock_download,
+    ):
+        mock_download.return_value = tmp_path / "raw" / "data.xlsx"
+        result = main()
+
+    assert result == 0
+    args, _ = mock_download.call_args
+    assert args[0] == fallback
+
+
+def test_main_skips_discovery_when_not_configured(tmp_path: Path) -> None:
+    """main() downloads directly from the configured url when no discovery fields are set."""
+    (tmp_path / "raw").mkdir()
+    url = "https://example.com/data.xlsx"
+    sources = _make_sources(tmp_path, url=url)
+
+    with (
+        patch("scripts.fetch_data.load_sources", return_value=sources),
+        patch("scripts.fetch_data.discover_xlsx_url") as mock_discover,
+        patch("scripts.fetch_data.download_file") as mock_download,
+    ):
+        mock_download.return_value = tmp_path / "raw" / "data.xlsx"
+        result = main()
+
+    assert result == 0
+    mock_discover.assert_not_called()
+    args, _ = mock_download.call_args
+    assert args[0] == url

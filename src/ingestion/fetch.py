@@ -17,8 +17,10 @@ config/metrics.yaml. That mapping cannot be defined until spike S-0001
 
 from __future__ import annotations
 
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin
 
 import httpx
 
@@ -35,6 +37,105 @@ _DEFAULT_HEADERS: dict[str, str] = {
         "Chrome/124.0.0.0 Safari/537.36"
     ),
 }
+
+
+class _IndexPageParser(HTMLParser):
+    """Parse an HTML page and collect (row_text, xlsx_hrefs) for each table row.
+
+    Each entry in ``rows`` is a tuple of:
+    - row_text: whitespace-joined text content of all ``<td>`` cells in the row.
+    - xlsx_hrefs: list of href values from ``<a>`` tags in the row whose href
+      ends with ``.xlsx`` (case-insensitive).
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._in_tr = False
+        self._in_cell = False  # inside <td> or <th>
+        self._current_text: list[str] = []
+        self._current_links: list[str] = []
+        self.rows: list[tuple[str, list[str]]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "tr":
+            self._in_tr = True
+            self._current_text = []
+            self._current_links = []
+        elif tag in ("td", "th"):
+            self._in_cell = True
+        elif tag == "a":
+            attrs_dict = dict(attrs)
+            href = attrs_dict.get("href") or ""
+            if href.lower().endswith(".xlsx"):
+                self._current_links.append(href)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "tr" and self._in_tr:
+            self.rows.append((" ".join(self._current_text), list(self._current_links)))
+            self._in_tr = False
+            self._current_text = []
+            self._current_links = []
+        elif tag in ("td", "th"):
+            self._in_cell = False
+
+    def handle_data(self, data: str) -> None:
+        if self._in_cell:
+            stripped = data.strip()
+            if stripped:
+                self._current_text.append(stripped)
+
+
+def discover_xlsx_url(
+    index_page_url: str,
+    series_match: str,
+    *,
+    timeout: float = 30.0,
+) -> str | None:
+    """Fetch the RBNZ Data File Index Page and return the XLSX URL for a series.
+
+    Scrapes ``index_page_url`` looking for a table row whose text contains
+    ``series_match`` (case-insensitive) and that includes an ``.xlsx`` link.
+    Relative href values are resolved against ``index_page_url``.
+
+    Parameters
+    ----------
+    index_page_url:
+        URL of the RBNZ Data File Index Page.
+    series_match:
+        Text to search for in the page table rows. Matched case-insensitively.
+    timeout:
+        HTTP request timeout in seconds.
+
+    Returns
+    -------
+    str | None
+        Discovered XLSX URL, or ``None`` if not found or if the page cannot
+        be fetched.
+    """
+    try:
+        response = httpx.get(
+            index_page_url,
+            follow_redirects=True,
+            timeout=timeout,
+            headers=_DEFAULT_HEADERS,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        logger.warning("Could not fetch discovery page %s: %s", index_page_url, exc)
+        return None
+
+    parser = _IndexPageParser()
+    parser.feed(response.text)
+
+    match_lower = series_match.lower()
+    for row_text, xlsx_hrefs in parser.rows:
+        if match_lower in row_text.lower() and xlsx_hrefs:
+            resolved = urljoin(index_page_url, xlsx_hrefs[0])
+            logger.info("Discovered URL for %r: %s", series_match, resolved)
+            return resolved
+
+    logger.warning("Series %r not found on discovery page %s", series_match, index_page_url)
+    return None
 
 
 def download_file(
