@@ -80,7 +80,12 @@ def main() -> int:
         # When a discovery_url is configured, scrape the dashboard page to find
         # the real download link (more robust than a hardcoded URL).
         if discovery_url:
-            discovered = find_xlsx_url(discovery_url, headers=_browser_headers())
+            series_match: str | None = source.get("series_match")
+            discovered = find_xlsx_url(
+                discovery_url,
+                series_match=series_match,
+                headers=_browser_headers(),
+            )
             if discovered:
                 logger.info("Using discovered XLSX URL: %s", discovered)
                 url = discovered

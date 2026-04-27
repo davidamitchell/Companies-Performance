@@ -7,7 +7,12 @@ rbnz:
   # Fetched via the fetch-data GitHub Actions workflow (manual trigger only).
   xlsx_sources:
     - url: https://bankdashboard.rbnz.govt.nz/datafiles/Bank-Financial-Strength-Dashboard-Data.xlsx
-      discovery_url: https://bankdashboard.rbnz.govt.nz/summary
+      # The RBNZ data-file-index-page lists every published data file with
+      # download links.  series_match narrows the search to the bank dashboard
+      # XLSX specifically (case-insensitive substring match against link URL
+      # and anchor text).  The hardcoded url above is used as a fallback.
+      discovery_url: https://www.rbnz.govt.nz/statistics/series/data-file-index-page
+      series_match: "bank financial strength"
       name: "RBNZ Bank Financial Strength Dashboard"
       description: >
         Reserve Bank of New Zealand Bank Dashboard data.

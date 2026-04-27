@@ -12,6 +12,7 @@ def _make_sources(
     tmp_path: Path,
     url: str = "https://example.com/data.xlsx",
     discovery_url: str | None = None,
+    series_match: str | None = None,
 ) -> dict:
     """Return a sources dict with a single RBNZ xlsx source pointing at tmp_path."""
     source: dict = {
@@ -21,6 +22,8 @@ def _make_sources(
     }
     if discovery_url is not None:
         source["discovery_url"] = discovery_url
+    if series_match is not None:
+        source["series_match"] = series_match
     return {"rbnz": {"xlsx_sources": [source]}}
 
 
@@ -207,6 +210,44 @@ def test_main_uses_discovered_url(tmp_path: Path) -> None:
     # First positional arg to download_file must be the discovered URL
     args, _ = mock_download.call_args
     assert args[0] == discovered
+
+
+def test_main_passes_series_match_to_find_xlsx_url(tmp_path: Path) -> None:
+    """main() forwards series_match from config to find_xlsx_url."""
+    (tmp_path / "raw").mkdir()
+    sources = _make_sources(
+        tmp_path,
+        discovery_url="https://example.com/index",
+        series_match="bank financial strength",
+    )
+
+    with (
+        patch("scripts.fetch_data.load_sources", return_value=sources),
+        patch("scripts.fetch_data.find_xlsx_url", return_value=None) as mock_find,
+        patch("scripts.fetch_data.download_file") as mock_download,
+    ):
+        mock_download.return_value = tmp_path / "raw" / "data.xlsx"
+        main()
+
+    _, kwargs = mock_find.call_args
+    assert kwargs.get("series_match") == "bank financial strength"
+
+
+def test_main_series_match_none_when_not_configured(tmp_path: Path) -> None:
+    """series_match defaults to None when not in config."""
+    (tmp_path / "raw").mkdir()
+    sources = _make_sources(tmp_path, discovery_url="https://example.com/index")
+
+    with (
+        patch("scripts.fetch_data.load_sources", return_value=sources),
+        patch("scripts.fetch_data.find_xlsx_url", return_value=None) as mock_find,
+        patch("scripts.fetch_data.download_file") as mock_download,
+    ):
+        mock_download.return_value = tmp_path / "raw" / "data.xlsx"
+        main()
+
+    _, kwargs = mock_find.call_args
+    assert kwargs.get("series_match") is None
 
 
 def test_main_falls_back_to_configured_url_when_discovery_fails(tmp_path: Path) -> None:

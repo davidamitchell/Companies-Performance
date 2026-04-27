@@ -116,7 +116,7 @@ def test_find_xlsx_url_returns_none_on_http_error() -> None:
 
 
 def test_find_xlsx_url_returns_first_match() -> None:
-    """Returns the first XLSX link when the page has several."""
+    """Returns the first XLSX link when the page has several and no series_match."""
     html = (
         '<a href="https://example.com/first.xlsx">First</a>'
         '<a href="https://example.com/second.xlsx">Second</a>'
@@ -140,3 +140,57 @@ def test_find_xlsx_url_handles_query_params() -> None:
     with patch("src.ingestion.fetch.httpx.get", return_value=_mock_response(html)):
         result = find_xlsx_url("https://example.com/summary")
     assert result == "https://example.com/data.xlsx?v=3&format=full"
+
+
+def test_find_xlsx_url_series_match_filters_by_anchor_text() -> None:
+    """series_match selects the XLSX whose anchor text matches the keyword."""
+    html = (
+        '<a href="https://example.com/inflation.xlsx">Inflation data</a>'
+        '<a href="https://example.com/banks.xlsx">Bank Financial Strength Dashboard</a>'
+        '<a href="https://example.com/other.xlsx">Other data</a>'
+    )
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_response(html)):
+        result = find_xlsx_url("https://example.com/index", series_match="bank financial strength")
+    assert result == "https://example.com/banks.xlsx"
+
+
+def test_find_xlsx_url_series_match_filters_by_url() -> None:
+    """series_match also matches against the href URL itself."""
+    html = (
+        '<a href="https://example.com/inflation.xlsx">Inflation</a>'
+        '<a href="https://example.com/bank-financial-strength-data.xlsx">Dashboard</a>'
+    )
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_response(html)):
+        result = find_xlsx_url("https://example.com/index", series_match="bank-financial-strength")
+    assert result == "https://example.com/bank-financial-strength-data.xlsx"
+
+
+def test_find_xlsx_url_series_match_is_case_insensitive() -> None:
+    """series_match comparison is case-insensitive."""
+    html = '<a href="https://example.com/BANKS.XLSX">Bank Financial Strength</a>'
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_response(html)):
+        result = find_xlsx_url("https://example.com/index", series_match="BANK FINANCIAL STRENGTH")
+    assert result == "https://example.com/BANKS.XLSX"
+
+
+def test_find_xlsx_url_series_match_returns_none_when_no_match() -> None:
+    """Returns None when series_match is given but no link matches it."""
+    html = (
+        '<a href="https://example.com/inflation.xlsx">Inflation data</a>'
+        '<a href="https://example.com/gdp.xlsx">GDP data</a>'
+    )
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_response(html)):
+        result = find_xlsx_url("https://example.com/index", series_match="bank financial strength")
+    assert result is None
+
+
+def test_find_xlsx_url_series_match_ignores_non_matching_links() -> None:
+    """When series_match is set, non-matching XLSX links are skipped."""
+    html = (
+        '<a href="https://example.com/other.xlsx">Something else entirely</a>'
+        '<a href="https://example.com/banks.xlsx">Bank Financial Strength</a>'
+    )
+    with patch("src.ingestion.fetch.httpx.get", return_value=_mock_response(html)):
+        result = find_xlsx_url("https://example.com/index", series_match="bank financial")
+    # Must skip "other.xlsx" and return "banks.xlsx"
+    assert result == "https://example.com/banks.xlsx"

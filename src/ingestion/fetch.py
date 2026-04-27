@@ -31,8 +31,14 @@ logger = get_logger(__name__)
 
 _CHUNK_SIZE = 65_536  # 64 KB
 
-# Matches href attributes whose value contains ".xlsx" (absolute or relative URLs).
-_XLSX_HREF_RE = re.compile(r'href=["\']([^"\']*\.xlsx[^"\']*)["\']', re.IGNORECASE)
+# Matches <a href="...xlsx...">text</a> — captures (href, inner_text).
+_XLSX_ANCHOR_RE = re.compile(
+    r'<a\s[^>]*href=["\']([^"\']*\.xlsx[^"\']*)["\'][^>]*>(.*?)</a>',
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Strip HTML tags from anchor inner text before series_match comparison.
+_TAG_RE = re.compile(r"<[^>]+>")
 
 
 def download_file(
@@ -80,19 +86,26 @@ def download_file(
 def find_xlsx_url(
     page_url: str,
     *,
+    series_match: str | None = None,
     timeout: float = 30.0,
     headers: dict[str, str] | None = None,
 ) -> str | None:
-    """Fetch *page_url* and return the first XLSX download link found.
+    """Fetch *page_url* and return the first matching XLSX download link.
 
-    Scrapes the HTML for ``href`` attributes pointing at ``.xlsx`` files.
+    Scrapes the HTML for ``<a href="...xlsx...">`` elements.  When
+    *series_match* is given, only links whose URL or anchor text contains the
+    keyword (case-insensitive) are considered — this is essential when the
+    discovery page lists many data files (e.g. the RBNZ data-file-index-page).
     Relative links are resolved against *page_url*.
 
     Parameters
     ----------
     page_url:
-        URL of an HTML page that contains a link to an XLSX file
-        (e.g. the RBNZ dashboard summary page).
+        URL of an HTML page that contains a link to an XLSX file.
+    series_match:
+        Optional case-insensitive substring filter applied to each candidate
+        link's URL and its anchor text.  When omitted, the first XLSX link
+        found is returned.
     timeout:
         HTTP request timeout in seconds.
     headers:
@@ -101,10 +114,10 @@ def find_xlsx_url(
     Returns
     -------
     str | None
-        The first XLSX URL found on the page (resolved to an absolute URL),
+        The first matching XLSX URL (resolved to an absolute URL),
         or ``None`` if none is found or the request fails.
     """
-    logger.info("Discovering XLSX URL from %s", page_url)
+    logger.info("Discovering XLSX URL from %s (series_match=%r)", page_url, series_match)
     try:
         response = httpx.get(
             page_url, follow_redirects=True, timeout=timeout, headers=headers or {}
@@ -114,13 +127,17 @@ def find_xlsx_url(
         logger.warning("Could not fetch discovery page %s: %s", page_url, exc)
         return None
 
-    matches = _XLSX_HREF_RE.findall(response.text)
-    if not matches:
-        logger.warning("No XLSX links found on %s", page_url)
-        return None
+    needle = series_match.lower() if series_match else None
+    for raw_href, raw_text in _XLSX_ANCHOR_RE.findall(response.text):
+        anchor_text = _TAG_RE.sub("", raw_text).strip().lower()
+        href_lower = raw_href.lower()
+        if needle and needle not in href_lower and needle not in anchor_text:
+            continue
+        link = unescape(raw_href)
+        return link if link.startswith(("http://", "https://")) else urljoin(page_url, link)
 
-    link = unescape(matches[0])
-    return link if link.startswith(("http://", "https://")) else urljoin(page_url, link)
+    logger.warning("No XLSX link matching %r found on %s", series_match, page_url)
+    return None
 
 
 def enforce_canonical_schema(rows: list[dict[str, Any]], source: str) -> list[dict[str, Any]]:
