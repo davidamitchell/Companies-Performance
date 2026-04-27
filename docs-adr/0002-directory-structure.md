@@ -13,34 +13,34 @@ The Research repo uses:
 - `config/` for YAML configuration
 - `src/` for Python source
 - `tests/` for pytest tests
-- `progress/` (subdirectory) and `PROGRESS.md` at root
+- `PROGRESS.md` at root
 - `BACKLOG.md` at root
 - `learnings.md` at root
 
-This repository has different concerns (financial data pipeline vs. research tooling) and a different GitHub Pages strategy.
+This repository has different concerns (financial data pipeline vs. research tooling) and requires explicit data storage paths.
 
 ## Decision
 
-Adopt the Research repo structure with the following deliberate deviations:
+Adopt the Research repo structure. The only deliberate deviation is the addition of the `data/` directory, which has no equivalent in the Research repo:
 
 | Path | Research repo | This repo | Reason |
 |---|---|---|---|
-| ADRs | `docs-adr/` | `docs/adr/` | ADRs are part of the published docs site |
+| ADRs | `docs-adr/` | `docs-adr/` | Aligned — not a deviation |
 | Data | (none) | `data/raw/`, `data/processed/` | Financial pipeline requires explicit data storage |
-| GitHub Pages | `docs/` (generated output) | `docs/` (static + ADRs) | Simpler deployment; no separate build step needed initially |
+| GitHub Pages | `docs/` (generated output) | `docs/` (static HTML) | Simpler deployment; no separate build step initially |
 
 All other conventions (config, src, tests, backlog, progress, learnings, skills submodule, CI via GitHub Actions) are adopted without deviation.
 
 ## Consequences
 
 ### Positive
-- Alignment with Research repo reduces cognitive overhead for contributors familiar with that project
-- Single `docs/` directory simplifies GitHub Pages configuration (no separate build workflow for initial phase)
-- ADRs are browsable on the deployed site
+- Full alignment with Research repo reduces cognitive overhead for contributors
+- `docs/` is kept clean for GitHub Pages content only — no mixed concerns with ADRs
+- `docs-adr/` is consistent with the reference repo and familiar to contributors
 
 ### Negative / Trade-offs
-- `docs/adr/` mixing with static HTML requires careful path management
-- If the site grows to require a build step (e.g. Jinja templates), the `docs/` convention may need revisiting (document via new ADR)
+- ADRs are not published on the GitHub Pages site; they live in the repo only
+- If ADRs need to be published in future, a build step or symlink strategy would be required (document via new ADR)
 
 ### Neutral
 - The `data/` directory uses `.gitkeep` for the raw subdirectory; raw XLSX files are excluded via `.gitignore`

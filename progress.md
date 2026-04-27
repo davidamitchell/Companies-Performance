@@ -37,7 +37,7 @@ Last updated: 2026-04-27 (initial scaffold — W-0001 through W-0012)
 - `progress.md` initialised (this file)
 - `learnings.md` initialised with structure
 - `glossary.md` created with all KPI categories and definitions
-- `docs/adr/README.md` created with index and template
+- `docs-adr/README.md` created with index and template
 - ADR-0001: Data format decision (CSV for persistence)
 - ADR-0002: Directory structure (aligned to Research repo, with documented deviations)
 - `config/sources.yaml` populated with RBNZ dashboard XLSX source

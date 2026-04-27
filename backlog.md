@@ -15,7 +15,7 @@ updated: 2026-04-27
 
 ### Outcome
 
-Repository scaffold exists: `backlog.md`, `progress.md`, `learnings.md`, `glossary.md`, `.github/copilot-instructions.md`, `docs/adr/README.md`, ADR-0001, ADR-0002.
+Repository scaffold exists: `backlog.md`, `progress.md`, `learnings.md`, `glossary.md`, `.github/copilot-instructions.md`, `docs-adr/README.md`, ADR-0001, ADR-0002.
 
 ### Context
 
@@ -31,7 +31,7 @@ updated: 2026-04-27
 
 ### Outcome
 
-`docs/adr/` exists with an index file, ADR-0001 (data format), and ADR-0002 (directory structure) following MADR format.
+`docs-adr/` exists with an index file, ADR-0001 (data format), and ADR-0002 (directory structure) following MADR format.
 
 ### Context
 

@@ -20,8 +20,8 @@ This repository ingests financial data (initially from the [RBNZ Bank Financial 
 ├── data/
 │   ├── raw/                      # Downloaded source files (not committed)
 │   └── processed/                # Normalised CSV/JSON (committed by pipeline)
+├── docs-adr/                     # Architecture Decision Records
 ├── docs/
-│   ├── adr/                      # Architecture Decision Records
 │   └── index.html                # Static frontend (GitHub Pages)
 ├── glossary.md                   # Canonical KPI definitions
 ├── learnings.md                  # Discovery spike outputs
@@ -50,4 +50,4 @@ make test
 ## Reference
 
 Follows conventions established in [davidamitchell/Research](https://github.com/davidamitchell/Research).
-Deviations documented in [docs/adr/0002-directory-structure.md](docs/adr/0002-directory-structure.md).
+Deviations documented in [docs-adr/0002-directory-structure.md](docs-adr/0002-directory-structure.md).

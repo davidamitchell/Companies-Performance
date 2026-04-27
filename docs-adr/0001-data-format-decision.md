@@ -1,7 +1,7 @@
 # ADR-0001: Data Format Decision — CSV for Persistence
 
 Date: 2026-04-27
-Status: Accepted
+Status: Accepted (provisional — subject to revision after spike S-0001)
 
 ## Context
 

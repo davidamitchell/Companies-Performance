@@ -12,7 +12,7 @@ Format: [MADR (Markdown Architectural Decision Records)](https://adr.github.io/m
 
 | ADR | Title | Status | Date |
 |---|---|---|---|
-| [0001](0001-data-format-decision.md) | Data format: CSV for persistence | Accepted | 2026-04-27 |
+| [0001](0001-data-format-decision.md) | Data format: CSV for persistence | Provisional | 2026-04-27 |
 | [0002](0002-directory-structure.md) | Directory structure aligned to Research repo | Accepted | 2026-04-27 |
 
 ---

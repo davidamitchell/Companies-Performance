@@ -61,7 +61,7 @@ Every metric name used in code, config, or data files must appear verbatim in `g
 
 ## Development Workflow
 
-1. New significant decisions → write an ADR in `docs/adr/` before implementing.
+1. New significant decisions → write an ADR in `docs-adr/` before implementing.
 2. New data sources → add via discovery spike, record in `learnings.md`, update `backlog.md`.
 3. All compute runs via GitHub Actions (manual trigger initially).
 4. Tests live in `tests/`; run with `make test` or `pytest tests/`.
@@ -72,4 +72,20 @@ Every metric name used in code, config, or data files must appear verbatim in `g
 
 ## Reference Repository
 
-This repo follows conventions established in `davidamitchell/Research`. Deviations are documented in `docs/adr/0002-directory-structure.md`.
+This repo follows conventions established in `davidamitchell/Research`. Deviations are documented in `docs-adr/0002-directory-structure.md`.
+
+---
+
+## Continuous Improvement
+
+After completing each piece of work, conduct a short retrospective focused on **the system that produced the work** — not the application itself.
+
+Ask:
+- What friction slowed this work down? (missing decisions, unclear conventions, incomplete scaffolding)
+- Was any assumption made without evidence? If so, open a spike or ADR to resolve it.
+- Did any step require backtracking because a decision was made too early?
+- Is there a workflow, template, or convention that would prevent the same friction next time?
+
+Record actionable findings as backlog items (`backlog.md`) or ADRs (`docs-adr/`). Discard observations that produced no action. Do not improve things that aren't broken.
+
+This is not a review of the application's correctness — it is a review of the process that built it.

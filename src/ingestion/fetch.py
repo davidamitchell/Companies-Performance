@@ -1,11 +1,18 @@
 """Fetch raw data files from configured sources.
 
+Ingestion layer responsibility: download files only.
+
 Canonical output schema (one dict per row):
     entity  — institution name (e.g. "ANZ")
     metric  — canonical metric name from glossary (e.g. "CET1 Ratio")
     value   — numeric value
     period  — reporting period string (e.g. "2024-Q3")
     source  — source identifier (e.g. "rbnz-dashboard")
+
+Mapping from raw source column names to this schema is the responsibility of
+the processing layer (src/processing/) using mappings declared in
+config/metrics.yaml. That mapping cannot be defined until spike S-0001
+(RBNZ XLSX structure investigation) is complete.
 """
 
 from __future__ import annotations
@@ -54,37 +61,41 @@ def download_file(url: str, dest: Path, *, timeout: float = 60.0) -> Path:
     return dest
 
 
-def parse_canonical_rows(raw_rows: list[dict[str, Any]], source: str) -> list[dict[str, Any]]:
-    """Normalise a list of raw row dicts into the canonical schema.
+def enforce_canonical_schema(rows: list[dict[str, Any]], source: str) -> list[dict[str, Any]]:
+    """Validate that rows already conform to the canonical schema and stamp the source.
+
+    This function does NOT map from arbitrary column names — that is the job of
+    the processing layer (src/processing/) using config/metrics.yaml.
 
     Parameters
     ----------
-    raw_rows:
-        Rows extracted from the source file, each with arbitrary keys.
+    rows:
+        Rows that must already use canonical keys:
+        ``entity``, ``metric``, ``value``, ``period``.
     source:
         Source identifier to stamp on each output row.
 
     Returns
     -------
     list[dict]
-        Rows conforming to the canonical schema:
-        ``entity | metric | value | period | source``.
+        Rows that passed validation, with ``source`` added.
+        Rows missing ``entity`` or ``metric`` are logged as WARNING and skipped.
     """
     canonical: list[dict[str, Any]] = []
-    for row in raw_rows:
-        entity = row.get("entity") or row.get("Bank") or row.get("Institution") or ""
-        metric = row.get("metric") or row.get("Metric") or row.get("Indicator") or ""
-        value = row.get("value") or row.get("Value")
-        period = row.get("period") or row.get("Period") or row.get("Date") or ""
+    for row in rows:
+        entity = str(row.get("entity") or "").strip()
+        metric = str(row.get("metric") or "").strip()
+        value = row.get("value")
+        period = str(row.get("period") or "").strip()
         if not entity or not metric:
             logger.warning("Skipping row with missing entity or metric: %s", row)
             continue
         canonical.append(
             {
-                "entity": str(entity).strip(),
-                "metric": str(metric).strip(),
+                "entity": entity,
+                "metric": metric,
                 "value": value,
-                "period": str(period).strip(),
+                "period": period,
                 "source": source,
             }
         )
