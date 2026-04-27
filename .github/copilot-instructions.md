@@ -28,6 +28,15 @@ Do not introduce additional languages or runtimes without a supporting ADR.
 
 ---
 
+## GitHub Actions Conventions
+
+- **Never inline Python or shell scripts** in a workflow `run:` block beyond a single-line command.
+  Move any multi-line logic to a dedicated script under `scripts/` and invoke it with `python scripts/<name>.py`.
+- Every script under `scripts/` must have corresponding tests in `tests/`.
+- Workflow steps must invoke existing `src` modules and `scripts/`; they must not duplicate or shadow that logic inline.
+
+---
+
 ## Operational Rules
 
 ### Idempotency (required)

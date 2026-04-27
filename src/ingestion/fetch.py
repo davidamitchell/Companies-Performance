@@ -29,7 +29,13 @@ logger = get_logger(__name__)
 _CHUNK_SIZE = 65_536  # 64 KB
 
 
-def download_file(url: str, dest: Path, *, timeout: float = 60.0) -> Path:
+def download_file(
+    url: str,
+    dest: Path,
+    *,
+    timeout: float = 60.0,
+    headers: dict[str, str] | None = None,
+) -> Path:
     """Download a file from *url* and save it to *dest*.
 
     Parameters
@@ -40,6 +46,8 @@ def download_file(url: str, dest: Path, *, timeout: float = 60.0) -> Path:
         Local file path to write to. Parent directories must exist.
     timeout:
         HTTP request timeout in seconds.
+    headers:
+        Optional HTTP headers to include in the request (e.g. ``User-Agent``).
 
     Returns
     -------
@@ -52,7 +60,9 @@ def download_file(url: str, dest: Path, *, timeout: float = 60.0) -> Path:
         If the HTTP request fails.
     """
     logger.info("Downloading %s -> %s", url, dest)
-    with httpx.stream("GET", url, follow_redirects=True, timeout=timeout) as response:
+    with httpx.stream(
+        "GET", url, follow_redirects=True, timeout=timeout, headers=headers or {}
+    ) as response:
         response.raise_for_status()
         with dest.open("wb") as fh:
             for chunk in response.iter_bytes(chunk_size=_CHUNK_SIZE):
