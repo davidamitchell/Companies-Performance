@@ -23,6 +23,9 @@ dev = [
     "types-PyYAML>=6.0.0",
 ]
 
+[project.scripts]
+companies-performance = "src.main:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
 
