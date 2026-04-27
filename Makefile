@@ -1,10 +1,13 @@
-.PHONY: install dev-install test test-cov lint format check clean
+.PHONY: install dev-install fetch test test-cov lint format check clean
 
 install:
 	pip install .
 
 dev-install:
 	pip install -e ".[dev]"
+
+fetch:
+	python -m src.main fetch rbnz
 
 test:
 	pytest tests/ -v
