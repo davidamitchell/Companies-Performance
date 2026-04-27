@@ -1,0 +1,4 @@
+# data directory placeholder
+# Raw and processed data files are stored here.
+# Raw files are not committed to the repository (see .gitignore).
+# Processed CSV/JSON files are committed after pipeline runs.

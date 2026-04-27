@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Companies Performance</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2d3436;
+      padding: 2rem;
+    }
+    header {
+      max-width: 960px;
+      margin: 0 auto 2rem;
+    }
+    header h1 { font-size: 1.75rem; font-weight: 700; }
+    header p  { color: #636e72; margin-top: 0.4rem; }
+    #status   { margin-top: 0.5rem; font-size: 0.85rem; color: #0984e3; }
+    main { max-width: 960px; margin: 0 auto; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid #f0f0f0; }
+    th { color: #636e72; font-weight: 500; }
+    .no-data { color: #b2bec3; font-style: italic; text-align: center; padding: 1rem 0; }
+    footer { max-width: 960px; margin: 2rem auto 0; font-size: 0.8rem; color: #b2bec3; }
+    a { color: #0984e3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Companies Performance</h1>
+    <p>Financial performance metrics — sourced from the RBNZ Bank Financial Strength Dashboard.</p>
+    <div id="status">Loading data…</div>
+  </header>
+
+  <main>
+    <div id="cards" class="cards"></div>
+  </main>
+
+  <footer>
+    <p>
+      Data source: <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>.
+      Updated via GitHub Actions on each successful pipeline run.
+      See <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">repository</a> for source.
+    </p>
+  </footer>
+
+  <script>
+    const DATA_URL = '../data/processed/metrics.json';
+
+    async function loadData() {
+      const statusEl = document.getElementById('status');
+      const cardsEl  = document.getElementById('cards');
+
+      try {
+        const resp = await fetch(DATA_URL);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const rows = await resp.json();
+        statusEl.textContent = `${rows.length} metric rows loaded.`;
+        renderCards(rows, cardsEl);
+      } catch (err) {
+        statusEl.textContent = 'No data available yet — run the fetch-data workflow to populate.';
+        statusEl.style.color = '#b2bec3';
+        cardsEl.innerHTML = '<p class="no-data">Pipeline has not run yet. Trigger the fetch-data workflow from the Actions tab.</p>';
+        console.warn('Data load failed:', err);
+      }
+    }
+
+    function renderCards(rows, container) {
+      // Group rows by entity
+      const byEntity = {};
+      for (const row of rows) {
+        if (!byEntity[row.entity]) byEntity[row.entity] = [];
+        byEntity[row.entity].push(row);
+      }
+
+      container.innerHTML = '';
+      for (const [entity, metrics] of Object.entries(byEntity).sort()) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h2>${escHtml(entity)}</h2>
+          <table>
+            <thead><tr><th>Metric</th><th>Value</th><th>Period</th></tr></thead>
+            <tbody>
+              ${metrics.map(r => `
+                <tr>
+                  <td>${escHtml(r.metric)}</td>
+                  <td>${r.value !== null && r.value !== undefined ? escHtml(String(r.value)) : '—'}</td>
+                  <td>${escHtml(r.period || '—')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

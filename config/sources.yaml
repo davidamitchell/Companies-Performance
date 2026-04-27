@@ -1,0 +1,15 @@
+# Sources configuration
+# Defines data sources for the Companies Performance pipeline.
+# Each source is fetched when running the fetch-data workflow.
+
+rbnz:
+  # RBNZ Bank Financial Strength Dashboard — primary data source.
+  # Fetched via the fetch-data GitHub Actions workflow (manual trigger only).
+  xlsx_sources:
+    - url: https://bankdashboard.rbnz.govt.nz/datafiles/Bank-Financial-Strength-Dashboard-Data.xlsx
+      name: "RBNZ Bank Financial Strength Dashboard"
+      description: >
+        Reserve Bank of New Zealand Bank Dashboard data.
+        Covers capital adequacy, liquidity, asset quality, and profitability
+        metrics for registered banks in New Zealand.
+      output_file: data/raw/rbnz-dashboard.xlsx
