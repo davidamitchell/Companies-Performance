@@ -28,14 +28,6 @@ logger = get_logger(__name__)
 
 _CHUNK_SIZE = 65_536  # 64 KB
 
-_DEFAULT_HEADERS: dict[str, str] = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    ),
-}
-
 
 def download_file(
     url: str,
@@ -55,9 +47,7 @@ def download_file(
     timeout:
         HTTP request timeout in seconds.
     headers:
-        Additional HTTP headers to send with the request. These are merged with
-        ``_DEFAULT_HEADERS`` (which sets a browser-like User-Agent). Values
-        provided here take precedence over the defaults.
+        Optional HTTP headers to include in the request (e.g. ``User-Agent``).
 
     Returns
     -------
@@ -69,10 +59,9 @@ def download_file(
     httpx.HTTPError
         If the HTTP request fails.
     """
-    effective_headers = {**_DEFAULT_HEADERS, **(headers or {})}
     logger.info("Downloading %s -> %s", url, dest)
     with httpx.stream(
-        "GET", url, follow_redirects=True, timeout=timeout, headers=effective_headers
+        "GET", url, follow_redirects=True, timeout=timeout, headers=headers or {}
     ) as response:
         response.raise_for_status()
         with dest.open("wb") as fh:

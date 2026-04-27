@@ -1,11 +1,13 @@
-"""Fetch all configured data sources and write them to data/raw/.
+"""Entry-point script for the fetch-data workflow.
 
-Usage:
+Downloads all configured data sources from ``config/sources.yaml`` to their
+declared ``output_file`` paths under ``data/raw/``.
+
+Usage::
+
     python scripts/fetch_data.py
 
-Reads source definitions from config/sources.yaml and downloads each XLSX
-file using :func:`src.ingestion.fetch.download_file`. Idempotent — re-running
-overwrites the existing file with the latest version.
+Exit code is the number of failed downloads (0 = success).
 """
 
 from __future__ import annotations
@@ -14,36 +16,44 @@ import logging
 import sys
 from pathlib import Path
 
+import httpx
+
 from src.config import load_sources
 from src.ingestion.fetch import download_file
 from src.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Identify the client to servers that check for automated access.
+_USER_AGENT = "Companies-Performance/1.0 (github.com/davidamitchell/Companies-Performance)"
 
-def fetch_all_sources() -> int:
-    """Download every configured source.
+
+def main() -> int:
+    """Download all configured data sources.
 
     Returns
     -------
     int
-        0 on success, 1 if any download failed.
+        Number of failed downloads.  0 on full success.
     """
+    logging.basicConfig(level=logging.INFO)
+
     sources = load_sources()
     rbnz = sources.get("rbnz", {})
-    failed = 0
+    errors = 0
+
     for source in rbnz.get("xlsx_sources", []):
         url: str = source["url"]
         dest = Path(source["output_file"])
         dest.parent.mkdir(parents=True, exist_ok=True)
         try:
-            download_file(url, dest, timeout=120.0)
-        except Exception as exc:
-            logger.error("Failed to download %s: %s", url, exc)
-            failed += 1
-    return 1 if failed else 0
+            download_file(url, dest, timeout=120.0, headers={"User-Agent": _USER_AGENT})
+        except (httpx.HTTPError, OSError) as exc:
+            logger.error("Failed to fetch %s: %s", url, exc)
+            errors += 1
+
+    return errors
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    sys.exit(fetch_all_sources())
+    sys.exit(main())
