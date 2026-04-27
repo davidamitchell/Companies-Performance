@@ -31,32 +31,7 @@ jobs:
         run: pip install -e .
 
       - name: Fetch data sources
-        run: |
-          python - <<'EOF'
-          import logging
-          import sys
-          from pathlib import Path
-          import httpx
-          from src.config import load_sources
-          from src.logger import get_logger
-
-          logger = get_logger("fetch-data")
-          logging.basicConfig(level=logging.INFO)
-
-          sources = load_sources()
-          rbnz = sources.get("rbnz", {})
-          for source in rbnz.get("xlsx_sources", []):
-              url = source["url"]
-              dest = Path(source["output_file"])
-              dest.parent.mkdir(parents=True, exist_ok=True)
-              logger.info("Fetching %s -> %s", url, dest)
-              with httpx.stream("GET", url, follow_redirects=True, timeout=120.0) as r:
-                  r.raise_for_status()
-                  with dest.open("wb") as fh:
-                      for chunk in r.iter_bytes(chunk_size=65536):
-                          fh.write(chunk)
-              logger.info("Saved %s (%d bytes)", dest, dest.stat().st_size)
-          EOF
+        run: python scripts/fetch_data.py
 
       - name: Commit fetched data
         run: |

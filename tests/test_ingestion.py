@@ -20,7 +20,7 @@ def _make_mock_stream(content: bytes = b"data") -> MagicMock:
 
 
 def test_download_file_sends_browser_user_agent(tmp_path: Path) -> None:
-    """download_file must NOT send the default httpx User-Agent."""
+    """download_file sends a browser-like User-Agent instead of the default httpx User-Agent."""
     dest = tmp_path / "file.xlsx"
     captured: dict[str, object] = {}
 
