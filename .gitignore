@@ -203,6 +203,10 @@ cython_debug/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
+# Companies Performance — raw data files (downloaded by CI, not committed)
+data/raw/*.xlsx
+data/raw/*.xls
+
 # Ruff stuff:
 .ruff_cache/
 

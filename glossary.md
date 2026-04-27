@@ -1,0 +1,89 @@
+# Glossary
+
+Foundational definitions for all metrics tracked in this repository. All metric names used in code, configuration, and data files must match these definitions verbatim.
+
+---
+
+## Financial Resilience
+
+Metrics measuring capital adequacy, liquidity, and asset quality.
+
+### CET1 Ratio
+**Common Equity Tier 1 Ratio.** The ratio of a bank's Common Equity Tier 1 capital to its risk-weighted assets. Measures the core capital buffer available to absorb losses. Expressed as a percentage.
+
+### LCR
+**Liquidity Coverage Ratio.** The ratio of high-quality liquid assets to net cash outflows over a 30-day stress period. Measures short-term liquidity resilience. Expressed as a percentage; regulatory minimum is 100%.
+
+### Cash Position
+The absolute level of cash and cash equivalents held by an institution. Expressed in the reporting currency (NZD millions unless otherwise specified).
+
+### SBC
+**Share-Based Compensation.** The expense recognised for equity instruments granted to employees. Relevant for assessing non-cash compensation costs. Expressed in the reporting currency.
+
+### NPL Ratio
+**Non-Performing Loan Ratio.** The ratio of non-performing loans (loans 90+ days past due or impaired) to total gross loans. Measures asset quality. Expressed as a percentage.
+
+### Provisioning Coverage
+The ratio of loan loss provisions to non-performing loans. Measures the adequacy of reserves against expected credit losses. Expressed as a percentage.
+
+---
+
+## Growth Momentum
+
+Metrics measuring revenue growth, customer expansion, and commercial velocity.
+
+### CRPO
+**Current Remaining Performance Obligations.** The portion of contracted revenue expected to be recognised within the next 12 months. Indicates near-term revenue visibility.
+
+### Contract Backlog
+Total value of signed contracts not yet recognised as revenue. A forward-looking indicator of revenue momentum.
+
+### NIM
+**Net Interest Margin.** The difference between interest income earned and interest paid out, expressed as a percentage of average earning assets. Core profitability metric for banks.
+
+### Rule of 40
+The sum of revenue growth rate and EBITDA margin. A combined efficiency and growth metric for SaaS and high-growth companies. A score above 40 indicates healthy balance between growth and profitability.
+
+### Operating Margin
+Operating income as a percentage of revenue. Measures operational efficiency before interest and taxes.
+
+### High-Value Customer Growth
+Year-on-year growth rate in the count or revenue contribution of customers above a defined value threshold (definition varies by source). Measures the quality of the customer base expansion.
+
+---
+
+## Structural Moat
+
+Metrics measuring customer retention, competitive positioning, and business durability.
+
+### Renewal Rate
+The percentage of expiring contracts or subscriptions that are renewed. Measures customer retention and product stickiness.
+
+### NDR
+**Net Dollar Retention (also Net Revenue Retention, NRR).** Revenue retained from existing customers including expansions, contractions, and churn, divided by starting-period revenue. A rate above 100% indicates net expansion. Expressed as a percentage.
+
+### Cohort Maturity
+A qualitative or quantitative assessment of how a customer cohort's revenue contribution evolves over time. Used to assess whether early cohorts are expanding or contracting.
+
+### Core Funding Ratio (CFR)
+**Core Funding Ratio.** The ratio of stable funding sources (retail deposits, long-term wholesale) to total loans and advances. A New Zealand regulatory metric. Higher is more stable. Expressed as a percentage.
+
+---
+
+## Strategic Evolution
+
+Metrics measuring the trajectory of product mix, technology adoption, and competitive displacement.
+
+### AI ACV
+**AI Annual Contract Value.** The annualised contracted value of AI-specific products or features. Measures the monetisation rate of AI capabilities.
+
+### Product Mix
+The distribution of revenue across product lines or categories. Tracks shifts in revenue composition over time.
+
+### Competitive Displacement
+A qualitative or quantitative measure of wins against named competitors. Indicates market share momentum.
+
+### Cost of Intelligence
+The total cost of AI infrastructure, model usage, and associated labour as a proportion of revenue or gross margin. An emerging metric for AI-enabled businesses tracking unit economics of intelligence delivery.
+
+---

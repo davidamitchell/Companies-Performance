@@ -1,0 +1,12 @@
+# Metrics mapping configuration
+# Maps raw data field names from source files to canonical glossary terms.
+# Populated incrementally as source data is analysed.
+#
+# Format:
+#   mappings:
+#     <source_id>:
+#       <raw_field_name>: <canonical_metric_name>
+#
+# Canonical metric names are defined in glossary.md.
+
+mappings: {}
