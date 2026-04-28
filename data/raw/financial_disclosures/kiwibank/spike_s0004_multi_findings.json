@@ -1,0 +1,275 @@
+{
+  "bank_id": "kiwibank",
+  "period_end": "2024-06-30",
+  "source_url": "https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2024.pdf",
+  "inspected_at": "2026-04-28T20:54:23.545946+00:00",
+  "total_pages": 113,
+  "table_page_count": 79,
+  "image_page_count": 1,
+  "primary_extraction_method": "extract_tables",
+  "sections": {
+    "Income Statement": {
+      "char_count": 1066,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 8,
+      "table_dims": [
+        "2r x 6c",
+        "1r x 6c",
+        "1r x 6c",
+        "1r x 6c",
+        "1r x 6c",
+        "1r x 6c",
+        "2r x 6c",
+        "4r x 6c"
+      ],
+      "first_table_sample": [
+        [
+          "",
+          "",
+          "",
+          "",
+          "Year ended",
+          "Year ended"
+        ],
+        [
+          "$ millions",
+          "",
+          "",
+          "Note",
+          "30 June 24",
+          "30 June 23"
+        ]
+      ],
+      "text_sample": "Financial statements\nIncome statement\nFor the year ended 30 June 2024\nYear ended Year ended\n$ millions Note 30 June 24 30 June 23\nInterest income 2 1,983 1,389\nInterest expense 2 (1,159) (595)\nNet interest income 824 794\nNet gains/(losses) on financial instruments 3 3 (17)\nOther operating income 4 53 39\nTotal operating income 880 816\nOperating expenses 5 (582) (534)\nProfit before credit impairment and tax 298 282\nCredit impairment losses 8 (24) (37)\nProfit before tax 274 245\nIncome tax expense 6 (72) (70)\nProfit after tax 202 175\nStatement of comprehensive income\nFor the year ended 30 June 2024\nYear ended Year ended\n$ millions Note 30 June 24 30 June 23\nProfit after tax 202 175\nOther comprehensive income, net of tax\nItems that may subsequently be reclassified to profit or loss:\n-Net change in fair value reserve 26 29 15\n-Net change in cash flow hedge reserve 26 (137) (58)\nOther comprehensive income, net of tax (108) (43)\nTotal comprehensive income 94 132\nThe statements should be read in conjunction with the notes to these financial statements.\nKiwibank Limited 8",
+      "page": 10,
+      "all_pages": [
+        10,
+        15,
+        16,
+        17,
+        19,
+        22,
+        23,
+        24,
+        28,
+        34,
+        48,
+        49,
+        50,
+        51,
+        52,
+        57,
+        58,
+        60,
+        61,
+        62,
+        65,
+        67,
+        68,
+        72
+      ],
+      "found": true
+    },
+    "Balance Sheet": {
+      "char_count": 1254,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 5,
+      "table_dims": [
+        "1r x 6c",
+        "1r x 6c",
+        "1r x 6c",
+        "1r x 6c",
+        "1r x 6c"
+      ],
+      "first_table_sample": [
+        [
+          "$ millions",
+          "",
+          "",
+          "Note",
+          "30 June 24",
+          "30 June 23"
+        ]
+      ],
+      "text_sample": "Financial statements\ncontinued\nBalance sheet\nAs at 30 June 2024\n$ millions Note 30 June 24 30 June 23\nAssets\nCash and cash equivalents 13 1,005 1,027\nDue from other financial institutions 14 95 129\nInvestment securities 15 2,658 2,299\nDerivative financial instruments 22 162 447\nLoans and advances 7 32,445 29,682\nDeferred tax assets 6 65 38\nPremises and equipment 127 129\nIntangible assets 17 25\nOther assets 76 62\nTotal assets 36,650 33,838\nTotal interest and discount-bearing assets 36,070 33,054\nLiabilities\nDue to other financial institutions 16 1,109 1,768\nDeposits 17 28,176 25,756\nDerivative financial instruments 22 196 243\nDebt securities issued 18 3,798 3,038\nOther liabilities 25 292 276\nSubordinated debt 19 458 446\nTotal liabilities 34,029 31,527\nTotal interest and discount-bearing liabilities 29,379 26,644\nNet assets 2,621 2,311\nEquity\nOrdinary shares 26 962 737\nRetained earnings 1,419 1,226\nReserves 26 (6) 102\nPerpetual preference shares 26 246 246\nTotal equity 2,621 2,311\nThe Board of Directors of Kiwibank Limited authorised these financial statements for issue on 21 August 2024.\nJonathan Peter Hartley Mary Jane Daly\nThe statements should be read in conjunction with the note",
+      "page": 12,
+      "all_pages": [
+        9,
+        12,
+        16,
+        17,
+        23,
+        24,
+        26,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        46,
+        57,
+        58,
+        63,
+        72,
+        79,
+        80,
+        81,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        93,
+        94,
+        95,
+        96,
+        99
+      ],
+      "found": true
+    },
+    "Cash Flow Statement": {
+      "char_count": 1792,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 6,
+      "table_dims": [
+        "2r x 5c",
+        "1r x 4c",
+        "1r x 5c",
+        "1r x 5c",
+        "4r x 5c",
+        "1r x 5c"
+      ],
+      "first_table_sample": [
+        [
+          "",
+          "",
+          "",
+          "Year ended",
+          "Year ended"
+        ],
+        [
+          "$ millions",
+          "",
+          "Note",
+          "30 June 24",
+          "30 June 23"
+        ]
+      ],
+      "text_sample": "Financial statements\ncontinued\nCash flow statement\nFor the year ended 30 June 2024\nYear ended Year ended\n$ millions Note 30 June 24 30 June 23\nCash flows from operating activities\nInterest received 1,980 1,406\nInterest paid (1,011) (460)\nFee, commission and other income received 111 117\nFee and commission expense paid (50) (77)\nOperating expenses paid (551) (474)\nIncome tax paid (126) (83)\nNet cash flows from operating activities before changes in operating assets and liabilities 353 429\nNet changes in operating assets and liabilities\nDue from other financial institutions 34 9\nInvestment securities (317) (867)\nLoans and advances (2,611) (1,990)\nDue to other financial institutions (138) (330)\nDeposits 2,321 1,421\nOther liabilities (1) -\nNet cash flows from operating activities (359) (1,328)\nCash flows from investing activities\nPurchase of premises and equipment (8) (8)\nPurchase of intangible assets (1) (3)\nNet cash flows from investing activities (9) (11)\nCash flows from financing activities\nRepayment of repurchase agreements (521) (484)\nProceeds from repurchase agreements - 743\nIssue of debt securities 18 1,842 1,557\nRedemption of debt securities 18 (1,176) (1,132)\nPayment of princ",
+      "page": 13,
+      "all_pages": [
+        13,
+        14,
+        18
+      ],
+      "found": true
+    },
+    "Capital Adequacy": {
+      "char_count": 3706,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 1,
+      "table_dims": [
+        "5r x 10c"
+      ],
+      "first_table_sample": [
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "Minimum",
+          "",
+          "The Banking Group",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "ratio",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "30 June 24",
+          "30 June 23"
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "requirement",
+          "",
+          "",
+          ""
+        ],
+        [
+          "Capital adequacy ratios",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "text_sample": "Capital adequacy and regulatory\nliquidity ratios\nUnaudited\nKiwibank Limited (\u2018Kiwibank\u2019 or the \u2018Bank\u2019) is subject to the capital adequacy requirements for registered banks as specified by the\nReserve Bank of New Zealand (\u2018RBNZ\u2019). \u2018Banking Group\u2019 means Kiwibank\u2019s financial reporting group, which consists of Kiwibank, all of its\nwholly owned entities and all other entities consolidated for financial reporting purposes.\nFollowing an internationally agreed framework (commonly known as Basel III) developed by the Basel Committee on Banking\nSupervision, the RBNZ has set minimum acceptable regulatory capital requirements and provided methods for estimating or measuring\nthe risks incurred by the Bank.\nIn accordance with its conditions of registration, Kiwibank applies the Standardised Approach under RBNZ\u2019s Banking Prudential\nRequirements (\u2018BPR\u2019) for estimating adequate prudential capital and calculating regulatory capital requirements.\nRegulatory capital adequacy ratios are calculated by expressing capital as a percentage of risk-weighted exposures. As a condition of\nregistration, the Banking Group must comply with the following minimum capital requirements set by the RBNZ:\n\u2022 Total capital",
+      "page": 91,
+      "all_pages": [
+        5,
+        36,
+        52,
+        67,
+        69,
+        75,
+        76,
+        78,
+        79,
+        81,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        102
+      ],
+      "found": true
+    }
+  }
+}
