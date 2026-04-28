@@ -173,17 +173,17 @@ Depends on W-0009 (raw file present) and W-0006 (metrics mapping populated).
 
 ### W-0011
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-The fetch workflow runs end-to-end successfully against the live RBNZ URL; the downloaded XLSX is committed to `data/raw/`.
+The RBNZ XLSX (`Bank-Financial-Strength-Dashboard-Data.xlsx`) is present in `data/` and available for the processing pipeline.
 
 ### Context
 
-First live integration test. Requires network access in Actions runner.
+The automated fetch workflow (W-0009) was not validated end-to-end before downstream work needed to proceed. The file was manually downloaded from the RBNZ website and committed directly to `data/` to unblock the pipeline. Documented in ADR-0003. Automated fetch must be validated and re-enabled in W-0016.
 
 ---
 
@@ -234,6 +234,22 @@ Investigate metric inconsistencies across banks in the RBNZ data (different repo
 ### Context
 
 Must result in: backlog update, or ADR, or explicit no-action decision.
+
+---
+
+### W-0016
+
+status: open
+created: 2026-04-28
+updated: 2026-04-28
+
+### Outcome
+
+The automated fetch workflow (`.github/workflows/fetch-data.yml`) runs end-to-end successfully against the live RBNZ URL; the downloaded XLSX is committed to `data/raw/` without manual intervention.
+
+### Context
+
+The initial RBNZ XLSX was loaded manually to unblock the pipeline (ADR-0003). This item validates and activates the automated fetch so that future data refreshes do not require manual steps. Requires network access from the Actions runner. Supersedes the manual load approach.
 
 ---
 
