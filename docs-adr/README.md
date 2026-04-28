@@ -14,6 +14,7 @@ Format: [MADR (Markdown Architectural Decision Records)](https://adr.github.io/m
 |---|---|---|---|
 | [0001](0001-data-format-decision.md) | Data format: CSV for persistence | Provisional | 2026-04-27 |
 | [0002](0002-directory-structure.md) | Directory structure aligned to Research repo | Accepted | 2026-04-27 |
+| [0003](0003-manual-rbnz-file-load.md) | Manual initial load of RBNZ XLSX file | Accepted | 2026-04-28 |
 
 ---
 
