@@ -123,24 +123,28 @@ def inspect_pdf(path: Path) -> dict[str, Any]:
     }
 
 
-def print_summary(findings: dict[str, Any]) -> None:
-    """Print a human-readable summary of the findings."""
-    print("\n=== BNZ PDF Spike Findings ===")
-    print(f"Source URL : {findings['source_url']}")
-    print(f"Total pages: {findings['total_pages']}")
-    print(
-        f"Tables found: {findings['total_tables_found']} across {len(findings['pages_with_tables'])} page(s)"
+def log_summary(findings: dict[str, Any]) -> None:
+    """Log a human-readable summary of the findings."""
+    logger.info("=== BNZ PDF Spike Findings ===")
+    logger.info("Source URL : %s", findings["source_url"])
+    logger.info("Total pages: %d", findings["total_pages"])
+    logger.info(
+        "Tables found: %d across %d page(s)",
+        findings["total_tables_found"],
+        len(findings["pages_with_tables"]),
     )
-    print(f"Pages with tables: {findings['pages_with_tables']}")
+    logger.info("Pages with tables: %s", findings["pages_with_tables"])
 
     if findings["first_table_page"] is not None:
-        print(
-            f"\nFirst table on page {findings['first_table_page']} "
-            f"({findings['first_table_row_count']} rows × {findings['first_table_column_count']} cols)"
+        logger.info(
+            "First table on page %d (%d rows x %d cols)",
+            findings["first_table_page"],
+            findings["first_table_row_count"],
+            findings["first_table_column_count"],
         )
-        print("\nFirst 5 rows:")
+        logger.info("First 5 rows of first table:")
         for row in findings["first_table_sample"]:
-            print("  " + " | ".join(str(cell) for cell in row))
+            logger.info("  %s", " | ".join(str(cell) for cell in row))
 
 
 def main() -> int:
@@ -155,7 +159,7 @@ def main() -> int:
         logger.info("PDF already present at %s — skipping download", _PDF_PATH)
 
     findings = inspect_pdf(_PDF_PATH)
-    print_summary(findings)
+    log_summary(findings)
 
     _FINDINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
     _FINDINGS_PATH.write_text(json.dumps(findings, indent=2), encoding="utf-8")
