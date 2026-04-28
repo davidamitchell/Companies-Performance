@@ -1,0 +1,94 @@
+{
+  "bank_id": "rabobank",
+  "period_end": "2022-12-31",
+  "source_url": "https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2022/rnzl-disclosurestatement-311222.pdf",
+  "inspected_at": "2026-04-28T20:54:32.725849+00:00",
+  "total_pages": 107,
+  "table_page_count": 9,
+  "image_page_count": 5,
+  "primary_extraction_method": "extract_text",
+  "sections": {
+    "Income Statement": {
+      "char_count": 1232,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 0,
+      "table_dims": [],
+      "first_table_sample": [],
+      "text_sample": "Statement of Comprehensive Income\nFortheyearended31December\n2022 2021\ninthousandsofNZD\nNote\nInterestincome 4 643,766 445,795\nInterestexpense 5 (278,498) (115,191)\nNetinterestincome 365,268 330,604\nOtherincome 6 2,713 2,554\nOtherexpense 7 (375) (454)\nOtheroperatinglosses 8 (7,093) (663)\nNon-interestincome/(expense) (4,755) 1,437\nOperatingincome 360,513 332,041\nOperatingexpenses 9 (156,009) (147,884)\nImpairmentbenefits/(losses) 10 (103) 16,571\nProfitbeforeincometax 204,401 200,728\nIncometaxexpense 12.1 (57,294) (56,277)\nNetprofitfortheyear 147,107 144,451\nOthercomprehensiveincomefortheyear\nItemsthatmaybereclassifiedsubsequentlytoprofitorloss\nChangesinthefairvalueoffinancialassetsatfairvaluethrough\nothercomprehensiveincome(gross) 26.2 (15,853) (10,396)\nChangesinthefairvalueoffinancialassetsthroughother\ncomprehensiveincome(deferredtax) 26.2 4,439 2,911\nTotalitemsthatmaybereclassifiedsubsequentlytoprofitor\nloss (11,414) (7,485)\nItemsthatwillnotbereclassifiedtoprofitorloss\nTotalitemsthatwillnotbereclassifiedtoprofitorloss - -\nTotalothercomprehensiveincomefortheyear (11,414) (7,485)\nTotalcomprehensiveincomeattributabletoshareholderof\nRabobankNewZealandLimited 135,693 136,966\nTheaboveState",
+      "page": 34,
+      "all_pages": [
+        34,
+        40,
+        41
+      ],
+      "found": true
+    },
+    "Balance Sheet": {
+      "char_count": 3727,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 0,
+      "table_dims": [],
+      "first_table_sample": [],
+      "text_sample": "Notes to the Financial Statements\n3. Significant accounting policies (continued)\nDeferred tax is recognised using the balance sheet method, providing for temporary differences between the\ncarrying amounts of assets and liabilities for financial reporting purposes and the corresponding amounts used\nfor taxation purposes. Deferred tax assets and liabilities are not recognised if the temporary difference arises\nfromgoodwill,theinitialrecognitionofassetsorliabilitiesinatransactionthatisnotabusinesscombinationand\nthat affects neither accounting profit nor taxable profit or loss, and temporary differences associated with\ninvestmentsinsubsidiariestotheextentthattheyprobablywillnotreverseintheforeseeablefuture.\nTheamountofdeferredtaxprovidedisbasedontheexpectedrealisationorsettlementofthecarryingamountof\nassets and liabilities, using tax rates that have been enacted or substantively enacted at the reporting date and\nthatareexpectedtoapplytothetemporarydifferenceswhentheyreverse.\nAdeferredtaxassetisrecognisedonlytotheextentthatitisprobablethatfuturetaxableprofitswillbeavailable\nagainstwhich theassetcanbeutilised.Deferredtaxassetsarereviewedat eachreportingdateandreducedto\ntheextentthatitisn",
+      "page": 41,
+      "all_pages": [
+        41,
+        43,
+        44,
+        49,
+        69,
+        82,
+        87
+      ],
+      "found": true
+    },
+    "Cash Flow Statement": {
+      "char_count": 1571,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 0,
+      "table_dims": [],
+      "first_table_sample": [],
+      "text_sample": "Statement of Cash Flows\nFortheyearended31December\n2022 2021\ninthousandsofNZD\nNote\nCashflowsfromoperatingactivities\nCashwasprovidedfrom:\nInterestincome 630,455 445,597\nOtherincome 2,713 2,554\nDerivativefinancialinstruments* 711 72\nCashwasappliedto:\nInterestpaid (224,345) (126,134)\nOtherexpense 7 (375) (454)\nManagementfeesandotheroperatingexpenses (138,434) (140,815)\nTaxpayments (58,395) (40,344)\nCashflowsfromoperatingactivitiesbeforechangesin\noperatingassetsandliabilities 212,330 140,476\nCashwasprovidedfrom/(appliedto):\nDuetorelatedentities 29,314 (57,955)\nFinancialassetsatfairvaluethroughothercomprehensive\nincome (79,605) 78,077\nLoansandadvances (842,155) (307,023)\nDuefromrelatedentities (493,006) (1,727)\nDeposits 466,617 (9,273)\nPayablesduetocentralbank 163,902 -\nChangesinoperatingassetsandliabilitiesarisingfromcash\nflowmovements (754,933) (297,901)\nNetcashflowsusedinoperatingactivities 34 (542,603) (157,425)\nCashflowsfrominvestingactivities\nCashwasappliedto:\nPurchaseofproperty,plantandequipment (8,854) (3,833)\nPurchaseofintangibleassets (311) (201)\nNetcashflowsusedininvestingactivities (9,165) (4,034)\nCashflowsfromfinancingactivities\nCashwasprovidedfrom:\nCashinfinancingliabilitie",
+      "page": 37,
+      "all_pages": [
+        37,
+        49
+      ],
+      "found": true
+    },
+    "Capital Adequacy": {
+      "char_count": 1181,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 0,
+      "table_dims": [],
+      "first_table_sample": [],
+      "text_sample": "Inherent limitations\nBecause of the inherent limitations of an assurance engagement, together with the internal control\nstructure, it is possible that fraud, error or non-compliance with the compliance requirements may occur\nand not be detected.\nA limited assurance engagement on the Bank's information relating to capital adequacy and regulatory\nliquidity requirements prescribed in Schedule 9 of the Order to be included in the Disclosure Statement in\ncompliance with clause 21 of the Order does not provide assurance on whether compliance will continue\nin the future.\nUse of report\nThis report has been prepared for use by the Bank\u2019s shareholder for the purpose of establishing that these\ncompliance requirements have been met.\nOur report should not be used for any other purpose. To the fullest extent permitted by law, we do not\naccept or assume responsibility for any reliance on this report to anyone other than the Bank and the\nBank\u2019s shareholder, or for any purpose other than that for which it was prepared.\nThe engagement partner on the engagement resulting in this independent assurance report is Sam\nHinchliffe.\nChartered Accountants Sydney\n21 March 2023\nPwC",
+      "page": 22,
+      "all_pages": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        69,
+        98,
+        105
+      ],
+      "found": true
+    }
+  }
+}
