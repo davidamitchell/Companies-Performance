@@ -140,9 +140,12 @@ def main() -> int:
     _RESULTS_PATH.write_text(json.dumps(output, indent=2), encoding="utf-8")
     logger.info("Wrote validation results to %s", _RESULTS_PATH)
 
-    print(
-        f"\nURL validation complete: {total} checked, "
-        f"{confirmed} confirmed, {not_found} not_found, {not_reachable} not_reachable"
+    logger.info(
+        "URL validation complete: %d checked, %d confirmed, %d not_found, %d not_reachable",
+        total,
+        confirmed,
+        not_found,
+        not_reachable,
     )
     return 0
 
