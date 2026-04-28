@@ -335,6 +335,77 @@ Depends on W-0017 and W-0010. Requires processed data to include all 32 quarters
 
 ---
 
+## Phase 3.5: Frontend Enhancements
+
+### W-0019
+
+status: open
+created: 2026-04-28
+updated: 2026-04-28
+
+### Outcome
+
+RBNZ Official Cash Rate (OCR) history is ingested as a new data source. A new entry in `config/sources.yaml` points to the RBNZ OCR time-series data file. `config/metrics.yaml` maps the OCR series to the canonical metric name `OCR Rate`. The processed output includes OCR Rate rows in `data/processed/metrics.csv` and `docs/data/processed/metrics.json`. An OCR overlay can be toggled on the NIM and Return on Equity charts to contextualise bank margins against the prevailing rate environment.
+
+### Context
+
+OCR data is published by the RBNZ at https://www.rbnz.govt.nz/monetary-policy/official-cash-rate-decisions. The OCR is the primary policy lever that directly influences bank NIM and funding costs; overlaying it on existing charts adds meaningful macroeconomic context. Requires a discovery spike (S-0004) to confirm the available file format and series ID before implementation. `OCR Rate` must be added to `glossary.md` before the series ID mapping is added to `config/metrics.yaml`.
+
+---
+
+### W-0020
+
+status: open
+created: 2026-04-28
+updated: 2026-04-28
+
+### Outcome
+
+Each chart in the frontend can be expanded to full-screen. A focus/zoom button (e.g. ⛶) is rendered in the top-right corner of every Chart.js canvas. Clicking it opens the chart in a modal overlay that fills the viewport, re-rendering the chart at the larger size. Pressing Escape or clicking outside the modal closes it. No additional dependencies beyond Chart.js (already loaded).
+
+### Context
+
+Charts are currently small within the responsive grid. Full-screen mode allows detailed inspection of individual series without leaving the page. The implementation should be purely client-side JS within `docs/index.html`; no build step.
+
+---
+
+### W-0021
+
+status: open
+created: 2026-04-28
+updated: 2026-04-28
+
+### Outcome
+
+The static site gains three additional pages alongside `docs/index.html`:
+- `docs/glossary.html` — renders all metric definitions from `glossary.md`, linking back to the main dashboard.
+- `docs/methodology.html` — explains how each KPI is calculated, which RBNZ series IDs are used, and which metrics are derived vs. stored (referencing ADR-0001).
+- `docs/lineage.html` — documents the data model (canonical schema `entity | metric | value | period | source`), the pipeline stages (fetch → process → publish), and the source-to-output file lineage.
+
+Navigation links to all three pages are added to the header/footer of `docs/index.html`.
+
+### Context
+
+Transparency pages are a prerequisite for external users to trust the data. Content is sourced from `glossary.md`, `docs-adr/`, and `learnings.md`; no new data pipeline work is required. All pages must be static HTML with no build step.
+
+---
+
+### W-0022
+
+status: open
+created: 2026-04-28
+updated: 2026-04-28
+
+### Outcome
+
+A date-range filter is added to the frontend. Users can select a start quarter and end quarter (or use preset ranges: Last 4Q, Last 8Q, Last 16Q, All) to restrict which periods are plotted across all charts simultaneously. The filter state is reflected in the URL hash so that links can be shared with a specific range pre-selected.
+
+### Context
+
+The dataset currently spans 32 quarters (8 years). Short-term trends are obscured when all quarters are shown simultaneously. The filter operates client-side on the already-loaded JSON; no pipeline changes are required. Depends on W-0018 (charts exist).
+
+---
+
 ## Phase 4: Qualitative Data Extraction (Deferred)
 
 ### W-0015
