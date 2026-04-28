@@ -89,13 +89,13 @@ Foundational definitions required before metrics can be used in code or config.
 
 ### W-0006
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-`config/metrics.yaml` is populated with initial field mappings from RBNZ XLSX columns to canonical glossary terms.
+`config/metrics.yaml` is populated with initial field mappings from RBNZ XLSX series IDs to canonical glossary terms.
 
 ### Context
 
@@ -123,13 +123,13 @@ Canonical source registry before any fetching begins.
 
 ### W-0008
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-An ADR documents the canonical data structure assumptions (`entity | metric | value | period | source`) and any deviations required by the RBNZ data shape.
+ADR-0004 documents the canonical data structure assumptions (`entity | metric | value | period | source`) and the RBNZ XLSX mapping strategy (by series ID). Group vs. standalone entity distinction is documented.
 
 ### Context
 
@@ -157,13 +157,13 @@ Manual trigger only. No polling or scheduling.
 
 ### W-0010
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-`.github/workflows/process-data.yml` exists; running it parses the RBNZ XLSX, normalises rows into the canonical schema, validates data quality (range checks, missing values, duplicate detection), and writes `data/processed/metrics.csv` and `data/processed/metrics.json`.
+`.github/workflows/process-data.yml` exists; running it parses the RBNZ XLSX, normalises rows into the canonical schema, validates data quality (missing values, duplicate detection), and writes `data/processed/metrics.csv` and `docs/data/processed/metrics.json`.
 
 ### Context
 
@@ -191,13 +191,13 @@ The automated fetch workflow (W-0009) was not validated end-to-end before downst
 
 ### S-0001
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-Investigate the RBNZ XLSX structure: sheet names, column headers, data types, entity names, and period format. Record findings in `learnings.md`. Update `config/metrics.yaml` with initial mappings. Open backlog items for any gaps.
+RBNZ XLSX structure investigated. Findings recorded in `learnings.md`. `config/metrics.yaml` updated with initial mappings. ADR-0004 written. Glossary extended with RBNZ-specific metrics.
 
 ### Context
 
@@ -207,13 +207,13 @@ Must result in: backlog update, or ADR, or explicit no-action decision.
 
 ### S-0002
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-Investigate feasibility of additional bank disclosure sources (e.g. annual report PDFs). Record findings in `learnings.md`. Open backlog items for any viable sources.
+Feasibility of additional bank disclosure sources (PDF annual reports) investigated. Findings recorded in `learnings.md`. Deferred pending Phase 3 completion and LLM extraction tooling (W-0015).
 
 ### Context
 
@@ -223,13 +223,13 @@ Must result in: backlog update, or ADR, or explicit no-action decision.
 
 ### S-0003
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-Investigate metric inconsistencies across banks in the RBNZ data (different reporting periods, different metric coverage). Record findings in `learnings.md`.
+Metric inconsistencies across banks investigated. Findings recorded in `learnings.md`: group vs. standalone entities, smaller bank coverage gaps. No schema changes required; consumer filtering is responsible for group/standalone distinction. Documented in ADR-0004.
 
 ### Context
 
@@ -289,13 +289,13 @@ One-time manual configuration in repo settings.
 
 ### W-0014
 
-status: open
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-28
 
 ### Outcome
 
-Frontend displays real data from the first successful pipeline run. Charts or trend indicators added for key metrics (CET1, LCR, NIM).
+Frontend displays real data from the first pipeline run. Key metric tiles with trend indicators (▲/▼) added for CET1 Ratio, NIM, Core Funding Ratio (CFR), and NPL Ratio. Period and entity filters added. DATA_URL fixed for GitHub Pages.
 
 ### Context
 

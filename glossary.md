@@ -87,3 +87,45 @@ A qualitative or quantitative measure of wins against named competitors. Indicat
 The total cost of AI infrastructure, model usage, and associated labour as a proportion of revenue or gross margin. An emerging metric for AI-enabled businesses tracking unit economics of intelligence delivery.
 
 ---
+
+## RBNZ Dashboard — Additional Metrics
+
+Metrics sourced from the RBNZ Bank Financial Strength Dashboard that supplement the core glossary definitions above. All values are as reported by the RBNZ; monetary values are in NZD millions (NZDm) unless otherwise stated.
+
+### Total Capital Ratio
+The ratio of total regulatory capital (Tier 1 + Tier 2) to risk-weighted assets. The broadest capital adequacy measure. Expressed as a percentage. RBNZ series C1.
+
+### Tier 1 Capital Ratio
+The ratio of Tier 1 capital (CET1 + Additional Tier 1) to risk-weighted assets. Expressed as a percentage. RBNZ series C3.
+
+### Total Non-Performing Loans
+The sum of impaired loans and loans 90+ days past due but not yet impaired. Expressed in NZDm. RBNZ series F4 (total loan portfolio).
+
+### Return on Assets
+Annualised profit after tax divided by average total assets. Expressed as a percentage. RBNZ series P1.
+
+### Return on Equity
+Annualised profit after tax divided by average equity. Expressed as a percentage. RBNZ series P2.
+
+### Net Interest Income
+Interest income less interest expense. Core revenue line for a bank. Expressed in NZDm. RBNZ series Q3.
+
+### Operating Expenses
+Total non-interest operating expenses (staff, technology, premises, etc.). Expressed in NZDm. RBNZ series Q7.
+
+### Profit After Tax
+Net profit after all expenses and tax. Bottom-line earnings measure. Expressed in NZDm. RBNZ series Q11.
+
+### Total Assets
+Total balance sheet assets. Expressed in NZDm. RBNZ series R1.
+
+### Net Loans and Advances
+Gross loans less loan loss provisions. Primary earning asset for banks. Expressed in NZDm. RBNZ series R4.
+
+### Deposits
+Customer and institutional deposits — the primary funding source. Expressed in NZDm. RBNZ series R9.
+
+### Equity
+Total shareholders' equity (residual interest). Expressed in NZDm. RBNZ series R14.
+
+---

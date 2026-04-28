@@ -19,10 +19,13 @@
     header h1 { font-size: 1.75rem; font-weight: 700; }
     header p  { color: #636e72; margin-top: 0.4rem; }
     #status   { margin-top: 0.5rem; font-size: 0.85rem; color: #0984e3; }
+    .filters  { margin-top: 0.75rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .filters label { font-size: 0.85rem; color: #636e72; }
+    .filters select { font-size: 0.85rem; padding: 0.2rem 0.4rem; border: 1px solid #dfe6e9; border-radius: 4px; }
     main { max-width: 960px; margin: 0 auto; }
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1rem;
     }
     .card {
@@ -32,10 +35,25 @@
       box-shadow: 0 1px 4px rgba(0,0,0,.08);
     }
     .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid #f0f0f0; }
+    .key-metrics { margin-bottom: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .kpi {
+      background: #f0f4ff;
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+      min-width: 90px;
+    }
+    .kpi-label { font-size: 0.7rem; color: #636e72; }
+    .kpi-value { font-size: 1rem; font-weight: 600; color: #2d3436; }
+    .kpi-trend { font-size: 0.75rem; margin-left: 0.2rem; }
+    .trend-up   { color: #00b894; }
+    .trend-down { color: #d63031; }
+    .trend-flat { color: #b2bec3; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th, td { text-align: left; padding: 0.3rem 0.4rem; border-bottom: 1px solid #f0f0f0; }
     th { color: #636e72; font-weight: 500; }
     .no-data { color: #b2bec3; font-style: italic; text-align: center; padding: 1rem 0; }
+    details { margin-top: 0.5rem; }
+    details summary { font-size: 0.8rem; color: #636e72; cursor: pointer; }
     footer { max-width: 960px; margin: 2rem auto 0; font-size: 0.8rem; color: #b2bec3; }
     a { color: #0984e3; text-decoration: none; }
     a:hover { text-decoration: underline; }
@@ -46,6 +64,12 @@
     <h1>Companies Performance</h1>
     <p>Financial performance metrics — sourced from the RBNZ Bank Financial Strength Dashboard.</p>
     <div id="status">Loading data…</div>
+    <div class="filters">
+      <label for="period-select">Period:</label>
+      <select id="period-select"><option value="">All periods</option></select>
+      <label for="entity-select">Entity:</label>
+      <select id="entity-select"><option value="">All entities</option></select>
+    </div>
   </header>
 
   <main>
@@ -61,7 +85,13 @@
   </footer>
 
   <script>
-    const DATA_URL = '../data/processed/metrics.json';
+    const DATA_URL = 'data/processed/metrics.json';
+
+    // Metrics shown as KPI tiles with trend indicators.
+    const KEY_METRICS = ['CET1 Ratio', 'NIM', 'Core Funding Ratio (CFR)', 'NPL Ratio'];
+
+    let allRows = [];
+    let allPeriods = [];
 
     async function loadData() {
       const statusEl = document.getElementById('status');
@@ -70,19 +100,57 @@
       try {
         const resp = await fetch(DATA_URL);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const rows = await resp.json();
-        statusEl.textContent = `${rows.length} metric rows loaded.`;
-        renderCards(rows, cardsEl);
+        allRows = await resp.json();
+
+        // Extract and sort unique periods
+        allPeriods = [...new Set(allRows.map(r => r.period))].sort();
+
+        populateFilters(allRows, allPeriods);
+        statusEl.textContent = `${allRows.length} metric rows loaded — latest period: ${allPeriods[allPeriods.length - 1] || '—'}.`;
+        render();
       } catch (err) {
-        statusEl.textContent = 'No data available yet — run the fetch-data workflow to populate.';
+        statusEl.textContent = 'No data available yet — run the fetch-data and process-data workflows to populate.';
         statusEl.style.color = '#b2bec3';
-        cardsEl.innerHTML = '<p class="no-data">Pipeline has not run yet. Trigger the fetch-data workflow from the Actions tab.</p>';
+        cardsEl.innerHTML = '<p class="no-data">Pipeline has not run yet. Trigger the fetch-data then process-data workflows from the Actions tab.</p>';
         console.warn('Data load failed:', err);
       }
     }
 
-    function renderCards(rows, container) {
-      // Group rows by entity
+    function populateFilters(rows, periods) {
+      const periodSel = document.getElementById('period-select');
+      const entitySel = document.getElementById('entity-select');
+
+      periods.slice().reverse().forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p; opt.textContent = p;
+        periodSel.appendChild(opt);
+      });
+      // Default to latest period
+      if (periods.length) periodSel.value = periods[periods.length - 1];
+
+      const entities = [...new Set(rows.map(r => r.entity))].sort();
+      entities.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e; opt.textContent = e;
+        entitySel.appendChild(opt);
+      });
+
+      periodSel.addEventListener('change', render);
+      entitySel.addEventListener('change', render);
+    }
+
+    function render() {
+      const selectedPeriod = document.getElementById('period-select').value;
+      const selectedEntity = document.getElementById('entity-select').value;
+
+      let rows = allRows;
+      if (selectedEntity) rows = rows.filter(r => r.entity === selectedEntity);
+
+      renderCards(rows, selectedPeriod, document.getElementById('cards'));
+    }
+
+    function renderCards(rows, selectedPeriod, container) {
+      // Group all rows by entity
       const byEntity = {};
       for (const row of rows) {
         if (!byEntity[row.entity]) byEntity[row.entity] = [];
@@ -90,26 +158,77 @@
       }
 
       container.innerHTML = '';
-      for (const [entity, metrics] of Object.entries(byEntity).sort()) {
+      for (const [entity, entityRows] of Object.entries(byEntity).sort()) {
+        // Determine which rows to show in the table (filtered by period if selected)
+        const tableRows = selectedPeriod
+          ? entityRows.filter(r => r.period === selectedPeriod)
+          : entityRows;
+
+        // Build KPI tiles from latest period
+        const latestPeriod = allPeriods[allPeriods.length - 1] || selectedPeriod;
+        const prevPeriod   = allPeriods[allPeriods.length - 2] || '';
+
         const card = document.createElement('div');
         card.className = 'card';
+
+        const kpiHtml = buildKpiHtml(entityRows, latestPeriod, prevPeriod);
+        const tableHtml = buildTableHtml(tableRows, selectedPeriod);
+
         card.innerHTML = `
           <h2>${escHtml(entity)}</h2>
-          <table>
-            <thead><tr><th>Metric</th><th>Value</th><th>Period</th></tr></thead>
-            <tbody>
-              ${metrics.map(r => `
-                <tr>
-                  <td>${escHtml(r.metric)}</td>
-                  <td>${r.value !== null && r.value !== undefined ? escHtml(String(r.value)) : '—'}</td>
-                  <td>${escHtml(r.period || '—')}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+          ${kpiHtml}
+          <details${!selectedPeriod ? '' : ' open'}>
+            <summary>${selectedPeriod ? escHtml(selectedPeriod) + ' — all metrics' : 'All periods — all metrics'}</summary>
+            ${tableHtml}
+          </details>
         `;
         container.appendChild(card);
       }
+    }
+
+    function buildKpiHtml(rows, latestPeriod, prevPeriod) {
+      const latestMap = {};
+      const prevMap   = {};
+      for (const r of rows) {
+        if (r.period === latestPeriod) latestMap[r.metric] = r.value;
+        if (r.period === prevPeriod)   prevMap[r.metric]   = r.value;
+      }
+
+      const tiles = KEY_METRICS
+        .filter(m => m in latestMap)
+        .map(m => {
+          const val  = latestMap[m];
+          const prev = prevMap[m];
+          let trendHtml = '';
+          if (prev !== undefined && prev !== null && val !== null) {
+            if (val > prev)       trendHtml = `<span class="kpi-trend trend-up" title="vs ${escHtml(prevPeriod)}">▲</span>`;
+            else if (val < prev)  trendHtml = `<span class="kpi-trend trend-down" title="vs ${escHtml(prevPeriod)}">▼</span>`;
+            else                  trendHtml = `<span class="kpi-trend trend-flat" title="vs ${escHtml(prevPeriod)}">—</span>`;
+          }
+          const display = val !== null && val !== undefined ? escHtml(String(val)) : '—';
+          return `
+            <div class="kpi">
+              <div class="kpi-label">${escHtml(m)}</div>
+              <div class="kpi-value">${display}${trendHtml}</div>
+            </div>`;
+        });
+
+      return tiles.length ? `<div class="key-metrics">${tiles.join('')}</div>` : '';
+    }
+
+    function buildTableHtml(rows) {
+      if (!rows.length) return '<p class="no-data">No data for selected filters.</p>';
+      const body = rows.map(r => `
+        <tr>
+          <td>${escHtml(r.metric)}</td>
+          <td>${r.value !== null && r.value !== undefined ? escHtml(String(r.value)) : '—'}</td>
+          <td>${escHtml(r.period || '—')}</td>
+        </tr>`).join('');
+      return `
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Period</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>`;
     }
 
     function escHtml(str) {
@@ -120,3 +239,4 @@
   </script>
 </body>
 </html>
+
