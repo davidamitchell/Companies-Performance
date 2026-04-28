@@ -1,7 +1,7 @@
 # Progress
 
 > Session logs and completion notes.
-Last updated: 2026-04-28 (process-data pipeline and spike completions)
+Last updated: 2026-04-28 (S-0004 financial disclosures spike and config)
 
 ---
 
@@ -88,3 +88,69 @@ Last updated: 2026-04-28 (process-data pipeline and spike completions)
 - `.github/workflows/fetch-data.yml` — manual trigger to fetch RBNZ XLSX
 - `.github/workflows/deploy-pages.yml` — deploy `docs/` to GitHub Pages
 - `docs/index.html` — static frontend that consumes `data/processed/metrics.json`
+
+---
+
+### 2026-04-28 — S-0004: Financial disclosures spike, URL research, config, and validation tooling
+
+**What was done:**
+
+- **S-0004 spike**: Authored `scripts/spike_bnz_pdf.py` to download and inspect the
+  BNZ September 2024 full-year disclosure statement PDF using `pdfplumber`. The script
+  saves structured findings to `data/raw/financial_disclosures/bnz/spike_s0004_bnz_findings.json`.
+  Spike must be run manually (network access required); findings template recorded in
+  `docs/spikes/s-0004-findings.md`.
+
+- **URL research**: All six bank disclosure statement URLs researched across 2018–2024
+  reporting periods. Total 82 report URLs catalogued:
+  - ANZ: 14 confirmed, 0 pending
+  - ASB: 13 confirmed, 0 pending
+  - BNZ: 11 confirmed, 3 pending (2023-03-31, 2021-03-31, 2018-09-30)
+  - Westpac: 13 confirmed, 1 pending (2024-09-30 — may not yet be published)
+  - Kiwibank: 4 confirmed, 9 pending (inconsistent filenames; all pending must be HTTP-validated)
+  - Rabobank: 12 confirmed, 2 pending (2024-12-31, 2024-06-30)
+
+- **Config written**: `config/sources.yaml` updated with three top-level sections:
+  `rbnz` (unchanged), `ocr` (new — RBNZ B2 series for OCR/interest rate context),
+  and `financial_disclosures` (new — 6 banks with full report lists).
+
+- **Validation script**: `scripts/validate_disclosure_urls.py` written. Performs HTTP
+  HEAD requests against all disclosure URLs and updates `status` fields in YAML.
+  Writes per-URL results to `data/raw/financial_disclosures/url_validation.json`.
+
+- **Tests**: `tests/test_validate_disclosure_urls.py` added — 9 tests covering 200/404/
+  connection-error/timeout cases and JSON output structure. No real network calls.
+
+- **Dependencies**: `requests>=2.32.0` and `pdfplumber>=0.11.0` added to `pyproject.toml`
+  and `requirements.txt`.
+
+**What was found / decided:**
+
+- Three distinct BNZ URL patterns exist across years (2023+, 2021–2022, 2018–2020);
+  documented in `config/sources.yaml` inline comments.
+- Kiwibank uses a media subdomain with inconsistent naming — no clean template pattern.
+  All inferred URLs must be HTTP-validated before ingestion.
+- `pdfplumber` is sufficient for the spike (no LLM dependency decision yet).
+  ADR will only be written after the spike is run and machine-readability is assessed.
+
+**Blockers / open questions:**
+
+- Spike script requires live internet access and a valid BNZ PDF URL — must be run
+  manually. `docs/spikes/s-0004-findings.md` is a template pending those results.
+- 16 pending URLs (BNZ ×3, Westpac ×1, Kiwibank ×9 + recount, Rabobank ×2) must be
+  validated by running `scripts/validate_disclosure_urls.py`.
+- ADR-0005 (extraction approach) deferred until spike findings are reviewed.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — URL research, config authoring, and tooling all
+  completed in one session with no backtracking.
+- *What slowed things down?* Kiwibank filenames are non-deterministic (random suffixes
+  in older files, capitalisation inconsistencies). Required manual pattern inference.
+- *Single change to prevent that next time?* Add a URL validation step (now done via
+  `scripts/validate_disclosure_urls.py`) as a required gate before any URL enters
+  `config/sources.yaml` as `confirmed`.
+- *Is this a pattern requiring a root-cause fix?* Yes — the root cause is that banks
+  do not follow consistent URL conventions. The validation script is the structural fix;
+  add it to the fetch workflow as a pre-check step (backlog item).
+

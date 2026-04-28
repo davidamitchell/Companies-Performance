@@ -16,3 +16,409 @@ rbnz:
       # Fallback for development: manually committed file (see ADR-0003).
       # Used by process_data.py when output_file is absent (fetch workflow not yet run).
       committed_file: data/Bank-Financial-Strength-Dashboard-Data.xlsx
+
+ocr:
+  # RBNZ B2 series — Official Cash Rate and wholesale interest rates.
+  # Provides macroeconomic context for bank performance metrics.
+  xlsx_sources:
+    - url: https://www.rbnz.govt.nz/-/media/project/sites/rbnz/files/statistics/series/b/b2/hb2-monthly-close.xlsx
+      name: "RBNZ B2 Wholesale Interest Rates (Monthly Close)"
+      description: >
+        Reserve Bank of New Zealand B2 series.
+        Contains the Official Cash Rate (OCR), 90-day bank bill rate,
+        and NZD interest rate swap rates at monthly close.
+        Used to provide macroeconomic context for bank performance metrics.
+      output_file: data/raw/rbnz-ocr.xlsx
+      investor_relations_url: https://www.rbnz.govt.nz/statistics/series/data-file-index-page
+
+financial_disclosures:
+  # Bank General Disclosure Statements (GDS) — half-yearly and annual PDF reports.
+  # URLs are validated by scripts/validate_disclosure_urls.py.
+  # status field: confirmed = URL verified reachable; pending = URL inferred, not yet validated.
+  banks:
+    - id: anz
+      rbnz_entity_name: ANZ
+      investor_relations_url: https://www.anz.co.nz/about-us/media-centre/investor-information/
+      year_end_date: "09-30"
+      half_year_end_date: "03-31"
+      output_dir: data/raw/financial_disclosures/anz/
+      reports:
+        - period_end: "2024-09-30"
+          period_type: full_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2024/anz-nz-disclosure-statement-full-year-2024.pdf
+          status: confirmed
+        - period_end: "2024-03-31"
+          period_type: half_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2024/anz-nz-disclosure-statement-half-year-2024.pdf
+          status: confirmed
+        - period_end: "2023-09-30"
+          period_type: full_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2023/anz-nz-disclosure-statement-full-year-2023.pdf
+          status: confirmed
+        - period_end: "2023-03-31"
+          period_type: half_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2023/anz-nz-disclosure-statement-half-year-2023.pdf
+          status: confirmed
+        - period_end: "2022-09-30"
+          period_type: full_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2022/anz-nz-disclosure-statement-full-year-2022.pdf
+          status: confirmed
+        - period_end: "2022-03-31"
+          period_type: half_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2022/anz-nz-disclosure-statement-half-year-2022.pdf
+          status: confirmed
+        - period_end: "2021-09-30"
+          period_type: full_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2021/anz-nz-disclosure-statement-full-year-2021.pdf
+          status: confirmed
+        - period_end: "2021-03-31"
+          period_type: half_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2021/anz-nz-disclosure-statement-half-year-2021.pdf
+          status: confirmed
+        - period_end: "2020-09-30"
+          period_type: full_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2020/anz-nz-disclosure-statement-full-year-2020.pdf
+          status: confirmed
+        - period_end: "2020-03-31"
+          period_type: half_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2020/anz-nz-disclosure-statement-half-year-2020.pdf
+          status: confirmed
+        - period_end: "2019-09-30"
+          period_type: full_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2019/anz-nz-disclosure-statement-full-year-2019.pdf
+          status: confirmed
+        - period_end: "2019-03-31"
+          period_type: half_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2019/anz-nz-disclosure-statement-half-year-2019.pdf
+          status: confirmed
+        - period_end: "2018-09-30"
+          period_type: full_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2018/anz-nz-disclosure-statement-full-year-2018.pdf
+          status: confirmed
+        - period_end: "2018-03-31"
+          period_type: half_year
+          url: https://www.anz.co.nz/content/dam/anzcoz/about-us/investor-centre/financial-results/disclosure-statements/2018/anz-nz-disclosure-statement-half-year-2018.pdf
+          status: confirmed
+
+    - id: asb
+      rbnz_entity_name: ASB
+      investor_relations_url: https://www.asb.co.nz/about-us/reports-and-announcements/disclosure-statements
+      year_end_date: "06-30"
+      half_year_end_date: "12-31"
+      output_dir: data/raw/financial_disclosures/asb/
+      reports:
+        - period_end: "2024-06-30"
+          period_type: full_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2024/annual-report-disclosure-statement-30-june-2024.pdf
+          status: confirmed
+        - period_end: "2023-12-31"
+          period_type: half_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2023/disclosure-statement-31-december-2023.pdf
+          status: confirmed
+        - period_end: "2023-06-30"
+          period_type: full_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2023/annual-report-disclosure-statement-30-june-2023.pdf
+          status: confirmed
+        - period_end: "2022-12-31"
+          period_type: half_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2022/disclosure-statement-31-december-2022.pdf
+          status: confirmed
+        - period_end: "2022-06-30"
+          period_type: full_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2022/annual-report-disclosure-statement-30-june-2022.pdf
+          status: confirmed
+        - period_end: "2021-12-31"
+          period_type: half_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2021/disclosure-statement-31-december-2021.pdf
+          status: confirmed
+        - period_end: "2021-06-30"
+          period_type: full_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2021/annual-report-disclosure-statement-30-june-2021.pdf
+          status: confirmed
+        - period_end: "2020-12-31"
+          period_type: half_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2020/disclosure-statement-31-december-2020.pdf
+          status: confirmed
+        - period_end: "2020-06-30"
+          period_type: full_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2020/annual-report-disclosure-statement-30-june-2020.pdf
+          status: confirmed
+        - period_end: "2019-12-31"
+          period_type: half_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2019/disclosure-statement-31-december-2019.pdf
+          status: confirmed
+        - period_end: "2019-06-30"
+          period_type: full_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2019/annual-report-disclosure-statement-30-june-2019.pdf
+          status: confirmed
+        - period_end: "2018-12-31"
+          period_type: half_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2018/disclosure-statement-31-december-2018.pdf
+          status: confirmed
+        - period_end: "2018-06-30"
+          period_type: full_year
+          url: https://www.asb.co.nz/content/dam/asb/documents/reports-and-announcements/disclosure-statements/2018/annual-report-disclosure-statement-30-june-2018.pdf
+          status: confirmed
+
+    - id: bnz
+      rbnz_entity_name: BNZ
+      investor_relations_url: https://www.bnz.co.nz/about-us/governance-and-investor-information/financials
+      year_end_date: "09-30"
+      half_year_end_date: "03-31"
+      output_dir: data/raw/financial_disclosures/bnz/
+      # URL patterns (3 distinct patterns across years):
+      #   2023+: /assets/about-us/financials/pdfs/bnz-disclosure-statement-{period}-{date}.pdf
+      #   2021-2022: /assets/financials/pdfs/{YYYY}-BNZ-Disclosure-Statement-{Period}-{date}.pdf
+      #   2018-2020: /assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-{YYYY-MM-DD}.pdf
+      reports:
+        - period_end: "2024-09-30"
+          period_type: full_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-disclosure-statement-year-ended-30-september-2024.pdf
+          status: confirmed
+        - period_end: "2024-03-31"
+          period_type: half_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-disclosure-statement-six-months-ended-31-march-2024.pdf
+          status: confirmed
+        - period_end: "2023-09-30"
+          period_type: full_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-disclosure-statement-year-ended-30-september-2023.pdf
+          status: confirmed
+        - period_end: "2023-03-31"
+          period_type: half_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-disclosure-statement-six-months-ended-31-march-2023.pdf
+          status: pending
+        - period_end: "2022-09-30"
+          period_type: full_year
+          url: https://www.bnz.co.nz/assets/financials/pdfs/2022-BNZ-Disclosure-Statement-Year-Ended-30-September-2022.pdf
+          status: confirmed
+        - period_end: "2022-03-31"
+          period_type: half_year
+          url: https://www.bnz.co.nz/assets/financials/pdfs/2022-BNZ-Disclosure-Statement-Six-Months-Ended-31-March-2022.pdf
+          status: confirmed
+        - period_end: "2021-09-30"
+          period_type: full_year
+          url: https://www.bnz.co.nz/assets/financials/pdfs/2021-BNZ-Disclosure-Statement-Year-Ended-30-September-2021.pdf
+          status: confirmed
+        - period_end: "2021-03-31"
+          period_type: half_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2021-03-31.pdf
+          status: pending
+        - period_end: "2020-09-30"
+          period_type: full_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/BNZ-Financial-Disclosure-Statement-2020-09-30.pdf
+          status: confirmed
+        - period_end: "2020-03-31"
+          period_type: half_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2020-03-31.pdf
+          status: confirmed
+        - period_end: "2019-09-30"
+          period_type: full_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2019-09-30.pdf
+          status: confirmed
+        - period_end: "2019-03-31"
+          period_type: half_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/BNZ-financial-disclosure-statement-31-March-2019.pdf
+          status: confirmed
+        - period_end: "2018-09-30"
+          period_type: full_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2018-09-30.pdf
+          status: pending
+        - period_end: "2018-03-31"
+          period_type: half_year
+          url: https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2018-03-31.pdf
+          status: confirmed
+
+    - id: westpac
+      rbnz_entity_name: Westpac
+      investor_relations_url: https://www.westpac.co.nz/about-us/legal-information-privacy/disclosure-statements-archive/
+      year_end_date: "09-30"
+      half_year_end_date: "03-31"
+      output_dir: data/raw/financial_disclosures/westpac/
+      # URL pattern: /assets/About-us/Disclosure-statements/{YYYY}/{Month}/WNZL-DS-{DD}-{Month}-{YYYY}.pdf
+      reports:
+        - period_end: "2024-09-30"
+          period_type: full_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2024/September/WNZL-DS-30-September-2024.pdf
+          status: pending
+        - period_end: "2024-03-31"
+          period_type: half_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2024/March/WNZL-DS-31-March-2024.pdf
+          status: confirmed
+        - period_end: "2023-09-30"
+          period_type: full_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2023/September/WNZL-DS-30-September-2023.pdf
+          status: confirmed
+        - period_end: "2023-03-31"
+          period_type: half_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2023/March/WNZL-DS-31-March-2023.pdf
+          status: confirmed
+        - period_end: "2022-09-30"
+          period_type: full_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2022/September/WNZL-DS-30-September-2022.pdf
+          status: confirmed
+        - period_end: "2022-03-31"
+          period_type: half_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2022/March/WNZL-DS-31-March-2022.pdf
+          status: confirmed
+        - period_end: "2021-09-30"
+          period_type: full_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2021/September/WNZL-DS-30-September-2021.pdf
+          status: confirmed
+        - period_end: "2021-03-31"
+          period_type: half_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2021/March/WNZL-DS-31-March-2021.pdf
+          status: confirmed
+        - period_end: "2020-09-30"
+          period_type: full_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2020/September/WNZL-DS-30-September-2020.pdf
+          status: confirmed
+        - period_end: "2020-03-31"
+          period_type: half_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2020/March/WNZL-DS-31-March-2020.pdf
+          status: confirmed
+        - period_end: "2019-09-30"
+          period_type: full_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2019/September/WNZL-DS-30-September-2019.pdf
+          status: confirmed
+        - period_end: "2019-03-31"
+          period_type: half_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2019/March/WNZL-DS-31-March-2019.pdf
+          status: confirmed
+        - period_end: "2018-09-30"
+          period_type: full_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2018/September/WNZL-DS-30-September-2018.pdf
+          status: confirmed
+        - period_end: "2018-03-31"
+          period_type: half_year
+          url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2018/March/WNZL-DS-31-March-2018.pdf
+          status: confirmed
+
+    - id: kiwibank
+      rbnz_entity_name: Kiwibank
+      investor_relations_url: https://www.kiwibank.co.nz/about-us/governance/legal-documents-and-information/legal-documents/
+      year_end_date: "06-30"
+      half_year_end_date: "12-31"
+      output_dir: data/raw/financial_disclosures/kiwibank/
+      # Note: media.kiwibank.co.nz subdomain with inconsistent filenames.
+      # Only confirmed entries have been directly validated. All inferred entries
+      # are marked pending and must be HTTP-validated before use.
+      reports:
+        - period_end: "2024-06-30"
+          period_type: full_year
+          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2024.pdf
+          status: confirmed
+        - period_end: "2023-12-31"
+          period_type: half_year
+          url: https://media.kiwibank.co.nz/media/documents/General_disclosure_statement_Dec23.pdf
+          status: pending
+        - period_end: "2023-06-30"
+          period_type: full_year
+          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2023.pdf
+          status: pending
+        - period_end: "2022-12-31"
+          period_type: half_year
+          url: https://media.kiwibank.co.nz/media/documents/General_disclosure_statement_Dec22.pdf
+          status: pending
+        - period_end: "2022-06-30"
+          period_type: full_year
+          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2022.pdf
+          status: pending
+        - period_end: "2021-12-31"
+          period_type: half_year
+          url: https://media.kiwibank.co.nz/media/documents/General_disclosure_statement_Dec21.pdf
+          status: pending
+        - period_end: "2021-06-30"
+          period_type: full_year
+          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2021.pdf
+          status: pending
+        - period_end: "2020-12-31"
+          period_type: half_year
+          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Dec20.pdf
+          status: pending
+        - period_end: "2020-06-30"
+          period_type: full_year
+          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_-_June_2020.pdf
+          status: confirmed
+        - period_end: "2019-12-31"
+          period_type: half_year
+          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Dec19.pdf
+          status: pending
+        - period_end: "2019-06-30"
+          period_type: full_year
+          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Jun19.pdf
+          status: pending
+        - period_end: "2018-12-31"
+          period_type: half_year
+          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Dec18.pdf
+          status: pending
+        - period_end: "2018-06-30"
+          period_type: full_year
+          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Jun18_yNUvl5d.pdf
+          status: confirmed
+
+    - id: rabobank
+      rbnz_entity_name: Rabobank
+      investor_relations_url: https://www.rabobank.co.nz/corporate/regulatory-disclosures/
+      year_end_date: "12-31"
+      half_year_end_date: "06-30"
+      output_dir: data/raw/financial_disclosures/rabobank/
+      # URL patterns:
+      #   2019+: /globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-{month}-{year}.pdf
+      #   2018-2019 (confirmed): /content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/{year}/rnzl-disclosure-statement-{month}-{yy}.pdf
+      reports:
+        - period_end: "2024-12-31"
+          period_type: full_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-december-2024.pdf
+          status: pending
+        - period_end: "2024-06-30"
+          period_type: half_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-june-2024.pdf
+          status: pending
+        - period_end: "2023-12-31"
+          period_type: full_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-december-2023.pdf
+          status: confirmed
+        - period_end: "2023-06-30"
+          period_type: half_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-june-2023.pdf
+          status: confirmed
+        - period_end: "2022-12-31"
+          period_type: full_year
+          url: https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2022/rnzl-disclosurestatement-311222.pdf
+          status: confirmed
+        - period_end: "2022-06-30"
+          period_type: half_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-june-2022.pdf
+          status: confirmed
+        - period_end: "2021-12-31"
+          period_type: full_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-december-2021.pdf
+          status: confirmed
+        - period_end: "2021-06-30"
+          period_type: half_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-june-2021.pdf
+          status: confirmed
+        - period_end: "2020-12-31"
+          period_type: full_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-december-2020.pdf
+          status: confirmed
+        - period_end: "2020-06-30"
+          period_type: half_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-june-2020.pdf
+          status: confirmed
+        - period_end: "2019-12-31"
+          period_type: full_year
+          url: https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2019/rnzl-disclosure-statement-dec-19-31032020.pdf
+          status: confirmed
+        - period_end: "2019-06-30"
+          period_type: half_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-june-2019.pdf
+          status: confirmed
+        - period_end: "2018-12-31"
+          period_type: full_year
+          url: https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2018/rnzl-disclosure-statement-dec-18.pdf
+          status: confirmed
+        - period_end: "2018-06-30"
+          period_type: half_year
+          url: https://www.rabobank.co.nz/globalassets/about-rabobank/documents/nz/rabobank-nzl-disclosure-statement-june-2018.pdf
+          status: confirmed
