@@ -26,6 +26,18 @@ Last updated: 2026-04-28 (process-data pipeline and spike completions)
 
 ## Work Log
 
+### 2026-04-28 — Frontend enhancements: default metrics, top 6 banks, historical charts (W-0017, W-0018)
+
+**Completed:**
+
+- **W-0017**: Default KPI metrics updated to Cost to Income Ratio, Return on Equity, Return on Assets, NIM. Top 6 standalone banks (ANZ, ASB, BNZ, Westpac, Kiwibank, Rabobank) set as default view. Cost to Income computed client-side from stored income components.
+- **W-0018**: Chart.js 4.x historical time-series charts added (2×2 grid, one per key metric). All 32 quarters (2018-Q1 → 2025-Q4) rendered as line charts per bank with hover tooltips.
+- Added three new RBNZ income series to `config/metrics.yaml`: Trading and Hedging Gains (DBB.QIE50), Fees and Commission Income (DBB.QIE55), Other Income (DBB.QIE57).
+- Processed data regenerated: **13,900 rows** (was 11,815; +2,085 from 3 new series).
+- Glossary updated: Trading and Hedging Gains, Fees and Commission Income, Other Income, Cost to Income Ratio (with ADR-0001 derivation note).
+- Bank selector with brand colours, checkbox pills, and quick-select buttons (Top 6 / All / Standalone only).
+- Latest Quarter Snapshot comparison table (banks as rows, key metrics as columns, ▲/▼ trend vs previous quarter).
+
 ### 2026-04-28 — Process-data pipeline and spike completions (work-through-backlog)
 
 **Completed:**

@@ -27,6 +27,9 @@ mappings:
     DBB.QIE13: "Return on Equity"
     DBB.QIE15: "NIM"
     DBB.QIE40: "Net Interest Income"
+    DBB.QIE50: "Trading and Hedging Gains"
+    DBB.QIE55: "Fees and Commission Income"
+    DBB.QIE57: "Other Income"
     DBB.QIE60: "Operating Expenses"
     DBB.QIE90: "Profit After Tax"
 

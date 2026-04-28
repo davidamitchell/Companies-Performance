@@ -303,6 +303,38 @@ Depends on W-0010 and W-0013.
 
 ---
 
+### W-0017
+
+status: done
+created: 2026-04-28
+updated: 2026-04-28
+
+### Outcome
+
+Default KPI metrics updated to: Cost to Income Ratio, Return on Equity, Return on Assets, NIM. Default entity view limited to top 6 standalone banks by total assets: ANZ, ASB, BNZ, Westpac, Kiwibank, Rabobank. Cost to Income Ratio computed client-side from stored income component series (NII + Trading + Fees + Other Income) and Operating Expenses.
+
+### Context
+
+Cost to Income Ratio is not a pre-calculated series in the RBNZ XLSX. Three income component series added to `config/metrics.yaml` (Trading and Hedging Gains, Fees and Commission Income, Other Income) to enable client-side derivation. Per ADR-0001, derived values are not stored in the canonical data files; computation is performed in the frontend.
+
+---
+
+### W-0018
+
+status: done
+created: 2026-04-28
+updated: 2026-04-28
+
+### Outcome
+
+Historical time-series line charts added to the frontend. One chart per key metric (Cost to Income Ratio, Return on Equity, Return on Assets, NIM) showing all visible banks across all available quarters. Chart.js loaded from CDN. Charts are responsive and replace the period-based card view as the primary view.
+
+### Context
+
+Depends on W-0017 and W-0010. Requires processed data to include all 32 quarters.
+
+---
+
 ## Phase 4: Qualitative Data Extraction (Deferred)
 
 ### W-0015

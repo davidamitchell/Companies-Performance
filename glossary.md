@@ -128,4 +128,16 @@ Customer and institutional deposits — the primary funding source. Expressed in
 ### Equity
 Total shareholders' equity (residual interest). Expressed in NZDm. RBNZ series R14.
 
+### Trading and Hedging Gains
+Net gains and losses on trading and hedging activities. Expressed in NZDm. RBNZ series Q4.
+
+### Fees and Commission Income
+Net fees and commissions earned from banking services. Expressed in NZDm. RBNZ series Q5.
+
+### Other Income
+All other operating income not captured in interest income, trading gains, or fees. Expressed in NZDm. RBNZ series Q6.
+
+### Cost to Income Ratio
+Total operating expenses divided by total operating income (Net Interest Income + Trading and Hedging Gains + Fees and Commission Income + Other Income). Measures operational efficiency. Lower is more efficient. Expressed as a percentage. **Derived from RBNZ series Q7 ÷ (Q3 + Q4 + Q5 + Q6); computed in the frontend, not stored in canonical data files (see ADR-0001).**
+
 ---
