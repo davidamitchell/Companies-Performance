@@ -206,6 +206,7 @@ tempCodeRunnerFile.py
 # Companies Performance — raw data files (downloaded by CI, not committed)
 data/raw/*.xlsx
 data/raw/*.xls
+data/raw/**/*.pdf
 
 # Ruff stuff:
 .ruff_cache/

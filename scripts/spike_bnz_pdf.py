@@ -32,7 +32,11 @@ from src.logger import get_logger
 
 logger = get_logger(__name__)
 
-_USER_AGENT = "Companies-Performance/1.0 (github.com/davidamitchell/Companies-Performance)"
+_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/124.0.0.0 Safari/537.36"
+)
 _SOURCE_URL = "https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-disclosure-statement-year-ended-30-september-2024.pdf"
 _OUTPUT_DIR = Path("data/raw/financial_disclosures/bnz")
 _PDF_PATH = _OUTPUT_DIR / "bnz-disclosure-statement-2024-09-30.pdf"
