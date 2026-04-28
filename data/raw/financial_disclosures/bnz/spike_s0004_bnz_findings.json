@@ -1,0 +1,56 @@
+{
+  "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-disclosure-statement-year-ended-30-september-2024.pdf",
+  "downloaded_at": "2026-04-28T20:13:51.968858+00:00",
+  "total_pages": 98,
+  "pages_with_tables": [
+    52,
+    86,
+    87
+  ],
+  "total_tables_found": 3,
+  "first_table_page": 52,
+  "first_table_row_count": 23,
+  "first_table_column_count": 6,
+  "first_table_sample": [
+    [
+      "Net interest income",
+      "2,089",
+      "715",
+      "2,804",
+      "105",
+      "2,909"
+    ],
+    [
+      "Other income1",
+      "212",
+      "250",
+      "462",
+      "245",
+      "707"
+    ],
+    [
+      "Total operating income2",
+      "2,301",
+      "965",
+      "3,266",
+      "350",
+      "3,616"
+    ],
+    [
+      "Operating expenses",
+      "262",
+      "59",
+      "321",
+      "1,071",
+      "1,392"
+    ],
+    [
+      "Total operating profit/(loss) before credit impairment charge and income tax expense",
+      "2,039",
+      "906",
+      "2,945",
+      "(721)",
+      "2,224"
+    ]
+  ]
+}
