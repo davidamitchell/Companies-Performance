@@ -3,120 +3,441 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Companies Performance</title>
+  <title>NZ Bank Performance</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #f5f6fa;
       color: #2d3436;
-      padding: 2rem;
     }
-    header {
-      max-width: 960px;
-      margin: 0 auto 2rem;
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+    /* ── Header ─────────────────────────────────────── */
+    header { margin-bottom: 1.5rem; }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p { color: #636e72; margin-top: 0.3rem; font-size: 0.9rem; }
+    #status { margin-top: 0.4rem; font-size: 0.82rem; color: #0984e3; }
+
+    /* ── Bank selector ───────────────────────────────── */
+    .bank-selector { margin-top: 1rem; }
+    .bank-selector-label {
+      font-size: 0.8rem; color: #636e72; margin-bottom: 0.4rem;
+      display: flex; align-items: center; gap: 0.75rem;
     }
-    header h1 { font-size: 1.75rem; font-weight: 700; }
-    header p  { color: #636e72; margin-top: 0.4rem; }
-    #status   { margin-top: 0.5rem; font-size: 0.85rem; color: #0984e3; }
-    main { max-width: 960px; margin: 0 auto; }
-    .cards {
+    .quick-btn {
+      background: none; border: 1px solid #dfe6e9; border-radius: 4px;
+      padding: 0.15rem 0.5rem; font-size: 0.75rem; cursor: pointer; color: #2d3436;
+    }
+    .quick-btn:hover { background: #f0f4ff; }
+    .bank-checks { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .bank-check-label {
+      display: flex; align-items: center; gap: 0.3rem;
+      background: #fff; border: 1px solid #dfe6e9; border-radius: 20px;
+      padding: 0.2rem 0.65rem; font-size: 0.8rem; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .bank-check-label:hover { background: #f0f4ff; }
+    .bank-check-label input { display: none; }
+    .bank-check-label.checked {
+      background: var(--bank-color, #0984e3);
+      border-color: var(--bank-color, #0984e3);
+      color: #fff;
+    }
+
+    /* ── Section headings ────────────────────────────── */
+    section { margin-bottom: 2rem; }
+    .section-title {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: baseline; gap: 0.5rem;
+    }
+    .section-title span { font-size: 0.82rem; font-weight: 400; color: #636e72; }
+
+    /* ── Chart grid ─────────────────────────────────── */
+    .chart-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
       gap: 1rem;
     }
-    .card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 1.25rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    .chart-card {
+      background: #fff; border-radius: 8px; padding: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
     }
-    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid #f0f0f0; }
-    th { color: #636e72; font-weight: 500; }
-    .no-data { color: #b2bec3; font-style: italic; text-align: center; padding: 1rem 0; }
-    footer { max-width: 960px; margin: 2rem auto 0; font-size: 0.8rem; color: #b2bec3; }
+    .chart-card h3 { font-size: 0.85rem; font-weight: 600; color: #2d3436; margin-bottom: 0.5rem; }
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* ── Snapshot table ──────────────────────────────── */
+    .snapshot-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; background: #fff;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    th { text-align: left; padding: 0.5rem 0.75rem; background: #f8f9fa; color: #636e72;
+         font-weight: 500; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+    td { padding: 0.45rem 0.75rem; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    .entity-cell { font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+    .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .val-null { color: #b2bec3; }
+    .trend-up   { color: #00b894; font-size: 0.7rem; margin-left: 0.15rem; }
+    .trend-down { color: #d63031; font-size: 0.7rem; margin-left: 0.15rem; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer { font-size: 0.78rem; color: #b2bec3; padding: 1.5rem 0 0.5rem; }
     a { color: #0984e3; text-decoration: none; }
     a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
+<div class="page-wrap">
+
   <header>
-    <h1>Companies Performance</h1>
-    <p>Financial performance metrics — sourced from the RBNZ Bank Financial Strength Dashboard.</p>
+    <h1>NZ Bank Performance</h1>
+    <p>Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
+
+    <div class="bank-selector">
+      <div class="bank-selector-label">
+        Banks shown:
+        <button class="quick-btn" id="btn-top6">Top 6</button>
+        <button class="quick-btn" id="btn-all">All</button>
+        <button class="quick-btn" id="btn-standalone">Standalone only</button>
+      </div>
+      <div class="bank-checks" id="bank-checks"></div>
+    </div>
   </header>
 
   <main>
-    <div id="cards" class="cards"></div>
+    <section id="charts-section">
+      <div class="section-title">
+        Historical Performance
+        <span id="period-range"></span>
+      </div>
+      <div class="chart-grid" id="chart-grid"></div>
+    </section>
+
+    <section id="snapshot-section">
+      <div class="section-title">
+        Latest Quarter Snapshot
+        <span id="latest-period-label"></span>
+      </div>
+      <div class="snapshot-wrap">
+        <table id="snapshot-table">
+          <thead><tr id="snapshot-head"></tr></thead>
+          <tbody id="snapshot-body"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
   <footer>
     <p>
-      Data source: <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>.
-      Updated via GitHub Actions on each successful pipeline run.
-      See <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">repository</a> for source.
+      Data sourced from public disclosures including the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>.
+      Updated via GitHub Actions.
+      <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">Source</a>.
     </p>
   </footer>
 
-  <script>
-    const DATA_URL = '../data/processed/metrics.json';
+</div>
 
-    async function loadData() {
-      const statusEl = document.getElementById('status');
-      const cardsEl  = document.getElementById('cards');
+<script>
+  /* ── Configuration ─────────────────────────────────────────────────────── */
+  const DATA_URL = 'data/processed/metrics.json';
 
-      try {
-        const resp = await fetch(DATA_URL);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const rows = await resp.json();
-        statusEl.textContent = `${rows.length} metric rows loaded.`;
-        renderCards(rows, cardsEl);
-      } catch (err) {
-        statusEl.textContent = 'No data available yet — run the fetch-data workflow to populate.';
-        statusEl.style.color = '#b2bec3';
-        cardsEl.innerHTML = '<p class="no-data">Pipeline has not run yet. Trigger the fetch-data workflow from the Actions tab.</p>';
-        console.warn('Data load failed:', err);
+  // Key metrics to chart and show in snapshot.
+  // 'Cost to Income Ratio' is derived client-side (not stored in data).
+  const KEY_METRICS = [
+    'Cost to Income Ratio',
+    'Return on Equity',
+    'Return on Assets',
+    'NIM',
+  ];
+
+  const METRIC_LABELS = {
+    'Cost to Income Ratio': 'Cost to Income (%)',
+    'Return on Equity':     'Return on Equity (%)',
+    'Return on Assets':     'Return on Assets (%)',
+    'NIM':                  'Net Interest Margin (%)',
+  };
+
+  // Default banks shown on load.
+  const TOP_6_BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];
+
+  // All standalone (non-group) entities.
+  const STANDALONE = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
+                      'Heartland','ICBC','CCB','BOC','BOB','BOI'];
+
+  // Brand colours (approx).
+  const BANK_COLORS = {
+    'ANZ':      '#0064A3',
+    'ASB':      '#C8102E',
+    'BNZ':      '#231F20',
+    'Westpac':  '#D5001C',
+    'Kiwibank': '#1B7A3E',
+    'Rabobank': '#FF6600',
+    'TSB':      '#5B3FA6',
+    'SBS':      '#005BAA',
+    'Co-op':    '#2ECC71',
+    'Heartland':'#F39C12',
+    'ICBC':     '#E74C3C',
+    'CCB':      '#8E44AD',
+    'BOC':      '#16A085',
+    'BOB':      '#D35400',
+    'BOI':      '#2C3E50',
+    'ANZ Group':'#7FB3D3',
+    'WBC Group':'#E8929A',
+    'CBA Group':'#95A5A6',
+    'BOC Group':'#76D7C4',
+    'CCB Group':'#C39BD3',
+    'Rabo Group':'#FAD7A0',
+    'ICBC Group':'#F1948A',
+  };
+  function bankColor(name) {
+    return BANK_COLORS[name] || '#636e72';
+  }
+
+  /* ── State ─────────────────────────────────────────────────────────────── */
+  let allRows  = [];
+  let allPeriods = [];
+  let allEntities = [];
+  let selectedEntities = new Set(TOP_6_BANKS);
+  let charts = [];        // Chart.js instances
+
+  /* ── Derived data: Cost to Income Ratio ───────────────────────────────── */
+  /**
+   * Build a nested map: entity → period → metric → value
+   * and add a computed 'Cost to Income Ratio' entry where possible.
+   */
+  function buildLookup(rows) {
+    const lookup = {};
+    for (const r of rows) {
+      if (!lookup[r.entity]) lookup[r.entity] = {};
+      if (!lookup[r.entity][r.period]) lookup[r.entity][r.period] = {};
+      lookup[r.entity][r.period][r.metric] = r.value;
+    }
+    // Compute CIR for each entity+period
+    for (const [entity, periods] of Object.entries(lookup)) {
+      for (const [period, metrics] of Object.entries(periods)) {
+        const opex = metrics['Operating Expenses'];
+        const nii  = metrics['Net Interest Income'];
+        const trad = metrics['Trading and Hedging Gains'];
+        const fees = metrics['Fees and Commission Income'];
+        const oth  = metrics['Other Income'];
+        // All components must be non-null and income > 0
+        if (opex != null && nii != null) {
+          const income = nii + (trad ?? 0) + (fees ?? 0) + (oth ?? 0);
+          if (income > 0) {
+            lookup[entity][period]['Cost to Income Ratio'] =
+              Math.round((opex / income) * 1000) / 10; // round to 1dp
+          }
+        }
       }
     }
+    return lookup;
+  }
 
-    function renderCards(rows, container) {
-      // Group rows by entity
-      const byEntity = {};
-      for (const row of rows) {
-        if (!byEntity[row.entity]) byEntity[row.entity] = [];
-        byEntity[row.entity].push(row);
-      }
+  /* ── Data loading ─────────────────────────────────────────────────────── */
+  async function loadData() {
+    const statusEl = document.getElementById('status');
+    try {
+      const resp = await fetch(DATA_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      allRows = await resp.json();
 
-      container.innerHTML = '';
-      for (const [entity, metrics] of Object.entries(byEntity).sort()) {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <h2>${escHtml(entity)}</h2>
-          <table>
-            <thead><tr><th>Metric</th><th>Value</th><th>Period</th></tr></thead>
-            <tbody>
-              ${metrics.map(r => `
-                <tr>
-                  <td>${escHtml(r.metric)}</td>
-                  <td>${r.value !== null && r.value !== undefined ? escHtml(String(r.value)) : '—'}</td>
-                  <td>${escHtml(r.period || '—')}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
-        container.appendChild(card);
-      }
+      allPeriods  = [...new Set(allRows.map(r => r.period))].sort();
+      allEntities = [...new Set(allRows.map(r => r.entity))].sort();
+
+      statusEl.textContent =
+        `${allRows.length.toLocaleString()} metric rows — ` +
+        `${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
+
+      buildBankSelector();
+      render();
+    } catch (err) {
+      statusEl.textContent =
+        'No data yet — trigger the fetch-data then process-data workflows.';
+      statusEl.style.color = '#b2bec3';
+      console.warn('Data load failed:', err);
     }
+  }
 
-    function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  /* ── Bank selector ────────────────────────────────────────────────────── */
+  function buildBankSelector() {
+    const container = document.getElementById('bank-checks');
+    container.innerHTML = '';
+    for (const entity of allEntities) {
+      const label = document.createElement('label');
+      label.className = 'bank-check-label' + (selectedEntities.has(entity) ? ' checked' : '');
+      label.style.setProperty('--bank-color', bankColor(entity));
+      label.innerHTML = `<input type="checkbox" value="${escHtml(entity)}"${selectedEntities.has(entity) ? ' checked' : ''}>${escHtml(entity)}`;
+      label.addEventListener('change', e => {
+        if (e.target.checked) {
+          selectedEntities.add(entity);
+          label.classList.add('checked');
+        } else {
+          selectedEntities.delete(entity);
+          label.classList.remove('checked');
+        }
+        render();
+      });
+      container.appendChild(label);
     }
+  }
 
-    loadData();
-  </script>
+  function applySelection(entities) {
+    selectedEntities = new Set(entities);
+    document.querySelectorAll('.bank-check-label').forEach(label => {
+      const cb = label.querySelector('input');
+      const entity = cb.value;
+      const sel = selectedEntities.has(entity);
+      cb.checked = sel;
+      label.classList.toggle('checked', sel);
+    });
+    render();
+  }
+
+  document.getElementById('btn-top6').addEventListener('click', () => applySelection(TOP_6_BANKS));
+  document.getElementById('btn-all').addEventListener('click', () => applySelection(allEntities));
+  document.getElementById('btn-standalone').addEventListener('click', () =>
+    applySelection(allEntities.filter(e => STANDALONE.includes(e))));
+
+  /* ── Render ───────────────────────────────────────────────────────────── */
+  function render() {
+    const lookup = buildLookup(allRows);
+    const visible = allEntities.filter(e => selectedEntities.has(e));
+
+    renderCharts(lookup, visible);
+    renderSnapshot(lookup, visible);
+
+    const latestPeriod = allPeriods[allPeriods.length - 1] || '';
+    document.getElementById('latest-period-label').textContent = latestPeriod;
+    document.getElementById('period-range').textContent =
+      allPeriods.length ? `${allPeriods[0]} – ${allPeriods[allPeriods.length - 1]}` : '';
+  }
+
+  /* ── Charts ───────────────────────────────────────────────────────────── */
+  function renderCharts(lookup, visible) {
+    // Destroy existing charts
+    charts.forEach(c => c.destroy());
+    charts = [];
+
+    const grid = document.getElementById('chart-grid');
+    grid.innerHTML = '';
+
+    for (let i = 0; i < KEY_METRICS.length; i++) {
+      const metric = KEY_METRICS[i];
+      const label  = METRIC_LABELS[metric] || metric;
+
+      const card = document.createElement('div');
+      card.className = 'chart-card';
+      card.innerHTML = `<h3>${escHtml(label)}</h3><div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>`;
+      grid.appendChild(card);
+
+      const datasets = visible.map(entity => {
+        const data = allPeriods.map(p => {
+          const v = lookup[entity]?.[p]?.[metric];
+          return (v != null) ? v : null;
+        });
+        return {
+          label: entity,
+          data,
+          borderColor: bankColor(entity),
+          backgroundColor: bankColor(entity) + '22',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+          spanGaps: false,
+        };
+      }).filter(ds => ds.data.some(v => v != null));
+
+      const ctx = document.getElementById(`chart-${i}`).getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: allPeriods, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 11 }, boxWidth: 12, padding: 8 },
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: {
+                font: { size: 10 },
+                maxRotation: 45,
+                autoSkip: true,
+                maxTicksLimit: 16,
+              },
+              grid: { display: false },
+            },
+            y: {
+              ticks: { font: { size: 10 } },
+              grid: { color: '#f0f0f0' },
+            },
+          },
+        },
+      });
+      charts.push(chart);
+    }
+  }
+
+  /* ── Snapshot table ───────────────────────────────────────────────────── */
+  function renderSnapshot(lookup, visible) {
+    const latestPeriod = allPeriods[allPeriods.length - 1];
+    const prevPeriod   = allPeriods[allPeriods.length - 2];
+
+    // Header
+    const head = document.getElementById('snapshot-head');
+    head.innerHTML = '<th>Bank</th>' +
+      KEY_METRICS.map(m => `<th>${escHtml(METRIC_LABELS[m] || m)}</th>`).join('');
+
+    // Rows
+    const body = document.getElementById('snapshot-body');
+    body.innerHTML = '';
+    for (const entity of visible) {
+      const latest = lookup[entity]?.[latestPeriod] || {};
+      const prev   = lookup[entity]?.[prevPeriod]   || {};
+      const tr = document.createElement('tr');
+      let cells = `<td><div class="entity-cell">
+        <span class="swatch" style="background:${bankColor(entity)}"></span>
+        ${escHtml(entity)}
+      </div></td>`;
+      for (const metric of KEY_METRICS) {
+        const val  = latest[metric];
+        const pval = prev[metric];
+        if (val == null) {
+          cells += `<td class="val-null">—</td>`;
+        } else {
+          let trend = '';
+          if (pval != null) {
+            if (val > pval)      trend = '<span class="trend-up">▲</span>';
+            else if (val < pval) trend = '<span class="trend-down">▼</span>';
+          }
+          cells += `<td>${val.toFixed(1)}${trend}</td>`;
+        }
+      }
+      tr.innerHTML = cells;
+      body.appendChild(tr);
+    }
+  }
+
+  /* ── Utilities ────────────────────────────────────────────────────────── */
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadData();
+</script>
 </body>
 </html>

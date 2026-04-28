@@ -1,12 +1,44 @@
 # Metrics mapping configuration
 # Maps raw data field names from source files to canonical glossary terms.
-# Populated incrementally as source data is analysed.
+# Populated from spike S-0001 (RBNZ XLSX structure investigation).
 #
 # Format:
 #   mappings:
 #     <source_id>:
-#       <raw_field_name>: <canonical_metric_name>
+#       <series_id>: <canonical_metric_name>
 #
 # Canonical metric names are defined in glossary.md.
+# Source IDs match the source identifier stamped on processed rows (e.g. "rbnz-dashboard").
+# Series IDs are taken from the "Series Id" row (row 5) of the RBNZ XLSX Data sheet.
 
-mappings: {}
+mappings:
+  rbnz-dashboard:
+    # --- Capital adequacy ---
+    DBB.QIB10: "Total Capital Ratio"
+    DBB.QIB12: "CET1 Ratio"
+    DBB.QIB14: "Tier 1 Capital Ratio"
+
+    # --- Asset quality (total loans) ---
+    DBB.QIC10: "NPL Ratio"
+    DBB.QIC50: "Total Non-Performing Loans"
+
+    # --- Profitability ---
+    DBB.QIE10: "Return on Assets"
+    DBB.QIE13: "Return on Equity"
+    DBB.QIE15: "NIM"
+    DBB.QIE40: "Net Interest Income"
+    DBB.QIE50: "Trading and Hedging Gains"
+    DBB.QIE55: "Fees and Commission Income"
+    DBB.QIE57: "Other Income"
+    DBB.QIE60: "Operating Expenses"
+    DBB.QIE90: "Profit After Tax"
+
+    # --- Balance sheet ---
+    DBB.QIG10: "Total Assets"
+    DBB.QIG20: "Cash Position"
+    DBB.QIG30: "Net Loans and Advances"
+    DBB.QIG55: "Deposits"
+    DBB.QIG90: "Equity"
+
+    # --- Liquidity ---
+    DBB.QIH30: "Core Funding Ratio (CFR)"

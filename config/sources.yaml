@@ -13,3 +13,6 @@ rbnz:
         Covers capital adequacy, liquidity, asset quality, and profitability
         metrics for registered banks in New Zealand.
       output_file: data/raw/rbnz-dashboard.xlsx
+      # Fallback for development: manually committed file (see ADR-0003).
+      # Used by process_data.py when output_file is absent (fetch workflow not yet run).
+      committed_file: data/Bank-Financial-Strength-Dashboard-Data.xlsx

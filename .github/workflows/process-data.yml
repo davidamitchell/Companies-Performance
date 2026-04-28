@@ -1,0 +1,58 @@
+name: Process Data
+
+# Parses the RBNZ XLSX, normalises rows into the canonical schema, validates
+# data quality, and commits the processed files:
+#   - data/processed/metrics.csv
+#   - docs/data/processed/metrics.json
+#
+# Triggers:
+#   - Manually via workflow_dispatch
+#   - Automatically after a successful Fetch Data run
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Fetch Data"]
+    types: [completed]
+
+jobs:
+  process:
+    name: Process RBNZ Dashboard Data
+    runs-on: ubuntu-latest
+
+    # Skip if triggered by a failed fetch run
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Process data
+        run: python scripts/process_data.py
+
+      - name: Commit processed data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/processed/ docs/data/
+          if git diff --cached --quiet; then
+            echo "INFO No changes — processed data is already up to date"
+          else
+            git commit -m "data: process RBNZ dashboard metrics [skip ci]"
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push
+          fi
