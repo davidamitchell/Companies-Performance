@@ -112,7 +112,7 @@
         <div class="pipeline-arrow">→</div>
         <div class="pipeline-step">GitHub Actions<br><small style="color:#636e72">fetch-data workflow</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step"><code>data/raw/</code><br><small style="color:#636e72">committed to git</small></div>
+        <div class="pipeline-step"><code>data/raw/</code><br><small style="color:#636e72">PDFs committed; XLSX gitignored</small></div>
         <div class="pipeline-arrow">→</div>
         <div class="pipeline-step">GitHub Actions<br><small style="color:#636e72">process-data workflow</small></div>
         <div class="pipeline-arrow">→</div>
@@ -321,7 +321,7 @@
             </thead>
             <tbody>
               <tr><td><code>entity</code></td><td>string</td><td>Institution name as published by the RBNZ (e.g. <code>ANZ</code>, <code>Kiwibank</code>).</td></tr>
-              <tr><td><code>metric</code></td><td>string</td><td>Canonical metric name — must match <code>glossary.md</code> verbatim.</td></tr>
+              <tr><td><code>metric</code></td><td>string</td><td>Canonical metric name — must match the <a href="glossary.html">glossary</a> verbatim (source of truth: <code>glossary.md</code> in the repository).</td></tr>
               <tr><td><code>value</code></td><td>float | null</td><td>Numeric value as reported; not rounded or normalised. Null if absent in source.</td></tr>
               <tr><td><code>period</code></td><td>date string</td><td>Quarter-end date (YYYY-MM-DD).</td></tr>
               <tr><td><code>source</code></td><td>string</td><td>Source identifier (e.g. <code>rbnz-dashboard</code>).</td></tr>
