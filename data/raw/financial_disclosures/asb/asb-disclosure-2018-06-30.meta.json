@@ -1,0 +1,10 @@
+{
+  "bank_id": "asb",
+  "bank_name": "ASB",
+  "period_end": "2018-06-30",
+  "period_type": "full_year",
+  "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-and-annual-report-june-2018.pdf",
+  "downloaded_at": "2026-04-29T19:25:10.888703+00:00",
+  "file_size_bytes": 606613,
+  "sha256": "9e096976f0fba9122676ffa63bc3805418490f58d2136736af66b2e80499c720"
+}

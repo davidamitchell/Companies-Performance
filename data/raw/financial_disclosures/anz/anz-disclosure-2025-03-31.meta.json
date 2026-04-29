@@ -1,0 +1,10 @@
+{
+  "bank_id": "anz",
+  "bank_name": "ANZ",
+  "period_end": "2025-03-31",
+  "period_type": "half_year",
+  "source_url": "https://www.anz.co.nz/content/dam/anzconz/documents/about-us/disclosure-statements/ANZ-Bank-NZ-Ltd-DS-Mar25.pdf",
+  "downloaded_at": "2026-04-29T19:24:49.714826+00:00",
+  "file_size_bytes": 1051836,
+  "sha256": "759a0bd5e464602f8a3d151030c8848d09d261e8f714ec3e3e6f8ee098a87485"
+}

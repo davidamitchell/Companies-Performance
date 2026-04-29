@@ -1,0 +1,10 @@
+{
+  "bank_id": "asb",
+  "bank_name": "ASB",
+  "period_end": "2023-12-31",
+  "period_type": "half_year",
+  "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2023/asb-disclosure-statement-december-2023.pdf",
+  "downloaded_at": "2026-04-29T19:24:58.850665+00:00",
+  "file_size_bytes": 594911,
+  "sha256": "acd1bba58e8616dafa52a020c4d4776db32203f029f38b93be3a0509cbfadd86"
+}
