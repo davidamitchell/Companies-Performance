@@ -252,7 +252,7 @@ financial_disclosures:
         - period_end: "2024-09-30"
           period_type: full_year
           url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2024/September/WNZL-DS-30-September-2024.pdf
-          status: pending
+          status: not_reachable  # WAF blocks all pipeline downloads (HTTP 403/timeout)
         - period_end: "2024-03-31"
           period_type: half_year
           url: https://www.westpac.co.nz/assets/About-us/Disclosure-statements/2024/March/WNZL-DS-31-March-2024.pdf
@@ -308,66 +308,71 @@ financial_disclosures:
 
     - id: kiwibank
       rbnz_entity_name: Kiwibank
-      investor_relations_url: https://www.kiwibank.co.nz/about-us/governance/legal-documents-and-information/legal-documents/
+      investor_relations_url: https://www.kiwibank.co.nz/about-us/governance/investor-centre/investor-reports/
       year_end_date: "06-30"
       half_year_end_date: "12-31"
       output_dir: data/raw/financial_disclosures/kiwibank/
-      # Note: media.kiwibank.co.nz subdomain with inconsistent filenames.
-      # Only confirmed entries have been directly validated. All inferred entries
-      # are marked pending and must be HTTP-validated before use.
+      # URL patterns (2 distinct paths):
+      #   2024+: /media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-{month}-{year}.pdf
+      #   2018-2023: /media/documents/about-us/governance/disclosure-statement-{month}-{year}.pdf
+      # Note: www.kiwibank.co.nz blocks pipeline sandbox IPs (timeout). Manual download required.
       reports:
+        - period_end: "2024-12-31"
+          period_type: half_year
+          url: https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-december-2024.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2024-06-30"
           period_type: full_year
-          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2024.pdf
-          status: not_reachable  # media.kiwibank.co.nz blocks all pipeline downloads
+          url: https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-june-2024.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2023-12-31"
           period_type: half_year
-          url: https://media.kiwibank.co.nz/media/documents/General_disclosure_statement_Dec23.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2023.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2023-06-30"
           period_type: full_year
-          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2023.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2023.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2022-12-31"
           period_type: half_year
-          url: https://media.kiwibank.co.nz/media/documents/General_disclosure_statement_Dec22.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2022.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2022-06-30"
           period_type: full_year
-          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2022.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2022.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2021-12-31"
           period_type: half_year
-          url: https://media.kiwibank.co.nz/media/documents/General_disclosure_statement_Dec21.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2021.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2021-06-30"
           period_type: full_year
-          url: https://media.kiwibank.co.nz/media/documents/Kiwibank_Disclosure_Statement_June_2021.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2021.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2020-12-31"
           period_type: half_year
-          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Dec20.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2020.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2020-06-30"
           period_type: full_year
-          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_-_June_2020.pdf
-          status: not_reachable  # media.kiwibank.co.nz blocks all pipeline downloads
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2020.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2019-12-31"
           period_type: half_year
-          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Dec19.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2019.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2019-06-30"
           period_type: full_year
-          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Jun19.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2019.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2018-12-31"
           period_type: half_year
-          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Dec18.pdf
-          status: pending
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2018.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2018-06-30"
           period_type: full_year
-          url: https://media.kiwibank.co.nz/media/documents/General_Disclosure_Statement_Jun18_yNUvl5d.pdf
-          status: not_reachable  # media.kiwibank.co.nz blocks all pipeline downloads
+          url: https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2018.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
 
     - id: rabobank
       rbnz_entity_name: Rabobank

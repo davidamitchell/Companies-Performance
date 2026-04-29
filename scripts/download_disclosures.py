@@ -11,13 +11,20 @@ The script is **idempotent**: if a PDF already exists and its SHA-256 checksum
 matches the value in the sidecar file, the download is skipped.  Pass
 ``--force`` to re-download all files regardless.
 
+For PDFs that were placed manually (e.g. downloaded on a local machine because
+the server blocks cloud IPs), run with ``--backfill-metadata`` to generate the
+sidecar without re-downloading.  The ``source_url`` is read from
+``config/sources.yaml``; ``downloaded_at`` is set to the file's modification
+time.
+
 Usage::
 
     python scripts/download_disclosures.py [--force] [--bank <bank_id>]
+    python scripts/download_disclosures.py --backfill-metadata [--bank <bank_id>]
 
 Exit codes
 ----------
-0 — all downloads succeeded (or were already present)
+0 — all downloads succeeded (or were already present / backfilled)
 1 — one or more downloads failed (partial success is allowed)
 """
 
@@ -205,13 +212,85 @@ def download_bank(
     return ok, failed
 
 
+def backfill_bank_metadata(bank: dict[str, Any]) -> tuple[int, int]:
+    """Generate sidecar metadata for manually-placed PDFs that have no sidecar.
+
+    This is useful for PDFs that were downloaded on a local machine because the
+    server blocks cloud/CI IP ranges.  The ``source_url`` is read from
+    ``config/sources.yaml``; ``downloaded_at`` is derived from the file's
+    modification time.
+
+    Parameters
+    ----------
+    bank:
+        Bank configuration dict from ``config/sources.yaml``.
+
+    Returns
+    -------
+    (backfilled, skipped)
+        Count of sidecars written and PDFs already having a valid sidecar.
+    """
+    bank_id = bank["id"]
+    bank_name = bank.get("rbnz_entity_name", bank_id)
+    all_reports = bank.get("reports", [])
+
+    # Build a lookup from period_end → report config for url / period_type
+    report_lookup: dict[str, dict[str, Any]] = {str(r["period_end"]): r for r in all_reports}
+
+    bank_dir = _OUTPUT_ROOT / bank_id
+    if not bank_dir.is_dir():
+        return 0, 0
+
+    backfilled = skipped = 0
+    for pdf in sorted(bank_dir.glob(f"{bank_id}-disclosure-*.pdf")):
+        # Derive period_end from filename: <bank_id>-disclosure-<period_end>.pdf
+        stem = pdf.stem  # e.g. "anz-disclosure-2024-09-30"
+        period_end = stem[len(f"{bank_id}-disclosure-") :]
+
+        meta_p = meta_path_for(bank_id, period_end)
+        existing_meta = read_meta(meta_p)
+        if existing_meta and _is_fresh(pdf, existing_meta):
+            logger.info(
+                "%s %s: sidecar already valid — skipping",
+                bank_id,
+                period_end,
+            )
+            skipped += 1
+            continue
+
+        report = report_lookup.get(period_end, {})
+        source_url = report.get("url", "")
+        period_type = str(report.get("period_type", ""))
+
+        # Use file mtime as a proxy for download time
+        mtime = datetime.fromtimestamp(pdf.stat().st_mtime, tz=UTC)
+        downloaded_at = mtime.isoformat()
+
+        checksum = sha256_file(pdf)
+        write_meta(
+            meta_p,
+            bank_id=bank_id,
+            bank_name=bank_name,
+            period_end=period_end,
+            period_type=period_type,
+            source_url=source_url,
+            downloaded_at=downloaded_at,
+            file_size_bytes=pdf.stat().st_size,
+            sha256=checksum,
+        )
+        logger.info("%s %s: sidecar backfilled", bank_id, period_end)
+        backfilled += 1
+
+    return backfilled, skipped
+
+
 def main(argv: list[str] | None = None) -> int:
     """Entry point: download all confirmed disclosure statement PDFs.
 
     Returns
     -------
     0
-        All downloads succeeded (or were already present).
+        All downloads succeeded (or were already present / backfilled).
     1
         One or more downloads failed.
     """
@@ -226,6 +305,15 @@ def main(argv: list[str] | None = None) -> int:
         metavar="BANK_ID",
         help="Only download reports for the specified bank ID.",
     )
+    parser.add_argument(
+        "--backfill-metadata",
+        action="store_true",
+        help=(
+            "Generate sidecar .meta.json files for PDFs that were placed manually "
+            "(e.g. downloaded locally because the server blocks cloud IPs). "
+            "Does not attempt any network download."
+        ),
+    )
     args = parser.parse_args(argv)
 
     banks = load_banks()
@@ -234,6 +322,19 @@ def main(argv: list[str] | None = None) -> int:
         if not banks:
             logger.error("No bank found with id %r", args.bank)
             return 1
+
+    if args.backfill_metadata:
+        total_backfilled = total_skipped = 0
+        for bank in banks:
+            backfilled, skipped = backfill_bank_metadata(bank)
+            total_backfilled += backfilled
+            total_skipped += skipped
+        logger.info(
+            "Backfill complete: %d sidecars written, %d already valid",
+            total_backfilled,
+            total_skipped,
+        )
+        return 0
 
     total_ok = total_failed = 0
     for bank in banks:

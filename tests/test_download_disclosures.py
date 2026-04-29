@@ -11,6 +11,7 @@ import pytest
 
 from scripts.download_disclosures import (
     _is_fresh,
+    backfill_bank_metadata,
     download_bank,
     download_pdf,
     load_banks,
@@ -440,3 +441,144 @@ def test_main_force_flag_is_passed_to_download_bank() -> None:
         main(["--force"])
 
     assert received_force == [True]
+
+
+# ---------------------------------------------------------------------------
+# backfill_bank_metadata
+# ---------------------------------------------------------------------------
+
+
+def test_backfill_writes_sidecar_for_pdf_without_meta(tmp_path: Path) -> None:
+    """backfill_bank_metadata generates a sidecar for a PDF with no sidecar."""
+    bank = _make_bank(bank_id="testbank")
+    pdf = tmp_path / "testbank" / "testbank-disclosure-2024-09-30.pdf"
+    pdf.parent.mkdir(parents=True)
+    pdf.write_bytes(b"%PDF-1.4 manual")
+
+    with patch("scripts.download_disclosures._OUTPUT_ROOT", tmp_path):
+        backfilled, skipped = backfill_bank_metadata(bank)
+
+    assert backfilled == 1
+    assert skipped == 0
+    meta_p = tmp_path / "testbank" / "testbank-disclosure-2024-09-30.meta.json"
+    assert meta_p.exists()
+    meta = json.loads(meta_p.read_text())
+    assert meta["bank_id"] == "testbank"
+    assert meta["source_url"] == "https://example.com/test.pdf"
+    assert meta["period_end"] == "2024-09-30"
+    assert meta["period_type"] == "full_year"
+    assert "sha256" in meta
+    assert "downloaded_at" in meta
+    assert "file_size_bytes" in meta
+
+
+def test_backfill_skips_pdf_with_valid_sidecar(tmp_path: Path) -> None:
+    """backfill_bank_metadata skips PDFs whose sidecar checksum matches."""
+    bank = _make_bank(bank_id="testbank")
+    content = b"%PDF fresh"
+    pdf = tmp_path / "testbank" / "testbank-disclosure-2024-09-30.pdf"
+    pdf.parent.mkdir(parents=True)
+    pdf.write_bytes(content)
+    checksum = hashlib.sha256(content).hexdigest()
+    meta_p = tmp_path / "testbank" / "testbank-disclosure-2024-09-30.meta.json"
+    meta_p.write_text(json.dumps({"sha256": checksum}))
+
+    with patch("scripts.download_disclosures._OUTPUT_ROOT", tmp_path):
+        backfilled, skipped = backfill_bank_metadata(bank)
+
+    assert backfilled == 0
+    assert skipped == 1
+
+
+def test_backfill_returns_zeros_when_dir_missing(tmp_path: Path) -> None:
+    """backfill_bank_metadata returns (0, 0) when the bank dir does not exist."""
+    bank = _make_bank(bank_id="ghost")
+    with patch("scripts.download_disclosures._OUTPUT_ROOT", tmp_path):
+        backfilled, skipped = backfill_bank_metadata(bank)
+    assert backfilled == 0
+    assert skipped == 0
+
+
+def test_backfill_uses_mtime_as_downloaded_at(tmp_path: Path) -> None:
+    """backfill_bank_metadata sets downloaded_at from the file modification time."""
+
+    bank = _make_bank(bank_id="testbank")
+    pdf = tmp_path / "testbank" / "testbank-disclosure-2024-09-30.pdf"
+    pdf.parent.mkdir(parents=True)
+    pdf.write_bytes(b"%PDF test")
+
+    with patch("scripts.download_disclosures._OUTPUT_ROOT", tmp_path):
+        backfill_bank_metadata(bank)
+
+    meta_p = tmp_path / "testbank" / "testbank-disclosure-2024-09-30.meta.json"
+    meta = json.loads(meta_p.read_text())
+    # downloaded_at should be a valid ISO 8601 timestamp
+    from datetime import datetime as dt_
+
+    parsed = dt_.fromisoformat(meta["downloaded_at"])
+    now = dt_.now(tz=parsed.tzinfo)
+    # Should be within a few seconds of now (file was just written)
+    assert abs((now - parsed).total_seconds()) < 60
+
+
+def test_main_backfill_metadata_calls_backfill_function() -> None:
+    """main() with --backfill-metadata calls backfill_bank_metadata."""
+    bank = _make_bank()
+    calls: list[str] = []
+
+    def _fake_backfill(b: dict) -> tuple[int, int]:
+        calls.append(b["id"])
+        return 1, 0
+
+    with (
+        patch("scripts.download_disclosures.load_banks", return_value=[bank]),
+        patch(
+            "scripts.download_disclosures.backfill_bank_metadata",
+            side_effect=_fake_backfill,
+        ),
+    ):
+        result = main(["--backfill-metadata"])
+
+    assert result == 0
+    assert calls == ["testbank"]
+
+
+def test_main_backfill_metadata_does_not_call_download_bank() -> None:
+    """main() with --backfill-metadata does not call download_bank."""
+    bank = _make_bank()
+    with (
+        patch("scripts.download_disclosures.load_banks", return_value=[bank]),
+        patch(
+            "scripts.download_disclosures.backfill_bank_metadata",
+            return_value=(0, 0),
+        ),
+        patch("scripts.download_disclosures.download_bank") as mock_dl,
+    ):
+        main(["--backfill-metadata"])
+
+    mock_dl.assert_not_called()
+
+
+def test_main_backfill_with_bank_filter() -> None:
+    """main() --backfill-metadata respects the --bank filter."""
+    bank_a = _make_bank("anz")
+    bank_b = _make_bank("asb")
+    calls: list[str] = []
+
+    def _fake_backfill(b: dict) -> tuple[int, int]:
+        calls.append(b["id"])
+        return 0, 0
+
+    with (
+        patch(
+            "scripts.download_disclosures.load_banks",
+            return_value=[bank_a, bank_b],
+        ),
+        patch(
+            "scripts.download_disclosures.backfill_bank_metadata",
+            side_effect=_fake_backfill,
+        ),
+    ):
+        main(["--backfill-metadata", "--bank", "anz"])
+
+    assert calls == ["anz"]
