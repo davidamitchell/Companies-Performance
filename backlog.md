@@ -335,6 +335,28 @@ Depends on W-0017 and W-0010. Requires processed data to include all 32 quarters
 
 ---
 
+### W-0023
+
+status: done
+created: 2026-04-29
+updated: 2026-04-29
+
+### Outcome
+
+The GitHub Pages site (`docs/`) is styled to match the davidamitchell design system used in
+[Research](https://davidamitchell.github.io/Research/) and
+[Latest-developments](https://davidamitchell.github.io/Latest-developments-/).
+Visual language: dark background (`#0d0d0d`), IBM Plex Mono typeface (from Google Fonts),
+teal (`#00C3A5`) accent, border-only cards (no box-shadow, no border-radius), fixed top nav.
+Shared design tokens extracted to `docs/css/theme.css`. Chart.js charts updated to dark mode defaults.
+
+### Context
+
+Site was previously styled with light background and system UI fonts, inconsistent with
+the design system used across other davidamitchell GitHub Pages sites.
+
+---
+
 ## Phase 3.5: Frontend Enhancements
 
 ### W-0019

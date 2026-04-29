@@ -4,123 +4,87 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Sources — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f6fa;
-      color: #2d3436;
-    }
-    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    /* ── Page-specific styles ─────────────────────────────────────────────── */
+    .tag-rbnz { border-color: var(--text-muted); color: var(--text-muted); }
+    .tag-pdf  { border-color: var(--dusk); color: var(--dusk); }
 
-    /* ── Nav ─────────────────────────────────────────── */
-    nav { margin-bottom: 1.25rem; font-size: 0.85rem; }
-    nav a { color: #0984e3; text-decoration: none; }
-    nav a:hover { text-decoration: underline; }
-    nav span { color: #b2bec3; margin: 0 0.4rem; }
-    nav .current { color: #2d3436; font-weight: 600; }
-
-    /* ── Header ─────────────────────────────────────── */
-    header { margin-bottom: 2rem; }
-    header h1 { font-size: 1.6rem; font-weight: 700; }
-    header p { color: #636e72; margin-top: 0.3rem; font-size: 0.9rem; }
-
-    /* ── Sections ────────────────────────────────────── */
-    section { margin-bottom: 2.5rem; }
-    h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.4rem;
-         border-bottom: 2px solid #f0f0f0; }
-    h3 { font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
-
-    /* ── Cards ───────────────────────────────────────── */
-    .card {
-      background: #fff; border-radius: 8px; padding: 1.25rem 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: 1rem;
-    }
-    .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .card p, .card li { font-size: 0.85rem; color: #2d3436; line-height: 1.6; }
-    .card ul { padding-left: 1.2rem; margin-top: 0.4rem; }
-    .card li { margin-bottom: 0.2rem; }
-    .tag {
-      display: inline-block; font-size: 0.72rem; font-weight: 600;
-      padding: 0.1rem 0.45rem; border-radius: 4px; margin-right: 0.3rem;
-      vertical-align: middle;
-    }
-    .tag-rbnz { background: #dfe6e9; color: #2d3436; }
-    .tag-pdf  { background: #ffeaa7; color: #6c5ce7; }
-    .source-url { font-size: 0.8rem; margin-top: 0.5rem; color: #636e72; }
-    .source-url a { color: #0984e3; }
-    code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 0.82rem;
-           background: #f0f3f7; padding: 0.1em 0.4em; border-radius: 3px; }
-
-    /* ── Pipeline flow ───────────────────────────────── */
     .pipeline {
       display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
-      margin: 1rem 0; font-size: 0.83rem;
+      margin: 1rem 0; font-size: var(--text-sm);
     }
     .pipeline-step {
-      background: #fff; border: 1px solid #dfe6e9; border-radius: 6px;
-      padding: 0.35rem 0.75rem;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.35rem 0.75rem; font-size: var(--text-xs);
+      color: var(--text-muted);
     }
-    .pipeline-arrow { color: #b2bec3; font-size: 1rem; }
+    .pipeline-step small { color: var(--text-muted); display: block; }
+    .pipeline-arrow { color: var(--teal); }
 
-    /* ── Table ───────────────────────────────────────── */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;
-            border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
-    th { text-align: left; padding: 0.5rem 0.75rem; background: #f8f9fa; color: #636e72;
-         font-weight: 500; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
-    td { padding: 0.42rem 0.75rem; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
-    tr:last-child td { border-bottom: none; }
-    .status-confirmed { color: #00b894; font-weight: 600; }
-    .status-partial   { color: #e17055; font-weight: 600; }
-    .status-blocked   { color: #b2bec3; }
+    .status-confirmed { color: var(--teal); font-weight: 600; }
+    .status-partial   { color: var(--dusk); font-weight: 600; }
+    .status-blocked   { color: var(--text-muted); }
 
-    /* ── Footer ─────────────────────────────────────── */
-    footer { font-size: 0.78rem; color: #b2bec3; padding: 1.5rem 0 0.5rem; }
-    a { color: #0984e3; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    /* Section h2 → section-heading style */
+    section h2 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="data-sources.html" class="active">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+    </div>
+  </div>
+</nav>
+
 <div class="page-wrap">
 
-  <nav>
-    <a href="index.html">Home</a>
-    <span>›</span>
-    <span class="current">Data Sources</span>
-    <span>·</span>
-    <a href="glossary.html">Glossary &amp; Calculations</a>
-  </nav>
-
-  <header>
+  <div class="page-header">
     <h1>Data Sources</h1>
     <p>Where the data comes from, how it is collected, and how it flows through the pipeline.</p>
-  </header>
+  </div>
 
   <main>
 
     <!-- ── Pipeline overview ── -->
     <section id="pipeline">
       <h2>Pipeline Overview</h2>
-      <p style="font-size:0.85rem;line-height:1.6;margin-bottom:1rem;">
+      <p style="font-size:var(--text-sm);line-height:1.6;margin-bottom:1rem;color:var(--text-muted)">
         All data is collected by GitHub Actions workflows and committed back to the repository.
         The processed output is served as static files by GitHub Pages.
         No server-side code runs at request time.
       </p>
       <div class="pipeline">
-        <div class="pipeline-step">Source files<br><small style="color:#636e72">(XLSX, PDF)</small></div>
+        <div class="pipeline-step">Source files<br><small style="color:var(--text-muted)">(XLSX, PDF)</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">GitHub Actions<br><small style="color:#636e72">fetch-data workflow</small></div>
+        <div class="pipeline-step">GitHub Actions<br><small style="color:var(--text-muted)">fetch-data workflow</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step"><code>data/raw/</code><br><small style="color:#636e72">PDFs committed; XLSX gitignored</small></div>
+        <div class="pipeline-step"><code>data/raw/</code><br><small style="color:var(--text-muted)">PDFs committed; XLSX gitignored</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">GitHub Actions<br><small style="color:#636e72">process-data workflow</small></div>
+        <div class="pipeline-step">GitHub Actions<br><small style="color:var(--text-muted)">process-data workflow</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step"><code>data/processed/</code><br><small style="color:#636e72">CSV + JSON</small></div>
+        <div class="pipeline-step"><code>data/processed/</code><br><small style="color:var(--text-muted)">CSV + JSON</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">GitHub Pages<br><small style="color:#636e72">static frontend</small></div>
+        <div class="pipeline-step">GitHub Pages<br><small style="color:var(--text-muted)">static frontend</small></div>
       </div>
-      <p style="font-size:0.82rem;color:#636e72;margin-top:0.5rem;">
+      <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.5rem;letter-spacing:0.04em">
         Workflows are triggered manually. All data commits are machine-authored and auditable in the git history.
       </p>
     </section>
@@ -222,7 +186,7 @@
     <!-- ── Bank PDFs ── -->
     <section id="bank-disclosures">
       <h2>Bank General Disclosure Statements</h2>
-      <p style="font-size:0.85rem;line-height:1.6;margin-bottom:1rem;">
+      <p style="font-size:var(--text-sm);line-height:1.6;margin-bottom:1rem;color:var(--text-muted)">
         NZ-registered banks are required under the
         <a href="https://www.legislation.govt.nz/act/public/1989/0157/latest/whole.html" target="_blank" rel="noopener">Reserve Bank of New Zealand Act 1989</a>
         to publish General Disclosure Statements (GDS) half-yearly.
@@ -300,7 +264,7 @@
         </table>
       </div>
 
-      <p style="font-size:0.82rem;color:#636e72;margin-top:0.75rem;">
+      <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.75rem;letter-spacing:0.04em">
         <strong>Status key:</strong>
         <span class="status-confirmed">confirmed</span> = URL verified and PDF downloaded;
         <span class="status-partial">partial</span> = some periods available, others blocked or missing;
@@ -340,12 +304,9 @@
   </main>
 
   <footer>
-    <p>
-      Data sourced from public disclosures including the
-      <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>.
-      Updated via GitHub Actions.
-      <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">Source</a>.
-    </p>
+    Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>
+    &mdash; updated via GitHub Actions &mdash;
+    <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">source</a>
   </footer>
 
 </div>
