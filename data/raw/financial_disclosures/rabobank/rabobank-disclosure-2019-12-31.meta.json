@@ -1,0 +1,10 @@
+{
+  "bank_id": "rabobank",
+  "bank_name": "Rabobank",
+  "period_end": "2019-12-31",
+  "period_type": "full_year",
+  "source_url": "https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2019/rnzl-disclosure-statement-dec-19-31032020.pdf",
+  "downloaded_at": "2026-04-29T19:34:30.020162+00:00",
+  "file_size_bytes": 2412535,
+  "sha256": "a1ff7485ea8ffc86051f764dbf6b3cf824a64f5147b565aae65102c94407083b"
+}

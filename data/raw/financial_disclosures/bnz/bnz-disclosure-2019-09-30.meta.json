@@ -1,0 +1,10 @@
+{
+  "bank_id": "bnz",
+  "bank_name": "BNZ",
+  "period_end": "2019-09-30",
+  "period_type": "full_year",
+  "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2019-09-30.pdf",
+  "downloaded_at": "2026-04-29T19:25:14.888410+00:00",
+  "file_size_bytes": 672453,
+  "sha256": "71eef777333fe642abaf370c07a493c4441b1ec7d59a3c4e83786d8cfa795141"
+}
