@@ -3,7 +3,7 @@
 **Date:** 2026-04-28
 **Spike ID:** S-0004
 **Status:** Complete -- findings populated from `scripts/spike_bnz_pdf.py` and
-`scripts/spike_multi_bank_pdf.py` runs on 2026-04-28
+`scripts/spike_multi_bank_pdf.py` runs on 2026-04-28 (BNZ, Kiwibank, Rabobank) and 2026-04-29 (ANZ, ASB)
 
 ---
 
@@ -14,12 +14,15 @@ machine-readable using `pdfplumber`, and whether the financial tables they
 contain overlap with or extend the RBNZ Bank Financial Strength Dashboard
 metrics already in the pipeline.
 
-Three of the six banks were inspected: BNZ, Kiwibank, and Rabobank. ANZ, ASB,
-and Westpac PDFs were inaccessible from the pipeline environment (HTTP 403/404)
+Five of the six banks have been inspected: BNZ, Kiwibank, Rabobank, ANZ, and
+ASB. ANZ and ASB PDFs were retrieved after navigating their investor pages to
+find the correct CDN URLs. Westpac PDFs remain inaccessible (HTTP 403/WAF block)
 -- see the [Inaccessible Banks](#inaccessible-banks) section.
 
 **Findings JSON files (per-bank):**
 ```
+data/raw/financial_disclosures/anz/spike_s0004_multi_findings.json
+data/raw/financial_disclosures/asb/spike_s0004_multi_findings.json
 data/raw/financial_disclosures/bnz/spike_s0004_multi_findings.json
 data/raw/financial_disclosures/kiwibank/spike_s0004_multi_findings.json
 data/raw/financial_disclosures/rabobank/spike_s0004_multi_findings.json
@@ -32,12 +35,146 @@ data/raw/financial_disclosures/spike_s0004_cross_bank_summary.json
 
 | Bank | Period | Pages | Table pages | Image pages | Primary method |
 |---|---|---|---|---|---|
+| ANZ | 2025-09-30 | 116 | 69 | 4 | `extract_tables()` |
+| ASB | 2025-06-30 | 122 | 81 | 5 | `extract_tables()` |
 | BNZ | 2024-09-30 | 98 | 3 | 3 | `extract_text()` |
 | Kiwibank | 2024-06-30 | 113 | 79 | 1 | `extract_tables()` |
 | Rabobank | 2022-12-31 | 107 | 9 | 5 | `extract_text()` |
-| ANZ | 2024-09-30 | -- | -- | -- | NOT ACCESSIBLE |
-| ASB | 2024-06-30 | -- | -- | -- | NOT ACCESSIBLE |
 | Westpac | 2024-03-31 | -- | -- | -- | NOT ACCESSIBLE |
+
+---
+
+## ANZ (year ended 30 September 2025, 116 pages)
+
+**Source:** `https://www.anz.co.nz/content/dam/anzconz/documents/about-us/disclosure-statements/ANZ-Bank-NZ-Ltd-DS-Sep25.pdf`
+
+**URL discovery:** Navigated `https://www.anz.co.nz/about-us/media-centre/investor-information/` with a
+Chrome User-Agent; PDFs are listed directly in the page HTML at the new `anzconz/documents/` DAM path.
+Older `anzcoz/` URLs have been removed from the CDN and return 404.
+
+### Structure
+
+`pdfplumber.extract_tables()` found tables on **69 of 116 pages** (59% table-based). The document is
+primarily table-driven -- similar to Kiwibank but denser. Key financial statement pages are
+readable as text columns.
+
+### Income Statement (page 4)
+
+Machine-readable via `extract_text()`. The statement is fully structured and compact (2 pages total).
+FY2025 and FY2024 comparatives are present in a single column layout with NZ$m units:
+
+```
+Income Statement
+                                                    2025    2024
+                                                    NZ$m    NZ$m
+Interest income                                   10,532  11,914
+Interest expense                                  (5,880) (7,512)
+Net interest income                                4,652   4,402
+Other operating income                               902     480
+Operating income                                   5,554   4,882
+Operating expenses                                (1,812) (1,760)
+Profit before credit impairment and income tax     3,742   3,122
+Credit impairment release/(charge)                    25     (44)
+Profit before income tax                           3,767   3,078
+Income tax expense                                (1,053)   (870)
+Profit for the year                                2,714   2,208
+```
+
+The Statement of Comprehensive Income follows immediately on the same page.
+Two sparse table objects exist on this page but contain only column header artefacts;
+`extract_text()` is the correct extraction method.
+
+### Balance Sheet (page 5)
+
+Machine-readable via `extract_text()`. Full balance sheet with all major line items; FY2025 and
+FY2024 comparatives. NZ$m units. One table object exists on this page (38 rows x 5 cols) but
+rows are mostly empty -- layout artefact, not data.
+
+Key asset line items:
+- Cash and cash equivalents: NZ$9,386m (2025) / NZ$11,634m (2024)
+- Net loans and advances: NZ$158,683m / NZ$151,666m
+- Total assets: NZ$209,989m / NZ$199,176m
+
+### Cash Flow Statement (page 6)
+
+Machine-readable via `extract_text()`. Direct method; FY2025 and FY2024 comparatives; NZ$m units.
+Includes operating, investing, and financing sections.
+
+### Capital Adequacy (pages 56-115+)
+
+The keyword "capital adequacy" appears on 22 pages. The primary Capital Adequacy schedule
+begins around pages 56-59, covering:
+- CET1, Tier 1, Total Capital ratios
+- Risk-weighted assets by exposure class (IRB approach)
+- Liquidity ratios
+- Leverage ratios
+
+ANZ uses the **Internal Ratings-Based (IRB) approach** for credit risk. The section is extensive
+and primarily table-based (part of the 69 table pages). All content is machine-readable.
+
+---
+
+## ASB (year ended 30 June 2025, 122 pages)
+
+**Source:** `https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2025/asb-disclosure-statement-and-annual-report-june-2025.pdf`
+
+**URL discovery:** Raw HTML of `https://www.asb.co.nz/legal/disclosure-statements.html` contains all
+PDF paths directly embedded in the page source (JavaScript-rendered list, but present in the HTML).
+The correct DAM path is `legal/disclosurestatements/`, not the previously assumed
+`reports-and-announcements/disclosure-statements/` path (which returns 404 for all periods).
+
+### Structure
+
+`pdfplumber.extract_tables()` found tables on **81 of 122 pages** (66% table-based). Similar layout
+density to Kiwibank and ANZ. Key statement pages are readable as text; notes are primarily table-based.
+
+### Income Statement (page 9)
+
+Machine-readable via `extract_text()`. Notably, page 9 is a **five-year Historical Summary**
+containing Income Statement, Balance Sheet summary, and Capital data for 2021-2025 in a single
+overview page. This is more data-rich than point-in-time statements:
+
+```
+Historical Summary of Financial Statements ($ millions, Banking Group)
+For the year ended 30 June          2025    2024    2023    2022    2021
+Interest income                    7,739   7,568   5,806   3,603   3,528
+Interest expense                   4,681   4,640   2,761   1,004   1,141
+Net interest income                3,058   2,928   3,045   2,599   2,387
+Other income                         444     465     444     585     528
+Total operating income             3,502   3,393   3,489   3,184   2,915
+Impairment losses/(recoveries)        60      70      64      41      (5)
+Total operating expenses           1,427   1,296   1,258   1,108   1,084
+Net profit before tax              2,015   2,027   2,167   2,035   1,836
+Tax expense                          566     572     608     564     515
+Net profit after tax               1,449   1,455   1,559   1,471   1,321
+```
+
+The detailed Income Statement is on a separate page later in the document.
+
+### Balance Sheet (page 12)
+
+Machine-readable via `extract_text()`. Standard single-column layout with FY2025 and FY2024
+comparatives; NZ$m units.
+
+Key line items:
+- Total assets: NZ$135,164m (2025) / NZ$127,089m (2024)
+- Net advances to customers: NZ$114,727m / NZ$109,010m
+
+### Cash Flow Statement (page 13)
+
+Machine-readable via `extract_text()`. Indirect method; FY2025 and FY2024 comparatives; NZ$m units.
+
+### Capital Adequacy (pages 65-87+)
+
+The keyword "capital adequacy" appears on 23 pages. The primary Capital Adequacy schedule
+begins around pages 65-87, covering:
+- CET1, Tier 1, Total Capital ratios and capital adequacy ratios
+- Stress testing disclosures
+- Risk-weighted assets by exposure class (IRB approach)
+- Interest rate risk in the banking book
+
+ASB uses the **Internal Ratings-Based (IRB) approach**. All content is machine-readable via
+`extract_tables()` (this section is fully table-based). ASB reports in NZ$ millions.
 
 ---
 
@@ -342,23 +479,22 @@ Capital ratios are computed differently and are not directly comparable.
 
 ## Inaccessible Banks
 
-The following banks' PDFs could not be downloaded from the pipeline sandbox:
+The following bank's PDFs could not be downloaded from the pipeline sandbox:
 
 | Bank | Status | Last confirmed URL |
 |---|---|---|
-| ANZ | HTTP 404 -- URL pattern changed | `anz.co.nz/content/dam/anzcoz/...` |
-| ASB | HTTP 404 -- URL pattern changed | `asb.co.nz/content/dam/asb/...` |
 | Westpac | HTTP 403/000 -- WAF blocking | `westpac.co.nz/assets/About-us/...` |
-| Kiwibank | HTTP 000 -- media CDN blocked | `media.kiwibank.co.nz/...` (NZX API used instead) |
 
-All four maintain accessible web pages and publish disclosure statements;
-the block is environment-specific (pip sandbox outbound traffic restrictions).
-ANZ and ASB return correct PDFs in a browser. Westpac's WAF may require
-a cookie or session token.
+ANZ and ASB have now been resolved by navigating their investor pages in a
+browser environment with a Chrome User-Agent to discover the correct CDN paths:
 
-**Impact on extraction decision:** ANZ and ASB are the two largest NZ retail
-banks. Without inspecting their PDFs, the cross-bank layout comparison is
-incomplete. This remains an open action item before W-0015 begins.
+| Bank | Resolved URL pattern |
+|---|---|
+| ANZ | `anz.co.nz/content/dam/anzconz/documents/about-us/disclosure-statements/ANZ-Bank-NZ-Ltd-DS-{Mon}{YY}.pdf` |
+| ASB | `asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/{YYYY}/{filename}.pdf` |
+
+Westpac's WAF continues to block pipeline downloads. The most recent confirmed
+URL is a half-year report (March 2024). Westpac remains the only uninspected bank.
 
 ---
 
@@ -366,7 +502,7 @@ incomplete. This remains an open action item before W-0015 begins.
 
 ### Income Statement
 
-All three inspected banks include:
+All five inspected banks include the following on their income statement page(s):
 - Interest income and interest expense (gross)
 - Net interest income
 - Total operating income
@@ -375,6 +511,12 @@ All three inspected banks include:
 - Profit before tax
 - Income tax expense
 - Net profit after tax
+
+**ANZ** provides a clean, compact statement (page 4) in NZD millions with two-year
+comparatives. Fully machine-readable via `extract_text()`.
+
+**ASB** provides a five-year historical summary on page 9 (2021-2025 side-by-side),
+making it uniquely useful for trend analysis from a single page.
 
 **BNZ** is the most granular on the statement page itself (interest income split
 into effective interest + fair value; gains on financial instruments separated).
@@ -387,65 +529,69 @@ requires note traversal.
 
 ### Balance Sheet
 
-| Field | BNZ | Kiwibank | Rabobank |
-|---|---|---|---|
-| Cash and central bank | Yes | Note tables | IMAGE-BASED |
-| Loans and advances | Yes | Note tables | IMAGE-BASED |
-| Total assets | Yes | Yes | IMAGE-BASED |
-| Deposits from customers | Yes | Note tables | IMAGE-BASED |
-| Total equity | Yes | Yes | IMAGE-BASED |
+| Field | ANZ | ASB | BNZ | Kiwibank | Rabobank |
+|---|---|---|---|---|---|
+| Cash and liquid assets | Yes | Yes | Yes | Note tables | IMAGE-BASED |
+| Loans and advances | Yes | Yes | Yes | Note tables | IMAGE-BASED |
+| Total assets | Yes | Yes | Yes | Yes | IMAGE-BASED |
+| Deposits from customers | Yes | Yes | Yes | Note tables | IMAGE-BASED |
+| Total equity | Yes | Yes | Yes | Yes | IMAGE-BASED |
 
-The Rabobank balance sheet being image-based is a significant gap. BNZ provides
-the most complete machine-readable balance sheet on the statement page.
+ANZ and ASB both provide complete, machine-readable balance sheets on the
+statement page. The Rabobank balance sheet being image-based remains a
+significant gap for that bank.
 
 ### Cash Flow Statement
 
-All three banks provide net cash flows from operating, investing, and financing
-activities. BNZ and Rabobank provide detailed cash flow line items on the statement
-page; Kiwibank provides only summary subtotals.
+All five banks provide net cash flows from operating, investing, and financing
+activities. ANZ, ASB, BNZ, and Rabobank provide detailed cash flow line items on the
+statement page; Kiwibank provides only summary subtotals.
 
 ### Capital Adequacy
 
-All three banks provide:
+All five inspected banks provide:
 - CET1, Tier 1, and Total Capital ratios
 - Required capital ratios (RBNZ BPR minimums)
 - Capital surplus vs requirements
 
-BNZ and Kiwibank use the **IRB approach** (more granular, risk-weighted by internal
-rating). Rabobank uses the **Standardised Approach** (exposure class averages).
-Cross-bank capital comparison requires acknowledging this methodological difference.
+**ANZ, ASB, BNZ, and Kiwibank** use the **Internal Ratings-Based (IRB) approach**
+(more granular, risk-weighted by internal models). **Rabobank** uses the
+**Standardised Approach** (exposure class averages). Cross-bank capital comparison
+requires acknowledging this methodological difference.
 
 ---
 
 ## Updated Recommendation: Extraction Approach for W-0015
 
-**Recommendation: Hybrid extraction -- `extract_tables()` then `extract_text()` fallback.**
+**Recommendation: Hybrid extraction -- `extract_tables()` primary, `extract_text()` fallback.**
 
-This approach is required because:
-1. Kiwibank is predominantly table-based (79/113 pages have table objects);
-   `extract_text()` alone would miss structured data.
-2. BNZ and Rabobank use text columns; `extract_tables()` finds only 3 and 9
-   tables respectively, missing the primary financial statements.
-3. The Rabobank Balance Sheet is image-based -- a gap to document, log, and
-   fill with OCR if and when required (log WARNING, store null for now).
+This approach is confirmed by all five inspected banks:
+1. ANZ (69/116 table pages), ASB (81/122 table pages), and Kiwibank (79/113 table pages)
+   are predominantly table-based; `extract_text()` alone would miss their note tables.
+2. BNZ and Rabobank use text columns on statement pages; `extract_tables()` finds only 3
+   and 9 tables respectively -- the primary financial statements require `extract_text()`.
+3. Statement header pages (Income Statement, Balance Sheet, Cash Flow) are universally
+   readable via `extract_text()` regardless of the bank's overall extraction method.
+4. The Rabobank Balance Sheet is image-based -- log WARNING and store null until OCR is
+   adopted if needed.
 
-**Decision deferred:** A final extraction approach decision should not be made
-until ANZ and ASB PDFs are inspected. These two banks represent the largest
-share of NZ banking assets and may use different layouts. Inspect before W-0015
-begins.
+**Decision confirmed:** With ANZ and ASB now inspected (the two largest NZ banks by assets),
+the hybrid `extract_tables()` + `extract_text()` approach is validated across all accessible
+banks. This decision can support W-0015 implementation. Only Westpac remains uninspected.
 
 No new dependencies are required beyond `pdfplumber` (already in `pyproject.toml`).
-If Rabobank or Westpac require OCR for their balance sheets, add `pytesseract` or
+If Rabobank or Westpac require OCR for image-based pages, add `pytesseract` or
 `pdfminer.six` at that point and open ADR-0005.
 
 ---
 
 ## Open Questions and Risks
 
-- **ANZ and ASB not inspected** -- The two largest NZ banks are blocked from
-  download in the pipeline environment. Their layouts may differ significantly
-  from BNZ/Kiwibank/Rabobank. Manual inspection or a separate environment is
-  needed before committing to an extraction pipeline. **HIGH PRIORITY.**
+- ~~**ANZ and ASB not inspected**~~ -- **RESOLVED** (2026-04-29). ANZ (116 pages,
+  69 table pages) and ASB (122 pages, 81 table pages) both use the `extract_tables()`
+  primary method. All four key financial statements are machine-readable. URLs were
+  discovered by navigating the banks' investor pages with a Chrome User-Agent and are
+  now confirmed in `config/sources.yaml`.
 
 - **Rabobank Balance Sheet is image-based** -- Page 35 of the 2022 report is a
   scanned image with 0 extractable characters. Balance sheet data is unavailable

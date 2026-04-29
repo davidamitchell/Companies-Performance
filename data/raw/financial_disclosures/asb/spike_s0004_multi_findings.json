@@ -1,0 +1,235 @@
+{
+  "bank_id": "asb",
+  "period_end": "2025-06-30",
+  "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2025/asb-disclosure-statement-and-annual-report-june-2025.pdf",
+  "inspected_at": "2026-04-29T19:00:50.510907+00:00",
+  "total_pages": 122,
+  "table_page_count": 81,
+  "image_page_count": 5,
+  "primary_extraction_method": "extract_tables",
+  "sections": {
+    "Income Statement": {
+      "char_count": 1457,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 2,
+      "table_dims": [
+        "2r x 8c",
+        "2r x 8c"
+      ],
+      "first_table_sample": [
+        [
+          "$ miIIions",
+          "",
+          "",
+          "Banking Group",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "For the year ended 30 June",
+          "",
+          "",
+          "2025",
+          "2024",
+          "2023",
+          "2022",
+          "2021"
+        ]
+      ],
+      "text_sample": "Historical Summary of Financial Statements\n$ miIIions Banking Group\nFor the year ended 30 June 2025 2024 2023 2022 2021\nIncome Statement\nInterest income 7,739 7,568 5,806 3,603 3,528\nInterest expense 4,681 4,640 2,761 1,004 1,141\nNet interest income 3,058 2,928 3,045 2,599 2,387\nOther income 444 465 444 585 528\nTotal operating income 3,502 3,393 3,489 3,184 2,915\nImpairment losses/(recoveries) on financial assets 60 70 64 41 (5)\nTotal operating income after impairment losses/(recoveries) 3,442 3,323 3,425 3,143 2,920\nTotaI operating expenses 1,427 1,296 1,258 1,108 1,084\nNet profit before tax 2,015 2,027 2,167 2,035 1,836\nTax expense 566 572 608 564 515\nNet profit after tax 1,449 1,455 1,559 1,471 1,321\nDividends Paid\nOrdinary dividends paid(1) 1,800 800 700 975 -\nPerpetuaI preference dividends paid - - 25 33 29\nTotaI dividends paid 1,800 800 725 1,008 29\n$ miIIions Banking Group\nAs at 30 June 2025 2024 2023 2022 2021\nBaIance Sheet\nTotaI assets 135,164 127,089 126,896 121,522 112,645\nIndividuaIIy impaired assets 445 373 321 212 329\nTotaI IiabiIities 123,672 116,021 116,217 111,591 103,459\nTotaI sharehoIders' equity 11,492 11,068 10,679 9,931 9,186\n(1) Refer to note 32 for further i",
+      "page": 9,
+      "all_pages": [
+        9,
+        10,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        22,
+        23,
+        25,
+        26,
+        28,
+        29,
+        31,
+        33,
+        34,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        49,
+        53,
+        58,
+        63,
+        66,
+        71,
+        72,
+        89,
+        90,
+        95,
+        96,
+        99,
+        100
+      ],
+      "found": true
+    },
+    "Balance Sheet": {
+      "char_count": 1475,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 1,
+      "table_dims": [
+        "2r x 5c"
+      ],
+      "first_table_sample": [
+        [
+          "$ millions",
+          "",
+          "",
+          "Banking Group",
+          ""
+        ],
+        [
+          "As at 30 June",
+          "Note",
+          "",
+          "2025",
+          "2024"
+        ]
+      ],
+      "text_sample": "Balance Sheet\n$ millions Banking Group\nAs at 30 June Note 2025 2024\nAssets\nCash and liquid assets 7 5,584 5,450\nReceivables from financial institutions 8 578 630\nSecurities:\nAt fair value through Income Statement 9 1,083 -\nAt fair value through other comprehensive income 10 10,483 9,729\nDerivative assets 11 1,244 881\nAdvances to customers 12 114,727 109,010\nOther assets 24 510 542\nProperty, plant and equipment 25 314 293\nIntangible assets 331 253\nDeferred tax assets 26 310 301\nTotal assets 135,164 127,089\nTotal interest earning and discount bearing assets 132,531 125,071\nLiabilities\nDeposits and other borrowings 27 93,422 92,449\nPayables to financial institutions 8 1,539 1,422\nDerivative liabilities 11 410 956\nCurrent tax liabilities 187 145\nOther liabilities 28 1,187 1,447\nProvisions 29 188 139\nDebt issues:\nAt fair value through Income Statement 30 1,959 887\nAt amortised cost 30 23,808 17,635\nLoan capital 31 972 941\nTotal liabilities 123,672 116,021\nShareholder's Equity\nContributed capital - ordinary shares 33 6,873 6,173\nReserves 34 (50) (125)\nRetained earnings 4,669 5,020\nOrdinary shareholder's equity 11,492 11,068\nTotal shareholder's equity 11,492 11,068\nTotal liabilities and s",
+      "page": 12,
+      "all_pages": [
+        8,
+        12,
+        18,
+        19,
+        20,
+        23,
+        27,
+        50,
+        53,
+        55,
+        62,
+        71,
+        74,
+        79,
+        80,
+        81,
+        88,
+        89,
+        90,
+        93,
+        94,
+        98,
+        99,
+        102
+      ],
+      "found": true
+    },
+    "Cash Flow Statement": {
+      "char_count": 2791,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 1,
+      "table_dims": [
+        "2r x 6c"
+      ],
+      "first_table_sample": [
+        [
+          "$ millions",
+          "",
+          "",
+          "",
+          "Banking Group",
+          ""
+        ],
+        [
+          "For the year ended 30 June",
+          "",
+          "Note",
+          "",
+          "2025",
+          "2024"
+        ]
+      ],
+      "text_sample": "Cash Flow Statement\n$ millions Banking Group\nFor the year ended 30 June Note 2025 2024\nCash flows from operating activities\nNet profit before tax 2,015 2,027\nReconciliation of net profit before tax to net cash flows from operating activities\nNon-cash items included in net profit before tax:\nDepreciation of property, plant and equipment 4 72 77\nAmortisation of intangible assets 4 80 82\nNet change in allowance for expected credit loss and bad debts written off 70 80\nAmortisation of loan establishment fees 126 102\nNet change in fair value of financial instruments and hedged items (15) (129)\nOther non-cash items 160 115\nNet (increase)/decrease in operating assets:\nNet change in reverse repurchase agreements (323) (786)\nNet change in receivables from financial institutions 52 (248)\nNet change in securities at fair value through Income Statement (1,059) -\nNet change in securities at fair value through other comprehensive income (390) (2,463)\nNet change in derivative assets 355 (668)\nNet change in advances to customers (5,905) (745)\nNet change in other assets 36 (137)\nNet increase/(decrease) in operating liabilities:\nNet change in deposits and other borrowings 962 2,748\nNet change in paya",
+      "page": 13,
+      "all_pages": [
+        13
+      ],
+      "found": true
+    },
+    "Capital Adequacy": {
+      "char_count": 2773,
+      "image_based": false,
+      "readable_via_tables": false,
+      "readable_via_text": true,
+      "table_count": 1,
+      "table_dims": [
+        "2r x 5c"
+      ],
+      "first_table_sample": [
+        [
+          "",
+          "$ thousands",
+          "",
+          "Banking Group",
+          ""
+        ],
+        [
+          "",
+          "For the year ended 30 June",
+          "",
+          "2025",
+          "2024(1)"
+        ]
+      ],
+      "text_sample": "Notes to the Financial Statements\nFor the year ended 30 June 2025\n5 Auditor's Remuneration\n$ thousands Banking Group\nFor the year ended 30 June 2025 2024(1)\nPricewaterhouseCoopers(2)\nAudit and review of financial statements(3) 2,733 2,503\nAudit or review related services:\nTrust deed requirements(4) 17 22\nInternal controls and capital adequacy reasonable assurance and agreed upon procedures 627 615\nDebt programmes agreed upon procedures 83 241\nOther assurance services and other agreed-upon procedures engagements\nClimate and sustainability reporting related services(5) 307 523\nOther services(6) 59 41\nTotal auditor's remuneration relating to the Banking Group 3,826 3,945\nAuditor's remuneration related to off balance sheet funds managed by the Banking Group(8)\nAudit and review of financial statements(3) 529 467\nAudit or review related services:\nTrust deed requirements(4) 45 35\nOther assurance services and other agreed-upon procedures engagements\nClimate reporting related services(7) - 124\nTotal auditor's remuneration 4,400 4,571\n(1) Certain comparative information has been reclassified to ensure consistency with presentation in the current year. The reclassifications have not impacted\n",
+      "page": 27,
+      "all_pages": [
+        4,
+        27,
+        65,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        92,
+        101,
+        102,
+        106,
+        114,
+        116,
+        117
+      ],
+      "found": true
+    }
+  }
+}
