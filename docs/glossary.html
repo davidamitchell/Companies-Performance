@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glossary &amp; Calculations — NZ Bank Performance</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2d3436;
+    }
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+    /* ── Nav ─────────────────────────────────────────── */
+    nav { margin-bottom: 1.25rem; font-size: 0.85rem; }
+    nav a { color: #0984e3; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    nav span { color: #b2bec3; margin: 0 0.4rem; }
+    nav .current { color: #2d3436; font-weight: 600; }
+
+    /* ── Header ─────────────────────────────────────── */
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p { color: #636e72; margin-top: 0.3rem; font-size: 0.9rem; }
+
+    /* ── Sections ────────────────────────────────────── */
+    section { margin-bottom: 2.5rem; }
+    h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.4rem;
+         border-bottom: 2px solid #f0f0f0; }
+
+    /* ── Calculation cards ───────────────────────────── */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      gap: 1rem;
+    }
+    .calc-card {
+      background: #fff; border-radius: 8px; padding: 1.25rem 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .calc-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.65rem; }
+    .calc-card p  { font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.5rem; }
+    .formula {
+      font-family: ui-monospace, "Cascadia Code", monospace;
+      font-size: 0.85rem; background: #f0f3f7; border-left: 3px solid #0984e3;
+      padding: 0.6rem 0.9rem; border-radius: 0 4px 4px 0; margin: 0.75rem 0;
+      line-height: 1.5;
+    }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem; font-size: 0.8rem; }
+    .meta-row span { color: #636e72; }
+    .meta-row strong { color: #2d3436; }
+    .badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .badge-derived  { background: #ffeaa7; color: #6c5ce7; }
+    .badge-rbnz     { background: #dfe6e9; color: #2d3436; }
+
+    /* ── Glossary ────────────────────────────────────── */
+    .glossary-category { margin-bottom: 1.75rem; }
+    .glossary-category h3 {
+      font-size: 0.9rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #636e72; margin-bottom: 0.75rem;
+    }
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      gap: 0.75rem;
+    }
+    .glossary-term {
+      background: #fff; border-radius: 8px; padding: 1rem 1.25rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+    }
+    .term-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .term-abbr { color: #636e72; font-weight: 400; font-size: 0.82rem; margin-left: 0.3rem; }
+    .term-body { font-size: 0.83rem; color: #2d3436; line-height: 1.55; }
+    .term-meta { font-size: 0.75rem; color: #b2bec3; margin-top: 0.35rem; }
+    code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 0.82rem;
+           background: #f0f3f7; padding: 0.1em 0.4em; border-radius: 3px; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer { font-size: 0.78rem; color: #b2bec3; padding: 1.5rem 0 0.5rem; }
+    a { color: #0984e3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <nav>
+    <a href="index.html">Home</a>
+    <span>›</span>
+    <a href="data-sources.html">Data Sources</a>
+    <span>·</span>
+    <span class="current">Glossary &amp; Calculations</span>
+  </nav>
+
+  <header>
+    <h1>Glossary &amp; Calculations</h1>
+    <p>Definitions for every metric, and the exact formula used for each chart on the dashboard.</p>
+  </header>
+
+  <main>
+
+    <!-- ── Chart calculations ── -->
+    <section id="calculations">
+      <h2>Chart Calculations</h2>
+      <p style="font-size:0.85rem;line-height:1.6;margin-bottom:1.25rem;">
+        The four charts shown on the <a href="index.html">main dashboard</a> use the metrics
+        below. Metrics marked <span class="badge badge-rbnz">RBNZ</span> are read directly from
+        the RBNZ Bank Financial Strength Dashboard XLSX.
+        Metrics marked <span class="badge badge-derived">derived</span> are computed in the
+        browser at display time and are not stored in the canonical data files
+        (see <a href="https://github.com/davidamitchell/Companies-Performance/blob/main/docs-adr/0001-data-format.md" target="_blank" rel="noopener">ADR-0001</a>).
+      </p>
+      <div class="calc-grid">
+
+        <div class="calc-card">
+          <h3>Cost to Income Ratio <span class="badge badge-derived">derived</span></h3>
+          <p>
+            Measures operational efficiency: how many cents of operating expense are incurred for
+            each dollar of operating income. Lower is more efficient.
+          </p>
+          <div class="formula">
+Cost to Income Ratio (%) =
+  Operating Expenses
+  ─────────────────────────────────────────────────────── × 100
+  Net Interest Income + Trading &amp; Hedging Gains
+    + Fees &amp; Commission Income + Other Income
+          </div>
+          <div class="meta-row">
+            <span><strong>Numerator:</strong> RBNZ series <code>DBB.QIE60</code></span>
+            <span><strong>Denominator:</strong> <code>QIE40 + QIE50 + QIE55 + QIE57</code></span>
+          </div>
+          <p style="margin-top:0.6rem;font-size:0.8rem;color:#636e72;">
+            All components must be non-null and total income must be positive. Rounded to one
+            decimal place.
+          </p>
+        </div>
+
+        <div class="calc-card">
+          <h3>Return on Equity <span class="badge badge-rbnz">RBNZ</span></h3>
+          <p>
+            Annualised profit after tax divided by average equity. Measures how efficiently
+            the bank generates profit from shareholders' capital.
+          </p>
+          <div class="formula">
+Return on Equity (%) =
+  Annualised Profit After Tax
+  ─────────────────────────── × 100
+      Average Equity
+          </div>
+          <div class="meta-row">
+            <span><strong>RBNZ series:</strong> <code>DBB.QIE13</code></span>
+            <span><strong>Units:</strong> % per annum, as reported by RBNZ</span>
+          </div>
+        </div>
+
+        <div class="calc-card">
+          <h3>Return on Assets <span class="badge badge-rbnz">RBNZ</span></h3>
+          <p>
+            Annualised profit after tax divided by average total assets. An asset-efficiency
+            measure less sensitive to leverage than Return on Equity.
+          </p>
+          <div class="formula">
+Return on Assets (%) =
+  Annualised Profit After Tax
+  ─────────────────────────── × 100
+      Average Total Assets
+          </div>
+          <div class="meta-row">
+            <span><strong>RBNZ series:</strong> <code>DBB.QIE10</code></span>
+            <span><strong>Units:</strong> % per annum, as reported by RBNZ</span>
+          </div>
+        </div>
+
+        <div class="calc-card">
+          <h3>Net Interest Margin (NIM) <span class="badge badge-rbnz">RBNZ</span></h3>
+          <p>
+            The spread between interest earned on loans and interest paid on deposits/wholesale
+            funding, expressed as a percentage of average earning assets.
+            Core profitability metric for banks.
+          </p>
+          <div class="formula">
+NIM (%) =
+  Interest Income − Interest Expense
+  ─────────────────────────────────── × 100
+      Average Earning Assets
+          </div>
+          <div class="meta-row">
+            <span><strong>RBNZ series:</strong> <code>DBB.QIE15</code></span>
+            <span><strong>Units:</strong> % per annum, as reported by RBNZ</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Full glossary ── -->
+    <section id="glossary">
+      <h2>Metric Glossary</h2>
+      <p style="font-size:0.85rem;line-height:1.6;margin-bottom:1.25rem;">
+        All metric names used in code, configuration, and data files must match these definitions
+        verbatim. Mappings from source series IDs to canonical names are maintained in
+        <code>config/metrics.yaml</code>.
+      </p>
+
+      <!-- Financial Resilience -->
+      <div class="glossary-category">
+        <h3>Financial Resilience</h3>
+        <p style="font-size:0.83rem;color:#636e72;margin-bottom:0.75rem;">
+          Capital adequacy, liquidity, and asset quality.
+        </p>
+        <div class="glossary-grid">
+
+          <div class="glossary-term">
+            <div class="term-name">CET1 Ratio <span class="term-abbr">Common Equity Tier 1 Ratio</span></div>
+            <div class="term-body">
+              The ratio of a bank's Common Equity Tier 1 capital to its risk-weighted assets.
+              Measures the core capital buffer available to absorb losses.
+            </div>
+            <div class="term-meta">Expressed as %. RBNZ series <code>DBB.QIB12</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Total Capital Ratio</div>
+            <div class="term-body">
+              The ratio of total regulatory capital (Tier 1 + Tier 2) to risk-weighted assets.
+              The broadest capital adequacy measure.
+            </div>
+            <div class="term-meta">Expressed as %. RBNZ series <code>DBB.QIB10</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Tier 1 Capital Ratio</div>
+            <div class="term-body">
+              The ratio of Tier 1 capital (CET1 + Additional Tier 1) to risk-weighted assets.
+            </div>
+            <div class="term-meta">Expressed as %. RBNZ series <code>DBB.QIB14</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">LCR <span class="term-abbr">Liquidity Coverage Ratio</span></div>
+            <div class="term-body">
+              The ratio of high-quality liquid assets to net cash outflows over a 30-day stress
+              period. Measures short-term liquidity resilience. Regulatory minimum is 100%.
+            </div>
+            <div class="term-meta">Expressed as %.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Core Funding Ratio (CFR)</div>
+            <div class="term-body">
+              The ratio of stable funding sources (retail deposits, long-term wholesale) to total
+              loans and advances. A New Zealand regulatory metric. Higher is more stable.
+            </div>
+            <div class="term-meta">Expressed as %. RBNZ series <code>DBB.QIH30</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">NPL Ratio <span class="term-abbr">Non-Performing Loan Ratio</span></div>
+            <div class="term-body">
+              The ratio of non-performing loans (loans 90+ days past due or impaired) to total
+              gross loans. Measures asset quality.
+            </div>
+            <div class="term-meta">Expressed as %. RBNZ series <code>DBB.QIC10</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Total Non-Performing Loans</div>
+            <div class="term-body">
+              The sum of impaired loans and loans 90+ days past due but not yet impaired.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIC50</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Provisioning Coverage</div>
+            <div class="term-body">
+              The ratio of loan loss provisions to non-performing loans. Measures the adequacy
+              of reserves against expected credit losses.
+            </div>
+            <div class="term-meta">Expressed as %.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Cash Position</div>
+            <div class="term-body">
+              The absolute level of cash and cash equivalents held by an institution.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIG20</code>.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Income Statement -->
+      <div class="glossary-category">
+        <h3>Income Statement</h3>
+        <p style="font-size:0.83rem;color:#636e72;margin-bottom:0.75rem;">
+          Profitability and earnings metrics.
+        </p>
+        <div class="glossary-grid">
+
+          <div class="glossary-term">
+            <div class="term-name">NIM <span class="term-abbr">Net Interest Margin</span></div>
+            <div class="term-body">
+              The difference between interest income earned and interest paid out, expressed as
+              a percentage of average earning assets. Core profitability metric for banks.
+            </div>
+            <div class="term-meta">Expressed as % p.a. RBNZ series <code>DBB.QIE15</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Net Interest Income</div>
+            <div class="term-body">
+              Interest income less interest expense. Core revenue line for a bank.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIE40</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Trading and Hedging Gains</div>
+            <div class="term-body">
+              Net gains and losses on trading and hedging activities.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIE50</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Fees and Commission Income</div>
+            <div class="term-body">
+              Net fees and commissions earned from banking services.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIE55</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Other Income</div>
+            <div class="term-body">
+              All other operating income not captured in interest income, trading gains, or fees.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIE57</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Operating Expenses</div>
+            <div class="term-body">
+              Total non-interest operating expenses (staff, technology, premises, etc.).
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIE60</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Profit After Tax</div>
+            <div class="term-body">
+              Net profit after all expenses and tax. Bottom-line earnings measure.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIE90</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Return on Assets</div>
+            <div class="term-body">
+              Annualised profit after tax divided by average total assets.
+              An asset-efficiency measure less sensitive to leverage than ROE.
+            </div>
+            <div class="term-meta">Expressed as % p.a. RBNZ series <code>DBB.QIE10</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Return on Equity</div>
+            <div class="term-body">
+              Annualised profit after tax divided by average equity. Measures how efficiently
+              the bank generates profit from shareholders' capital.
+            </div>
+            <div class="term-meta">Expressed as % p.a. RBNZ series <code>DBB.QIE13</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Cost to Income Ratio <span class="badge badge-derived">derived</span></div>
+            <div class="term-body">
+              Total operating expenses divided by total operating income
+              (NII + Trading &amp; Hedging Gains + Fees + Other Income).
+              Lower is more efficient. Computed in the browser; not stored in canonical data files.
+            </div>
+            <div class="term-meta">Expressed as %. See <a href="#calculations">Chart Calculations</a> for the full formula.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Operating Margin</div>
+            <div class="term-body">
+              Operating income as a percentage of revenue. Measures operational efficiency
+              before interest and taxes.
+            </div>
+            <div class="term-meta">Expressed as %.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Balance Sheet -->
+      <div class="glossary-category">
+        <h3>Balance Sheet</h3>
+        <div class="glossary-grid">
+
+          <div class="glossary-term">
+            <div class="term-name">Total Assets</div>
+            <div class="term-body">Total balance sheet assets.</div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIG10</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Net Loans and Advances</div>
+            <div class="term-body">
+              Gross loans less loan loss provisions. Primary earning asset for banks.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIG30</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Deposits</div>
+            <div class="term-body">
+              Customer and institutional deposits — the primary funding source.
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIG55</code>.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Equity</div>
+            <div class="term-body">
+              Total shareholders' equity (residual interest).
+            </div>
+            <div class="term-meta">Expressed in NZDm. RBNZ series <code>DBB.QIG90</code>.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Growth Momentum -->
+      <div class="glossary-category">
+        <h3>Growth Momentum</h3>
+        <p style="font-size:0.83rem;color:#636e72;margin-bottom:0.75rem;">
+          Revenue growth, customer expansion, and commercial velocity.
+        </p>
+        <div class="glossary-grid">
+
+          <div class="glossary-term">
+            <div class="term-name">CRPO <span class="term-abbr">Current Remaining Performance Obligations</span></div>
+            <div class="term-body">
+              The portion of contracted revenue expected to be recognised within the next 12 months.
+              Indicates near-term revenue visibility.
+            </div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Contract Backlog</div>
+            <div class="term-body">
+              Total value of signed contracts not yet recognised as revenue.
+              A forward-looking indicator of revenue momentum.
+            </div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Rule of 40</div>
+            <div class="term-body">
+              The sum of revenue growth rate and EBITDA margin. A combined efficiency and growth
+              metric for SaaS and high-growth companies. A score above 40 indicates healthy
+              balance between growth and profitability.
+            </div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">High-Value Customer Growth</div>
+            <div class="term-body">
+              Year-on-year growth rate in the count or revenue contribution of customers above a
+              defined value threshold (definition varies by source). Measures the quality of
+              customer base expansion.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Structural Moat -->
+      <div class="glossary-category">
+        <h3>Structural Moat</h3>
+        <p style="font-size:0.83rem;color:#636e72;margin-bottom:0.75rem;">
+          Customer retention, competitive positioning, and business durability.
+        </p>
+        <div class="glossary-grid">
+
+          <div class="glossary-term">
+            <div class="term-name">Renewal Rate</div>
+            <div class="term-body">
+              The percentage of expiring contracts or subscriptions that are renewed.
+              Measures customer retention and product stickiness.
+            </div>
+            <div class="term-meta">Expressed as %.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">NDR <span class="term-abbr">Net Dollar Retention</span></div>
+            <div class="term-body">
+              Revenue retained from existing customers including expansions, contractions, and
+              churn, divided by starting-period revenue. A rate above 100% indicates net
+              expansion. Also called Net Revenue Retention (NRR).
+            </div>
+            <div class="term-meta">Expressed as %.</div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Cohort Maturity</div>
+            <div class="term-body">
+              A qualitative or quantitative assessment of how a customer cohort's revenue
+              contribution evolves over time. Used to assess whether early cohorts are expanding
+              or contracting.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Strategic Evolution -->
+      <div class="glossary-category">
+        <h3>Strategic Evolution</h3>
+        <p style="font-size:0.83rem;color:#636e72;margin-bottom:0.75rem;">
+          Product mix, technology adoption, and competitive displacement.
+        </p>
+        <div class="glossary-grid">
+
+          <div class="glossary-term">
+            <div class="term-name">AI ACV <span class="term-abbr">AI Annual Contract Value</span></div>
+            <div class="term-body">
+              The annualised contracted value of AI-specific products or features. Measures the
+              monetisation rate of AI capabilities.
+            </div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Product Mix</div>
+            <div class="term-body">
+              The distribution of revenue across product lines or categories. Tracks shifts in
+              revenue composition over time.
+            </div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Competitive Displacement</div>
+            <div class="term-body">
+              A qualitative or quantitative measure of wins against named competitors.
+              Indicates market share momentum.
+            </div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">Cost of Intelligence</div>
+            <div class="term-body">
+              The total cost of AI infrastructure, model usage, and associated labour as a
+              proportion of revenue or gross margin. Tracks unit economics of intelligence delivery.
+            </div>
+          </div>
+
+          <div class="glossary-term">
+            <div class="term-name">SBC <span class="term-abbr">Share-Based Compensation</span></div>
+            <div class="term-body">
+              The expense recognised for equity instruments granted to employees. Relevant for
+              assessing non-cash compensation costs.
+            </div>
+            <div class="term-meta">Expressed in reporting currency.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Macroeconomic Context -->
+      <div class="glossary-category">
+        <h3>Macroeconomic Context</h3>
+        <div class="glossary-grid">
+
+          <div class="glossary-term">
+            <div class="term-name">OCR Rate <span class="term-abbr">Official Cash Rate</span></div>
+            <div class="term-body">
+              The wholesale interest rate set by the Reserve Bank of New Zealand (RBNZ) at each
+              Monetary Policy Committee meeting. The primary monetary policy instrument, directly
+              influencing short-term borrowing and deposit rates across the economy.
+              Published by the RBNZ in the B2 series.
+            </div>
+            <div class="term-meta">Expressed as % p.a. Source: RBNZ B2 monthly close.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    <p>
+      Data sourced from public disclosures including the
+      <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>.
+      Updated via GitHub Actions.
+      <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">Source</a>.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

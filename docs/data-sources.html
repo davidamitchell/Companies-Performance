@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Sources — NZ Bank Performance</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2d3436;
+    }
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+    /* ── Nav ─────────────────────────────────────────── */
+    nav { margin-bottom: 1.25rem; font-size: 0.85rem; }
+    nav a { color: #0984e3; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    nav span { color: #b2bec3; margin: 0 0.4rem; }
+    nav .current { color: #2d3436; font-weight: 600; }
+
+    /* ── Header ─────────────────────────────────────── */
+    header { margin-bottom: 2rem; }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p { color: #636e72; margin-top: 0.3rem; font-size: 0.9rem; }
+
+    /* ── Sections ────────────────────────────────────── */
+    section { margin-bottom: 2.5rem; }
+    h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.4rem;
+         border-bottom: 2px solid #f0f0f0; }
+    h3 { font-size: 0.95rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
+
+    /* ── Cards ───────────────────────────────────────── */
+    .card {
+      background: #fff; border-radius: 8px; padding: 1.25rem 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: 1rem;
+    }
+    .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .card p, .card li { font-size: 0.85rem; color: #2d3436; line-height: 1.6; }
+    .card ul { padding-left: 1.2rem; margin-top: 0.4rem; }
+    .card li { margin-bottom: 0.2rem; }
+    .tag {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 0.1rem 0.45rem; border-radius: 4px; margin-right: 0.3rem;
+      vertical-align: middle;
+    }
+    .tag-rbnz { background: #dfe6e9; color: #2d3436; }
+    .tag-pdf  { background: #ffeaa7; color: #6c5ce7; }
+    .source-url { font-size: 0.8rem; margin-top: 0.5rem; color: #636e72; }
+    .source-url a { color: #0984e3; }
+    code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 0.82rem;
+           background: #f0f3f7; padding: 0.1em 0.4em; border-radius: 3px; }
+
+    /* ── Pipeline flow ───────────────────────────────── */
+    .pipeline {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+      margin: 1rem 0; font-size: 0.83rem;
+    }
+    .pipeline-step {
+      background: #fff; border: 1px solid #dfe6e9; border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+    }
+    .pipeline-arrow { color: #b2bec3; font-size: 1rem; }
+
+    /* ── Table ───────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; background: #fff;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    th { text-align: left; padding: 0.5rem 0.75rem; background: #f8f9fa; color: #636e72;
+         font-weight: 500; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+    td { padding: 0.42rem 0.75rem; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .status-confirmed { color: #00b894; font-weight: 600; }
+    .status-partial   { color: #e17055; font-weight: 600; }
+    .status-blocked   { color: #b2bec3; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer { font-size: 0.78rem; color: #b2bec3; padding: 1.5rem 0 0.5rem; }
+    a { color: #0984e3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <nav>
+    <a href="index.html">Home</a>
+    <span>›</span>
+    <span class="current">Data Sources</span>
+    <span>·</span>
+    <a href="glossary.html">Glossary &amp; Calculations</a>
+  </nav>
+
+  <header>
+    <h1>Data Sources</h1>
+    <p>Where the data comes from, how it is collected, and how it flows through the pipeline.</p>
+  </header>
+
+  <main>
+
+    <!-- ── Pipeline overview ── -->
+    <section id="pipeline">
+      <h2>Pipeline Overview</h2>
+      <p style="font-size:0.85rem;line-height:1.6;margin-bottom:1rem;">
+        All data is collected by GitHub Actions workflows and committed back to the repository.
+        The processed output is served as static files by GitHub Pages.
+        No server-side code runs at request time.
+      </p>
+      <div class="pipeline">
+        <div class="pipeline-step">Source files<br><small style="color:#636e72">(XLSX, PDF)</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">GitHub Actions<br><small style="color:#636e72">fetch-data workflow</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step"><code>data/raw/</code><br><small style="color:#636e72">committed to git</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">GitHub Actions<br><small style="color:#636e72">process-data workflow</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step"><code>data/processed/</code><br><small style="color:#636e72">CSV + JSON</small></div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">GitHub Pages<br><small style="color:#636e72">static frontend</small></div>
+      </div>
+      <p style="font-size:0.82rem;color:#636e72;margin-top:0.5rem;">
+        Workflows are triggered manually. All data commits are machine-authored and auditable in the git history.
+      </p>
+    </section>
+
+    <!-- ── RBNZ Dashboard ── -->
+    <section id="rbnz-dashboard">
+      <h2>RBNZ Bank Financial Strength Dashboard</h2>
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-rbnz">RBNZ</span>
+          RBNZ Bank Financial Strength Dashboard <em>(primary source)</em>
+        </div>
+        <p>
+          Published quarterly by the Reserve Bank of New Zealand. Covers capital adequacy,
+          liquidity, asset quality, and profitability metrics for all registered banks in
+          New Zealand, going back to approximately 2010.
+        </p>
+        <p class="source-url">
+          <strong>URL:</strong>
+          <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">bankdashboard.rbnz.govt.nz</a>
+          &nbsp;·&nbsp;
+          File: <code>Bank-Financial-Strength-Dashboard-Data.xlsx</code>
+        </p>
+        <h3>Collection</h3>
+        <ul>
+          <li>Fetched by <code>scripts/fetch_data.py</code> via the <code>fetch-data</code> GitHub Actions workflow.</li>
+          <li>Raw XLSX is saved to <code>data/raw/rbnz-dashboard.xlsx</code> (not committed — regenerated each run).</li>
+          <li>Processed by <code>scripts/process_data.py</code> into <code>data/processed/metrics.csv</code>
+              and <code>docs/data/processed/metrics.json</code>.</li>
+        </ul>
+        <h3>XLSX structure</h3>
+        <ul>
+          <li>Sheet <em>Data</em>: row 4 = Series IDs, row 5 onward = data rows (col 0 = quarter-end date, col 1 = institution name).</li>
+          <li>Monetary values are in NZD millions (NZDm) unless stated otherwise.</li>
+          <li>Series IDs are mapped to canonical metric names via <code>config/metrics.yaml</code>.</li>
+        </ul>
+        <h3>Series used</h3>
+        <div class="table-wrap" style="margin-top:0.5rem;">
+          <table>
+            <thead>
+              <tr><th>Series ID</th><th>Canonical metric name</th><th>Category</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>DBB.QIB10</code></td><td>Total Capital Ratio</td><td>Capital adequacy</td></tr>
+              <tr><td><code>DBB.QIB12</code></td><td>CET1 Ratio</td><td>Capital adequacy</td></tr>
+              <tr><td><code>DBB.QIB14</code></td><td>Tier 1 Capital Ratio</td><td>Capital adequacy</td></tr>
+              <tr><td><code>DBB.QIC10</code></td><td>NPL Ratio</td><td>Asset quality</td></tr>
+              <tr><td><code>DBB.QIC50</code></td><td>Total Non-Performing Loans</td><td>Asset quality</td></tr>
+              <tr><td><code>DBB.QIE10</code></td><td>Return on Assets</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE13</code></td><td>Return on Equity</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE15</code></td><td>NIM</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE40</code></td><td>Net Interest Income</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE50</code></td><td>Trading and Hedging Gains</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE55</code></td><td>Fees and Commission Income</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE57</code></td><td>Other Income</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE60</code></td><td>Operating Expenses</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIE90</code></td><td>Profit After Tax</td><td>Profitability</td></tr>
+              <tr><td><code>DBB.QIG10</code></td><td>Total Assets</td><td>Balance sheet</td></tr>
+              <tr><td><code>DBB.QIG20</code></td><td>Cash Position</td><td>Balance sheet</td></tr>
+              <tr><td><code>DBB.QIG30</code></td><td>Net Loans and Advances</td><td>Balance sheet</td></tr>
+              <tr><td><code>DBB.QIG55</code></td><td>Deposits</td><td>Balance sheet</td></tr>
+              <tr><td><code>DBB.QIG90</code></td><td>Equity</td><td>Balance sheet</td></tr>
+              <tr><td><code>DBB.QIH30</code></td><td>Core Funding Ratio (CFR)</td><td>Liquidity</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RBNZ B2 OCR ── -->
+    <section id="rbnz-ocr">
+      <h2>RBNZ B2 Wholesale Interest Rates</h2>
+      <div class="card">
+        <div class="card-title">
+          <span class="tag tag-rbnz">RBNZ</span>
+          B2 Wholesale Interest Rates — Monthly Close
+        </div>
+        <p>
+          Published monthly by the Reserve Bank of New Zealand. Contains the Official Cash Rate (OCR),
+          90-day bank bill rate, and NZD interest rate swap rates. Used to provide macroeconomic
+          context alongside bank performance metrics.
+        </p>
+        <p class="source-url">
+          <strong>URL:</strong>
+          <a href="https://www.rbnz.govt.nz/statistics/series/b/b2/" target="_blank" rel="noopener">
+            rbnz.govt.nz/statistics/series/b/b2
+          </a>
+          &nbsp;·&nbsp; File: <code>hb2-monthly-close.xlsx</code>
+        </p>
+        <h3>Collection</h3>
+        <ul>
+          <li>Fetched alongside the Dashboard XLSX by the <code>fetch-data</code> workflow.</li>
+          <li>Saved to <code>data/raw/rbnz-ocr.xlsx</code>.</li>
+          <li>The OCR Rate series is extracted and merged into the canonical metrics output.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ── Bank PDFs ── -->
+    <section id="bank-disclosures">
+      <h2>Bank General Disclosure Statements</h2>
+      <p style="font-size:0.85rem;line-height:1.6;margin-bottom:1rem;">
+        NZ-registered banks are required under the
+        <a href="https://www.legislation.govt.nz/act/public/1989/0157/latest/whole.html" target="_blank" rel="noopener">Reserve Bank of New Zealand Act 1989</a>
+        to publish General Disclosure Statements (GDS) half-yearly.
+        These PDFs contain full financial statements and risk metrics beyond what the RBNZ Dashboard publishes.
+      </p>
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Storage convention</div>
+        <ul>
+          <li>PDFs are stored in <code>data/raw/financial_disclosures/&lt;bank_id&gt;/</code> and committed to git.</li>
+          <li>Each PDF has a <em>sidecar</em> file: <code>&lt;bank_id&gt;-disclosure-&lt;period_end&gt;.meta.json</code>
+              recording <code>source_url</code>, <code>downloaded_at</code>, <code>sha256</code>, <code>file_size_bytes</code>,
+              <code>period_end</code>, and <code>period_type</code>.</li>
+          <li>Script: <code>scripts/download_disclosures.py</code> — idempotent; use <code>--backfill-metadata</code>
+              for PDFs placed manually.</li>
+        </ul>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Bank</th>
+              <th>Year end</th>
+              <th>Periods covered</th>
+              <th>Download status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ANZ</strong></td>
+              <td>30 Sep</td>
+              <td>Sep 2018 – Sep 2025</td>
+              <td><span class="status-partial">partial</span></td>
+              <td>2024–2025 confirmed. Pre-2024 CDN paths return 404; manual retrieval needed.</td>
+            </tr>
+            <tr>
+              <td><strong>ASB</strong></td>
+              <td>30 Jun</td>
+              <td>Jun 2018 – Jun 2025</td>
+              <td><span class="status-confirmed">✓ confirmed</span></td>
+              <td>All periods confirmed. URLs sourced from ASB disclosure-statements page.</td>
+            </tr>
+            <tr>
+              <td><strong>BNZ</strong></td>
+              <td>30 Sep</td>
+              <td>Mar 2018 – Sep 2024</td>
+              <td><span class="status-partial">partial</span></td>
+              <td>Sep 2024 + older periods confirmed. Several 2021–2024 URLs removed from BNZ CDN.</td>
+            </tr>
+            <tr>
+              <td><strong>Westpac</strong></td>
+              <td>30 Sep</td>
+              <td>Mar 2018 – Sep 2024</td>
+              <td><span class="status-blocked">blocked</span></td>
+              <td>All URLs verified; Westpac WAF blocks pipeline IPs (HTTP 403). Manual download required.</td>
+            </tr>
+            <tr>
+              <td><strong>Kiwibank</strong></td>
+              <td>30 Jun</td>
+              <td>Jun 2018 – Dec 2025</td>
+              <td><span class="status-confirmed">✓ confirmed</span></td>
+              <td>All 12 periods manually downloaded from kiwibank.co.nz and committed.
+                  Metadata sidecars generated via <code>--backfill-metadata</code>.
+                  CDN blocks pipeline IPs (timeout); manual download required for future periods.</td>
+            </tr>
+            <tr>
+              <td><strong>Rabobank</strong></td>
+              <td>31 Dec</td>
+              <td>Jun 2018 – Dec 2024</td>
+              <td><span class="status-partial">partial</span></td>
+              <td>Dec 2018, Dec 2019, Dec 2022 confirmed. Newer globalassets/ CDN returns HTTP 403.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="font-size:0.82rem;color:#636e72;margin-top:0.75rem;">
+        <strong>Status key:</strong>
+        <span class="status-confirmed">confirmed</span> = URL verified and PDF downloaded;
+        <span class="status-partial">partial</span> = some periods available, others blocked or missing;
+        <span class="status-blocked">blocked</span> = CDN or WAF prevents pipeline download.
+        Full status detail is in <code>config/sources.yaml</code>.
+      </p>
+    </section>
+
+    <!-- ── Canonical schema ── -->
+    <section id="schema">
+      <h2>Canonical Data Schema</h2>
+      <div class="card">
+        <p>All processed metrics are stored in a flat schema:</p>
+        <div class="table-wrap" style="margin-top:0.75rem;">
+          <table>
+            <thead>
+              <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>entity</code></td><td>string</td><td>Institution name as published by the RBNZ (e.g. <code>ANZ</code>, <code>Kiwibank</code>).</td></tr>
+              <tr><td><code>metric</code></td><td>string</td><td>Canonical metric name — must match <code>glossary.md</code> verbatim.</td></tr>
+              <tr><td><code>value</code></td><td>float | null</td><td>Numeric value as reported; not rounded or normalised. Null if absent in source.</td></tr>
+              <tr><td><code>period</code></td><td>date string</td><td>Quarter-end date (YYYY-MM-DD).</td></tr>
+              <tr><td><code>source</code></td><td>string</td><td>Source identifier (e.g. <code>rbnz-dashboard</code>).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:0.75rem;">
+          Persisted as <code>data/processed/metrics.csv</code> (canonical) and
+          <code>docs/data/processed/metrics.json</code> (frontend consumption).
+          See <a href="https://github.com/davidamitchell/Companies-Performance/blob/main/docs-adr/0001-data-format.md" target="_blank" rel="noopener">ADR-0001</a>
+          for the decision rationale.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>
+      Data sourced from public disclosures including the
+      <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>.
+      Updated via GitHub Actions.
+      <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">Source</a>.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
