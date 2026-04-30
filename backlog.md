@@ -440,7 +440,7 @@ updated: 2026-04-30
 
 ### Outcome
 
-`scripts/process_disclosures.py` runs end-to-end across all PDFs in `data/raw/financial_disclosures/` that have a valid `.meta.json` sidecar. Produces `data/processed/disclosures.csv` and `docs/data/processed/disclosure_metrics.json` containing extracted metric rows in the canonical schema (`entity | metric | value | period | source`). A summary of extracted-vs-null counts is logged per bank per period.
+`scripts/process_disclosures.py` runs end-to-end across all PDFs in `data/raw/financial_disclosures/` that have a valid `.meta.json` sidecar. Produces `data/processed/disclosures.csv` and `docs/data/processed/disclosure_metrics.json` (distinct from the existing `disclosures.json` disclosure index) containing extracted metric rows in the canonical schema (`entity | metric | value | period | source`). A summary of extracted-vs-null counts is logged per bank per period. The existing `docs/data/processed/disclosures.json` (PDF index file built by `build_disclosures_index.py`) remains unchanged.
 
 ### Context
 
@@ -542,11 +542,11 @@ updated: 2026-04-30
 
 ### Outcome
 
-`config/metrics.yaml` is extended with series IDs for: (1) the 1-month liquidity mismatch ratio; (2) the 1-week liquidity mismatch ratio. `scripts/process_data.py` re-run to include these series in `metrics.json`. A Liquidity tab (see W-0042) shows mismatch ratio charts for the top 6 banks alongside the existing Core Funding Ratio. Glossary updated with definitions for both new metrics.
+`config/metrics.yaml` is extended with confirmed series IDs: `DBB.QIH10` (1-month mismatch ratio) and `DBB.QIH20` (1-week mismatch ratio). Additionally, three credit concentration series are mapped: `DBB.QIJ10` (top 5 non-bank credit exposures / CET1), `DBB.QIJ30` (top 5 bank exposures / CET1), `DBB.QIJ40` (bank exposures ≥10% of CET1). `scripts/process_data.py` re-run to include all five new series in `metrics.json`. A Liquidity tab (W-0042) shows mismatch and concentration charts alongside Core Funding Ratio. Glossary updated with definitions for all five new metrics.
 
 ### Context
 
-S-0001 confirmed that both mismatch ratios are present in the RBNZ XLSX Liquidity section. The series IDs must be read from the `Series Id` row (row 4) of the Data sheet — inspect `data/Bank-Financial-Strength-Dashboard-Data.xlsx` directly. These are straightforward additions once the series IDs are confirmed: same extraction path as all other RBNZ series. Credit rating series extraction is deferred to S-0005 (encoding unknown).
+Series IDs confirmed by direct XLSX inspection. The mismatch ratios are in the Liquidity section (QIH); the concentration metrics are in the Credit concentration section (QIJ) and are particularly useful for understanding interbank exposure risk. All five use the same extraction path as existing RBNZ series — no pipeline changes needed, only `config/metrics.yaml` additions.
 
 ---
 
@@ -606,11 +606,11 @@ updated: 2026-04-30
 
 ### Outcome
 
-Must result in: `config/metrics.yaml` updated with credit rating series IDs, `metrics.json` regenerated, and a credit rating timeline chart implemented — or an explicit no-action decision recorded in `learnings.md` if the data encoding is unsuitable for visualisation.
+`config/metrics.yaml` updated with `DBB.QIA10` (S&P), `DBB.QIA20` (Fitch), `DBB.QIA30` (Moody's). `metrics.json` regenerated. A credit rating timeline chart is added to the bank detail pages (W-0038): a step-line chart on a categorical y-axis (AAA → AA+ → AA → AA- → A+ → A → A- → BBB+) showing each rating agency's assessment over time. Changes in rating are annotated with the new rating label. Chart rendered on `docs/bank/[bank].html` (not the main dashboard, as most banks have stable ratings and the chart adds little to the quarterly view).
 
 ### Context
 
-Depends on S-0005 (credit rating series investigation). The RBNZ XLSX has an "Issuer credit ratings" category (confirmed by S-0001). Whether the data is encoded as letter strings (AA-, A+), numeric ordinals, or something else is unknown until the Series Definitions sheet is inspected. If letter strings: map to a numeric axis for charting. If integer-coded: document the mapping table. If the series only records a static current rating with no history: not useful for visualisation.
+Series IDs confirmed: `DBB.QIA10` (S&P), `DBB.QIA20` (Fitch), `DBB.QIA30` (Moody's). Encoding format (letter strings vs numeric) determined by S-0005 — if integer-coded, a mapping table is added to `config/metrics.yaml`. The chart uses a step interpolation mode (ratings don't change continuously). A rating downgrade is the most analytically significant event; the chart makes historical downgrades immediately visible. Depends on S-0005 for encoding details and W-0038 for the bank detail page structure.
 
 ---
 
@@ -640,11 +640,29 @@ updated: 2026-04-30
 
 ### Outcome
 
-A hardcoded events config (`config/events.yaml`) lists significant NZ and global events affecting bank performance, each with a `period` (YYYY-QN) and a short label (≤20 characters). Initial event set: COVID-19 lockdown (2020-Q1), RBNZ capital reform announced (2019-Q4), OCR dropped to record low 0.25% (2020-Q1), OCR emergency cut to 0.1% (2020-Q3), RBNZ capital reform phase-in begins (2023-Q3), SVB/Credit Suisse stress (2023-Q1), Kiwibank ownership change (2022-Q2). Charts gain a toggle "Show events" (off by default) that draws labelled vertical markers at the relevant quarter. Event labels render at the top of the chart area. Client-side only; no pipeline changes.
+A hardcoded events config (`config/events.yaml`) lists significant NZ and global events affecting bank performance, each with a `period` (YYYY-QN), a short label (≤20 characters), and an optional `category` (`monetary`, `regulatory`, `macro`, `market`). Initial event set:
+
+| Period | Label | Category |
+|---|---|---|
+| 2019-Q4 | RBNZ capital reform | regulatory |
+| 2020-Q1 | COVID-19 lockdown | macro |
+| 2020-Q1 | OCR → 0.25% | monetary |
+| 2020-Q3 | OCR → 0.10% (floor) | monetary |
+| 2020-Q4 | FLP launched | monetary |
+| 2021-Q1 | LVR restrictions removed | regulatory |
+| 2021-Q3 | OCR hiking cycle begins | monetary |
+| 2021-Q4 | LVR restrictions reinstated | regulatory |
+| 2022-Q2 | Kiwibank govt buyback | market |
+| 2023-Q1 | SVB / Credit Suisse | market |
+| 2023-Q3 | OCR peaks at 5.50% | monetary |
+| 2023-Q3 | RBNZ capital reform begins | regulatory |
+| 2024-Q3 | OCR easing cycle begins | monetary |
+
+Category determines the marker colour (teal = monetary, amber = regulatory, grey = macro/market). Charts gain a toggle "Show events" (off by default). Event labels render at the top of the chart area. Client-side only; no pipeline changes.
 
 ### Context
 
-Without event markers, metric movements (e.g. the sharp NIM expansion through 2022–2023) appear as unexplained jumps. Event context is what separates a dashboard from a raw data dump. Hardcoded YAML is the right approach — the event list is finite, curated, and rarely changes. Events reuse the same annotation rendering infrastructure as W-0035, extending it to non-OCR events. Depends on W-0035.
+Without event markers, metric movements (e.g. the sharp NIM expansion through 2022–2023, the sudden credit provisioning spike in 2020-Q1) appear as unexplained jumps. The FLP (Funding for Lending Programme, Nov 2020) significantly depressed bank funding costs through 2021 — it is one of the most important explanatory events for NIM trajectory. LVR restriction cycles drove housing credit volume. The OCR peak at 5.50% (May 2023) and the start of cuts (Aug 2024) define the two ends of the rate cycle visible in this dataset. Hardcoded YAML is the right approach — the event list is finite, curated, and changes only when new significant events occur. Events reuse the annotation rendering infrastructure from W-0035. Depends on W-0035.
 
 ---
 
@@ -902,11 +920,11 @@ updated: 2026-04-30
 
 ### Outcome
 
-Must result in: series IDs identified and W-0034 opened with encoding details — or an explicit no-action decision recorded in `learnings.md` if the data is not useful for visualisation.
+Must result in: encoding confirmed and W-0034 updated with implementation details — or an explicit no-action decision recorded in `learnings.md` if the data is not useful for visualisation.
 
 ### Context
 
-S-0001 confirmed the RBNZ XLSX has an "Issuer credit ratings" category. The exact series IDs and value encoding are unknown. Inspect the `Series Definitions` sheet of `data/Bank-Financial-Strength-Dashboard-Data.xlsx` to determine: the series IDs for S&P (and any Moody's/Fitch) ratings; whether values are stored as letter strings (AA-, A+), numeric ordinals, or integer codes; whether the series tracks rating history or only a current snapshot; and which institutions have non-null values. If ratings are coded as integers, document the mapping. If tracking history: W-0034 is viable. If only a current snapshot: not useful for time-series visualisation — explicitly defer.
+Series IDs are now confirmed by direct XLSX inspection: `DBB.QIA10` (S&P Global), `DBB.QIA20` (Fitch), `DBB.QIA30` (Moody's). The remaining unknowns are encoding and coverage. Inspect the `Series Definitions` sheet and the `Data` sheet rows for these three series to determine: whether values are stored as letter strings (AA-, A+), numeric ordinals, or integer codes; whether the series tracks historical changes or only the current snapshot; and which institutions have non-null values. If ratings are coded as integers, document the mapping table. If historical: W-0034 is viable. If only a static snapshot: not useful for time-series visualisation — explicitly defer with the reason.
 
 ---
 
@@ -922,9 +940,17 @@ Must result in: backlog items opened for feasible external data sources — or a
 
 ### Context
 
-Economic context enriches bank performance interpretation. Candidate sources: (1) NZ house price index — RBNZ C31 series (monthly XLSX, same domain as OCR data); (2) NZ GDP growth — Stats NZ Infoshare (quarterly, CSV or API); (3) NZ unemployment rate — Stats NZ Household Labour Force Survey (quarterly CSV); (4) NZ housing credit growth — RBNZ C5 series (monthly XLSX). For each, assess: URL accessibility without a WAF block, data format (XLSX/CSV/API/paywall), update frequency alignment with quarterly bank data, and whether the pipeline can handle it with minimal new code. Stats NZ Infoshare uses a query API that requires registration — if so, note it explicitly and do not open a pipeline item.
+Economic context enriches bank performance interpretation. Candidate sources, in priority order:
 
-Challenge: External data sources carry ongoing maintenance risk. Only open pipeline items for sources that are (a) machine-readable via a stable URL, (b) updated at least quarterly, and (c) RBNZ or Stats NZ hosted (not third-party). Overlay on charts should be optional and clearly labelled as external context, not bank performance data.
+1. **RBNZ B3 / C6 — Mortgage and deposit rates** (monthly XLSX, `rbnz.govt.nz`): shows average 1-year fixed mortgage rate and 6-month term deposit rate — directly relevant to NIM pass-through analysis alongside W-0044. Highest priority.
+2. **RBNZ C5 — Housing credit growth** (monthly XLSX, `rbnz.govt.nz`): shows housing lending growth rate. Directly explains loan growth in balance sheet metrics.
+3. **RBNZ C31 / CoreLogic HPI** — NZ house price index. RBNZ publishes its own HPI as part of the C31 series (monthly XLSX). Relevant for credit risk context.
+4. **Stats NZ — GDP growth**: Quarterly XLSX or CSV download from `stats.govt.nz`. May require navigating the Infoshare API.
+5. **Stats NZ — Unemployment rate**: Quarterly HLFS survey. Same channel as GDP.
+
+For each: assess URL accessibility (no WAF), data format, update frequency alignment with quarterly bank periods, and pipeline integration cost. Stats NZ sources may require API registration — if so, flag explicitly and do not open a pipeline item. RBNZ-hosted XLSX sources (items 1–3) are the same pattern as the existing OCR pipeline and are strongly preferred.
+
+Only open pipeline items for sources that are (a) machine-readable via a stable URL, (b) updated at least quarterly, and (c) RBNZ or Stats NZ hosted. Overlays must be toggleable and clearly labelled as macroeconomic context, not bank performance data.
 
 ---
 
@@ -957,5 +983,341 @@ Must result in: a decision on whether to add OCR capability for Rabobank balance
 ### Context
 
 S-0004 confirmed that Rabobank's 2022 disclosure statement balance sheet (page 35) is image-based — zero extractable characters, no PDF table objects. Total Assets for Rabobank cannot be extracted without OCR. Rabobank is NZ's sixth-largest bank and has a significant agricultural lending portfolio; its balance sheet scale matters for sector completeness. Investigate: (1) whether `pytesseract` + `tesseract` (system package) can extract the image-based page; (2) whether more recent Rabobank reports (2023, 2024) also have image-based balance sheets or have moved to text-based layouts; (3) the cost-benefit — adding a system-level OCR dependency for one bank's balance sheet. If newer Rabobank reports have text-based balance sheets, update `config/sources.yaml` with the newer URLs and test extraction before committing to an OCR dependency.
+
+---
+
+## Phase 10: Additional Metrics (RBNZ Data)
+
+### W-0052
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+`config/metrics.yaml` extended with `DBB.QIB90` (Total Risk-Weighted Assets, NZDm). `metrics.json` regenerated. Two derived metrics added client-side in `docs/index.html`: (1) RORWA (Return on Risk-Weighted Assets = annualised Profit After Tax ÷ RWA, expressed as %) added to the Capital tab; (2) Risk Density (RWA ÷ Net Loans and Advances, expressed as %) shown as a secondary line on the balance sheet chart. Both added to the Latest Quarter Snapshot table. Glossary updated with RORWA and Risk Density definitions.
+
+### Context
+
+RWA (`DBB.QIB90`) is confirmed present in the RBNZ XLSX. Both derived metrics require data already in `metrics.json` (Profit After Tax: `DBB.QIE90`; Net Loans: `DBB.QIG30`). RORWA is often preferred over ROE by analysts because it is capital-structure-neutral — it measures how efficiently a bank generates profit from its risk exposure. Risk Density measures how risky a loan book is relative to its gross size (a rising density means the portfolio is accumulating higher-risk exposures even if loan growth is flat). Per ADR-0001, both are computed in the frontend, not stored.
+
+---
+
+### W-0053
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+`config/metrics.yaml` extended with `DBB.QIC60` (Individual Provisions, NZDm) and `DBB.QIC70` (Collective Provisions, NZDm). `metrics.json` regenerated. Provisioning Coverage (Individual + Collective Provisions ÷ Total Non-Performing Loans, expressed as %) is computed client-side and added to the Asset Quality tab (W-0042). A Provision Charge trend chart (quarterly change in total provisions, as a % of Net Loans) is also added — this is the credit cycle indicator. Glossary updated with all three new metrics.
+
+### Context
+
+Provisioning series (`DBB.QIC60`, `DBB.QIC70`) confirmed present in the RBNZ XLSX. Total Non-Performing Loans (`DBB.QIC50`) is already mapped. Provisioning Coverage tells you whether banks are adequately reserved against known bad loans. The quarterly provision charge (delta of total provisions) is the credit cycle metric — it spikes in downturns (COVID-Q1 2020 was a significant provisioning event) and releases in recoveries. Both are high-signal for credit risk assessment.
+
+---
+
+### W-0054
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+`config/metrics.yaml` extended with `DBB.QIJ10` (top 5 non-bank credit exposures / CET1, %), `DBB.QIJ30` (top 5 bank counterparty exposures / CET1, %), `DBB.QIJ40` (bank exposures ≥10% of CET1, number). `metrics.json` regenerated. A Credit Concentration panel is added to the Liquidity tab (W-0042): a line chart of QIJ10 and QIJ30 over time, plus a bar chart of QIJ40 (count of large bank exposures). Glossary updated.
+
+### Context
+
+Credit concentration series confirmed in RBNZ XLSX (QIJ section). These metrics reveal systemic interconnectedness — how exposed each bank is to a small number of large counterparties. QIJ40 (count of bank exposures above 10% of CET1) is particularly useful: a value of zero means no individual bank counterparty represents more than 10% of CET1 capital; values above zero signal concentration risk. Context is important — NZ's small market means some concentration is structural.
+
+---
+
+## Phase 11: Derived Profit and Efficiency Metrics
+
+### W-0055
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+A Pre-Provision Profit (PPP) line chart is added to the Profitability tab (W-0042). PPP = Net Interest Income + Trading and Hedging Gains + Fees and Commission Income + Other Income − Operating Expenses (all already in `metrics.json`). PPP in NZDm per quarter, per bank. A secondary view shows PPP as a % of Average Total Assets (pre-provision ROA). Both computed client-side. Glossary updated with Pre-Provision Profit definition.
+
+### Context
+
+Pre-Provision Profit isolates underlying operating performance from the credit cycle. During COVID (2020) and any future downturn, banks may post sharply lower NPAT due to provisioning, even while their operating engine is healthy. Conversely, provision releases can inflate NPAT in good times. PPP strips both effects and gives a cleaner read on fee income and cost management. All five component series are already in `metrics.json` — no new data required.
+
+---
+
+### W-0056
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+An income diversification chart is added to the Profitability tab: a 100% stacked area chart showing the composition of total operating income over time for each bank — Net Interest Income, Trading and Hedging Gains, Fees and Commission Income, Other Income. A secondary line shows Non-Interest Income as % of Total Operating Income (income diversification ratio). Computed client-side from already-mapped series. Glossary updated with Income Diversification Ratio definition.
+
+### Context
+
+NZ retail banks are heavily NII-dependent (typically 80–90% of operating income). The non-interest income share is a structural moat indicator — banks with higher fee and trading income are less sensitive to rate cycles. The 100% stacked area chart makes the composition shift visible over time. All four income component series are already in `metrics.json` (mapped in W-0017). No new data.
+
+---
+
+### W-0057
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+An impairment charge trend chart is added to the Asset Quality tab (W-0042). The chart shows the quarterly credit impairment charge as a % of average Net Loans and Advances — derived client-side from the delta of Total Non-Performing Loans (`DBB.QIC50`) divided by Net Loans (`DBB.QIG30`). A shaded band marks the long-run average. An event annotation (W-0036 infrastructure) marks the COVID provisioning spike (2020-Q1 and 2020-Q2). Glossary updated with Credit Impairment Rate definition.
+
+### Context
+
+The impairment charge as % of loans is the cleanest indicator of where the credit cycle is. NZ banks provisioned heavily in early 2020 (COVID) then released provisions through 2021–2022 as defaults did not materialise. The current level (post-rate-hike cycle) is worth monitoring — rising mortgage arrears could drive provisioning up again. The delta of Total NPLs is an approximation for the gross impairment charge; the exact figure requires the disclosure income statement (Credit Impairment Charge line, W-0026 data source). Both approaches should be shown with a note on the approximation.
+
+---
+
+### W-0058
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+An opex intensity metric — Operating Expenses ÷ Total Assets (expressed as basis points of assets per annum) — is computed client-side and added to the Profitability tab alongside Cost-to-Income Ratio. A chart shows opex intensity as lines per bank over the full quarterly history. Glossary updated with Opex Intensity definition.
+
+### Context
+
+Cost-to-Income Ratio captures efficiency relative to revenue; opex intensity captures efficiency relative to asset scale. A bank growing its balance sheet rapidly may see its Cost-to-Income ratio improve even if absolute costs are rising — opex intensity would reveal this. The two metrics together give a complete picture. Operating Expenses (`DBB.QIE60`) and Total Assets (`DBB.QIG10`) are already in `metrics.json`. No new data.
+
+---
+
+## Phase 12: Pipeline Maturity
+
+### W-0059
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+`scripts/download_disclosures.py` is extended (or a new script created) to batch-download all disclosure PDFs with `status: confirmed` in `config/sources.yaml`, saving each to the correct `output_dir` path with its `.meta.json` sidecar. The script is idempotent (skips already-downloaded files). A GitHub Actions workflow `download-disclosures.yml` with `workflow_dispatch` trigger runs the script. Download failures are logged as `WARNING` (not `ERROR`) — a failed URL does not abort the entire batch.
+
+### Context
+
+Currently PDFs are committed to the repo individually. Automating downloads means new disclosure periods can be added to `config/sources.yaml` and downloaded with a single workflow run, without committing binaries. Westpac and any other WAF-blocked banks will fail gracefully with a WARNING. The script reuses the existing `src/ingestion/fetch.py` HTTP client. Tests in `tests/test_download_disclosures.py` already exist — extend them for batch mode.
+
+---
+
+### W-0060
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+A data freshness badge is added to the site header showing "RBNZ data as at: YYYY-QN" and "Disclosures as at: [most recent period_end]". The values are read from `metrics.json` (max period value) and `disclosure_metrics.json` (max period_end value) on page load. The badge text is teal-coloured and updates automatically as new data is published.
+
+### Context
+
+Users need to know whether they are looking at current data. The RBNZ publishes the dashboard quarterly — if a user visits several weeks after a new quarter's data is available, a stale badge would reveal the data needs refreshing. The values are fully derivable client-side from loaded JSON (max period across all rows). No pipeline changes needed.
+
+---
+
+### W-0061
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+`.github/workflows/fetch-data.yml` gains a `schedule` trigger: `cron: '0 6 1 * *'` (6am UTC on the 1st of each month). When triggered automatically, the workflow checks whether the RBNZ XLSX has changed since the last committed version (SHA comparison or file-size check); if unchanged, it exits without committing. If changed, it downloads, commits, and triggers the process-data workflow. A `[skip ci]` flag is NOT used — the process pipeline should run on the auto-commit.
+
+### Context
+
+The RBNZ updates the dashboard quarterly (approximately March, June, September, December). A monthly check is a reasonable polling frequency — it will miss no quarterly publication and wastes minimal Actions minutes. The existing `fetch-data.yml` has only a `workflow_dispatch` trigger. The idempotency requirement (ADR from W-0009) is already satisfied by the overwrite-at-fixed-path pattern. No code changes needed — only workflow YAML.
+
+---
+
+## Phase 13: Cross-Linking and Navigation
+
+### W-0062
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+The site URL encodes current filter state as a hash fragment: `#banks=ANZ,ASB&range=Last+8Q&tab=profitability`. Any change to the bank selector, date range, or active tab updates the URL hash client-side (using `history.replaceState`). On page load, if a hash is present, its values override the `localStorage` defaults. Sharing the URL reproduces the exact view. A "Copy link" button (📋) beside the date range bar copies the current URL to the clipboard.
+
+### Context
+
+Shareable URLs are a basic requirement for a research tool used collaboratively. The current implementation persists state in `localStorage` only — useful for returning users but not for sharing a specific view. Hash-based routing requires no server and no build step. The state encoding is minimal (bank list, range preset name, tab name) and backward-compatible — a URL without a hash loads with defaults as before.
+
+---
+
+### W-0063
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+A "Download data" button is added to the dashboard header. Clicking it downloads a CSV of the currently-filtered data (active banks, date range, all metrics) using the Blob API. The CSV follows the canonical schema (`entity,metric,value,period,source`) with a header row. File named `nz-bank-performance-[date-range].csv`.
+
+### Context
+
+Power users (analysts, researchers) need raw data access to run their own calculations. The canonical `metrics.json` is already fully accessible in the repo, but a filtered CSV export removes friction for non-technical users. Pure client-side: filter the in-memory data, serialize to CSV string, create a Blob URL, trigger a download link. No server, no pipeline changes.
+
+---
+
+### W-0064
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+A period/quarter snapshot page `docs/snapshot.html` shows all key metrics for a single selected quarter: a card grid (one card per bank, columns = KPIs) and a bar chart per metric showing all banks side by side. A quarter selector (dropdown of all available periods) controls the view. The page is linked from the snapshot table header on `docs/index.html` ("Full snapshot →"). Default period is the most recent available quarter.
+
+### Context
+
+The snapshot table on `docs/index.html` is compact by design. A dedicated snapshot page gives the point-in-time view more space — useful for quarterly reporting ("what did the sector look like at end-2024?"). This complements the time-series focus of the main dashboard. Sourced entirely from `metrics.json` filtered by period client-side. No new data.
+
+---
+
+## Phase 14: Insights Enhancements
+
+### W-0065
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+The snapshot table and ranking table (W-0046) gain anomaly flags: a ⚠ icon on any metric value that deviates more than 2 standard deviations from that bank's own trailing 8-quarter history. Hovering the flag shows: "X.X% — [N]σ above/below trailing 8Q average of Y.Y%". The flag uses the currently-selected date range for the trailing window. Computed client-side from `metrics.json`.
+
+### Context
+
+Anomaly flags direct analyst attention to the most significant data points without requiring manual comparison. A 2σ threshold against a bank's own history (not cross-sectional) is the right benchmark — it captures unusual movement for that specific bank, accounting for structural differences between banks. The 8-quarter trailing window is long enough to be stable but short enough to be responsive to structural shifts. False positives are acceptable — the flag invites investigation, not alarm.
+
+---
+
+### W-0066
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+A "Peer group" filter is added to the bank detail pages (W-0038). Rather than comparing a bank to all 6 top banks, the user can select a peer group: "Big 4" (ANZ, ASB, BNZ, Westpac), "NZ-owned" (Kiwibank), "All standalone". On each bank detail page, the sector average line (W-0037) recalculates using only the selected peer group. The peer group selection persists in `localStorage["peerGroup"]`.
+
+### Context
+
+Kiwibank and Rabobank operate very differently from the Big 4 — comparing them to ANZ directly is misleading for some metrics (NIM, cost base, capital ratios). Peer group filtering lets users make contextually appropriate comparisons. Big 4 peer group excludes Kiwibank and Rabobank from the average on a bank detail page where those banks are less relevant comparators.
+
+---
+
+## Phase 15: Skills Submodule and Governance
+
+### W-0067
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+`.github/skills/` submodule is initialised: `git submodule update --init --remote` pulls the content of `davidamitchell/Skills`. The skills files are confirmed present in the directory. `copilot-instructions.md` is updated to reference any relevant skill files by name.
+
+### Context
+
+The submodule is registered in `.gitmodules` (pointing to `davidamitchell/Skills`) but the directory is currently empty — the submodule has not been initialised in this environment. Skills files in the submodule contain agent instruction patterns that align AI-assisted development across davidamitchell repositories. Without initialisation, agent sessions cannot use those patterns. This is a one-command fix. No code changes required.
+
+> **Note to agent**: Do not run `git submodule update --init` without confirming network access to `github.com` is available in the current environment. The previous session (W-0016) confirmed that some CDNs are blocked; test with a `git ls-remote` check first.
+
+---
+
+### W-0068
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+A structured `CHANGELOG.md` is added to the repo root, tracking significant data pipeline changes and schema updates by date. Initial entries cover: W-0010 (first processed data), W-0015 (disclosure extraction), W-0019 (OCR overlay), the metrics.yaml additions in W-0017, and the upcoming W-0030 and W-0052–W-0054 metric additions. Format: `## YYYY-MM-DD — [change summary]` with bullet points per change.
+
+### Context
+
+As the schema evolves (new metrics mapped, new sources added), users who have downloaded CSVs or built analyses on top of `metrics.json` need to know what changed and when. A changelog is lower overhead than a full versioning scheme and appropriate for this stage. It is maintained manually alongside each schema-affecting backlog item — add a CHANGELOG entry as part of the "done" definition for any item that modifies `config/metrics.yaml` or the canonical schema.
+
+---
+
+## Phase 16: Research Spikes (Additional)
+
+### S-0009
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+Must result in: RBNZ C6 (or equivalent) mortgage and deposit rate series confirmed accessible and a pipeline item opened — or an explicit no-action decision.
+
+### Context
+
+The RBNZ publishes average mortgage rates (1-year fixed, 2-year fixed) and term deposit rates monthly as part of its B3 or C6 statistical series. These are directly relevant to the NIM pass-through analysis (W-0044): the gap between the OCR and the retail mortgage/deposit rate is where bank margin lives. If accessible (same RBNZ domain as the OCR series), adding mortgage and deposit rate overlays to the NIM chart would make the margin decomposition visible without any modelling. Assess URL, format, and column structure using the same approach as the OCR series spike.
+
+---
+
+### S-0010
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+Must result in: a decision on whether to extract note-table data from bank disclosure PDFs — backlog item opened if feasible, or explicit deferral with reason.
+
+### Context
+
+S-0004 confirmed that statement-page extraction (income statement, balance sheet) is working. However, several high-value metrics are only available in note tables: personnel vs non-personnel opex breakdown (Note to Operating Expenses), interest income by product class (Note 2 in Kiwibank, Note 4 in Rabobank), agricultural lending exposure (capital adequacy notes), and RWA by exposure class from the IRB approach tables. Extracting note tables requires `extract_tables()` for most banks (ANZ, ASB, Kiwibank use table-based notes) and `extract_text()` for BNZ and Rabobank. Assess: (1) can the existing extraction framework be extended to target specific note numbers? (2) what is the structural consistency of note tables across years and banks? (3) what specific metrics would be unlocked and are they worth the added fragility? Focus on personnel opex and agricultural exposure as the highest-priority targets.
+
+---
+
+### S-0011
+
+status: open
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+Must result in: understanding of what agricultural lending data exists across RBNZ and disclosure sources — and a backlog item if a viable extraction path exists, or explicit no-action.
+
+### Context
+
+NZ banking is materially exposed to agricultural lending — ANZ, BNZ, and Rabobank have significant agri books (Rabobank is almost exclusively agricultural). Agricultural lending is more cyclical and weather-dependent than retail mortgages, and is a distinct risk factor. The RBNZ XLSX may contain agricultural lending sub-series in the asset quality section (beyond the total NPL/total loans figures already mapped). Disclosure capital adequacy notes (RWA by exposure class) also include agricultural/rural exposure. Investigate: (1) whether RBNZ series QIC or QIG have agricultural sub-series; (2) whether disclosure note tables can provide agricultural NPL or loan volume data; (3) whether RBNZ publishes standalone agricultural lending statistics in a separate series. The goal is to add an agricultural exposure lens to the Asset Quality tab.
 
 ---
