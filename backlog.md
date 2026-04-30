@@ -5,6 +5,69 @@
 
 ---
 
+## Guiding Policy
+
+**Diagnostic**: RBNZ publishes detailed quarterly bank performance data as Excel files. The data is accurate and public but inaccessible — it requires manual downloading, has no time-series comparison across banks, and carries no interpretive context. The same gap applies to bank General Disclosure Statements: machine-readable PDFs, but no tool to extract and compare them.
+
+**Policy**: Build and maintain a zero-cost, fully static dashboard that surfaces sector-wide insights from public regulatory data. No backend. No paid APIs. No LLM inference at runtime. No proprietary data sources.
+
+**Explicit trade-offs — what this project does not do:**
+- No real-time or intraday data (quarterly batch refresh is the cadence)
+- No user authentication or personalisation
+- No paid data sources (Stats NZ API, Bloomberg, CoreLogic)
+- No dynamic server-side rendering (static HTML + JSON only)
+- No mobile-first design (research tool, desktop-primary)
+- No coverage of non-bank financial institutions (insurance, wealth management)
+
+**Primary users**: Financial analysts, researchers, and journalists who want to compare NZ bank performance without downloading Excel files.
+
+---
+
+## Priority Stack
+
+Recommended sequencing for open items. Reflects: (1) items that unblock other items, (2) data-coverage gaps before UI polish, (3) low-effort high-value additions before complex builds.
+
+**Now — unblock downstream work:**
+1. W-0049 — ADR-0005 for PDF extraction (governance gate before disclosure integration)
+2. W-0024 — Run disclosure extraction end-to-end (unblocks W-0025 through W-0029)
+3. W-0033 — Add entity_type field (unblocks W-0037 sector average)
+4. S-0005 — Credit rating encoding (unblocks W-0034)
+5. S-0007 — Westpac via NZX API (if successful, closes the major disclosure gap)
+
+**Next — data expansion (config-only or client-side, no new dependencies):**
+6. W-0030 — Mismatch ratios + credit concentration (YAML-only, series IDs confirmed)
+7. W-0052 — RWA, RORWA, risk density (YAML + client-side derivation)
+8. W-0053 — Provisioning coverage (YAML + client-side derivation)
+9. W-0031 — Loan-to-Deposit Ratio (client-side, all data already present)
+10. W-0054 — Credit concentration series (YAML-only, IDs confirmed)
+
+**Then — UI foundation (required before adding more charts):**
+11. W-0042 — Tab categories (prevents chart grid overload)
+12. W-0035 — OCR event annotations (unblocks W-0036, W-0044)
+13. W-0036 — Event overlay with config/events.yaml
+14. W-0020 — Fullscreen charts
+15. W-0060 — Data freshness badge
+
+**Then — disclosure integration:**
+16. W-0025 — Disclosure charts in disclosures.html
+17. W-0026 — Profit waterfall
+18. W-0027 — Opex chart
+19. W-0028 — Capital components
+20. W-0029 — Funding structure
+
+**Then — deeper insights:**
+21. W-0037 — Sector average line
+22. W-0043 — Snapshot table sorting + colour coding
+23. W-0032 — Capital headroom chart
+24. W-0021 — Transparency pages
+25. W-0047 — Auto-narrative panel
+26. W-0062 — URL state sharing
+
+**Later — polish and depth:**
+27–onwards: drill-downs (W-0038, W-0039), advanced analytics (W-0044, W-0065), export (W-0041, W-0063), pipeline automation (W-0059, W-0061)
+
+---
+
 ## Phase 1: Standardisation and Governance
 
 ### W-0001
@@ -269,7 +332,7 @@ Minimal viable frontend. No build step. Data consumed from repo-stored JSON.
 
 ### W-0013
 
-status: open
+status: ready
 created: 2026-04-27
 updated: 2026-04-27
 
@@ -369,7 +432,7 @@ updated: 2026-04-30
 
 ### W-0020
 
-status: open
+status: ready
 created: 2026-04-28
 updated: 2026-04-28
 
@@ -385,7 +448,7 @@ Charts are currently small within the responsive grid. Full-screen mode allows d
 
 ### W-0021
 
-status: open
+status: ready
 created: 2026-04-28
 updated: 2026-04-28
 
@@ -434,7 +497,7 @@ updated: 2026-04-30
 
 ### W-0024
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -452,7 +515,7 @@ Challenge: Rabobank balance sheet (page 35 of the 2022 report) is image-based �
 
 ### W-0025
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -468,7 +531,7 @@ Disclosure data is annual or half-annual, not quarterly. Merging it into `docs/i
 
 ### W-0026
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -484,7 +547,7 @@ Chart.js 4.x supports floating bar datasets which enable waterfall rendering wit
 
 ### W-0027
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -502,7 +565,7 @@ Challenge: Personnel vs non-personnel opex breakdown lives in note tables, not t
 
 ### W-0028
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -518,7 +581,7 @@ Capital ratios express adequacy relative to risk-weighted assets; absolute capit
 
 ### W-0029
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -536,7 +599,7 @@ Funding mix is a key dimension of bank risk — high wholesale funding reliance 
 
 ### W-0030
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -552,7 +615,7 @@ Series IDs confirmed by direct XLSX inspection. The mismatch ratios are in the L
 
 ### W-0031
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -568,7 +631,7 @@ Net Loans and Advances (DBB.QIG30) and Deposits (DBB.QIG55) are already mapped i
 
 ### W-0032
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -584,7 +647,7 @@ Capital ratios without the minimum context are hard to interpret. A bank at 13% 
 
 ### W-0033
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -600,7 +663,7 @@ S-0003 identified group vs standalone as a known consumer filtering problem and 
 
 ### W-0034
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -618,7 +681,7 @@ Series IDs confirmed: `DBB.QIA10` (S&P), `DBB.QIA20` (Fitch), `DBB.QIA30` (Moody
 
 ### W-0035
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -634,7 +697,7 @@ OCR movements are the single most important macroeconomic driver of bank NIM —
 
 ### W-0036
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -668,7 +731,7 @@ Without event markers, metric movements (e.g. the sharp NIM expansion through 20
 
 ### W-0037
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -684,7 +747,7 @@ A sector average reference line makes individual bank outperformance or underper
 
 ### W-0038
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -700,7 +763,7 @@ The main dashboard is a cross-bank comparison view — it does not support deep 
 
 ### W-0039
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -716,7 +779,7 @@ Metric drill-down is the complement to bank drill-down (W-0038). It answers "how
 
 ### W-0040
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -732,7 +795,7 @@ Indexed mode is essential for balance sheet metrics (Total Assets, Net Loans, De
 
 ### W-0041
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -748,7 +811,7 @@ Users sharing charts via screenshots loses resolution and metadata. Native canva
 
 ### W-0042
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -764,7 +827,7 @@ The current single-grid layout works for 4 charts but will become unmanageable a
 
 ### W-0043
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -782,7 +845,7 @@ The snapshot table currently renders in entity-name order with no sorting. For a
 
 ### W-0044
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -798,7 +861,7 @@ The lag relationship between OCR changes and bank NIM is the central empirical q
 
 ### W-0045
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -814,7 +877,7 @@ The range band is a low-effort, high-insight addition for understanding sector-w
 
 ### W-0046
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -830,7 +893,7 @@ Rankings make sector-relative performance immediately readable — "ANZ ranks 1s
 
 ### W-0047
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -846,7 +909,7 @@ Template-based narrative generation is more auditable and lower-risk than LLM co
 
 ### W-0048
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -864,7 +927,7 @@ Trend flags make the snapshot table row (▲/▼ vs prior quarter only) more rob
 
 ### W-0049
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -880,7 +943,7 @@ The extraction approach was spike-driven (S-0004) and implementation decisions a
 
 ### W-0050
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -896,7 +959,7 @@ Data gaps are unavoidable but must be transparent. Users citing figures from thi
 
 ### W-0051
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -914,7 +977,7 @@ The capital headroom chart (W-0032) will be confusing without this explanatory c
 
 ### S-0005
 
-status: open
+status: needing_refinement
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -930,7 +993,7 @@ Series IDs are now confirmed by direct XLSX inspection: `DBB.QIA10` (S&P Global)
 
 ### S-0006
 
-status: open
+status: needing_refinement
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -956,7 +1019,7 @@ Only open pipeline items for sources that are (a) machine-readable via a stable 
 
 ### S-0007
 
-status: open
+status: needing_refinement
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -972,7 +1035,7 @@ Westpac is the fourth-largest NZ bank by assets and its absence from the disclos
 
 ### S-0008
 
-status: open
+status: needing_refinement
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -990,7 +1053,7 @@ S-0004 confirmed that Rabobank's 2022 disclosure statement balance sheet (page 3
 
 ### W-0052
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1006,7 +1069,7 @@ RWA (`DBB.QIB90`) is confirmed present in the RBNZ XLSX. Both derived metrics re
 
 ### W-0053
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1022,7 +1085,7 @@ Provisioning series (`DBB.QIC60`, `DBB.QIC70`) confirmed present in the RBNZ XLS
 
 ### W-0054
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1040,7 +1103,7 @@ Credit concentration series confirmed in RBNZ XLSX (QIJ section). These metrics 
 
 ### W-0055
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1056,7 +1119,7 @@ Pre-Provision Profit isolates underlying operating performance from the credit c
 
 ### W-0056
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1072,7 +1135,7 @@ NZ retail banks are heavily NII-dependent (typically 80–90% of operating incom
 
 ### W-0057
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1088,7 +1151,7 @@ The impairment charge as % of loans is the cleanest indicator of where the credi
 
 ### W-0058
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1106,7 +1169,7 @@ Cost-to-Income Ratio captures efficiency relative to revenue; opex intensity cap
 
 ### W-0059
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1122,7 +1185,7 @@ Currently PDFs are committed to the repo individually. Automating downloads mean
 
 ### W-0060
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1138,7 +1201,7 @@ Users need to know whether they are looking at current data. The RBNZ publishes 
 
 ### W-0061
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1156,7 +1219,7 @@ The RBNZ updates the dashboard quarterly (approximately March, June, September, 
 
 ### W-0062
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1172,7 +1235,7 @@ Shareable URLs are a basic requirement for a research tool used collaboratively.
 
 ### W-0063
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1188,7 +1251,7 @@ Power users (analysts, researchers) need raw data access to run their own calcul
 
 ### W-0064
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1206,7 +1269,7 @@ The snapshot table on `docs/index.html` is compact by design. A dedicated snapsh
 
 ### W-0065
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1222,7 +1285,7 @@ Anomaly flags direct analyst attention to the most significant data points witho
 
 ### W-0066
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1240,7 +1303,7 @@ Kiwibank and Rabobank operate very differently from the Big 4 — comparing them
 
 ### W-0067
 
-status: open
+status: done
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1258,7 +1321,7 @@ The submodule is registered in `.gitmodules` (pointing to `davidamitchell/Skills
 
 ### W-0068
 
-status: open
+status: ready
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1276,7 +1339,7 @@ As the schema evolves (new metrics mapped, new sources added), users who have do
 
 ### S-0009
 
-status: open
+status: needing_refinement
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1292,7 +1355,7 @@ The RBNZ publishes average mortgage rates (1-year fixed, 2-year fixed) and term 
 
 ### S-0010
 
-status: open
+status: needing_refinement
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1308,7 +1371,7 @@ S-0004 confirmed that statement-page extraction (income statement, balance sheet
 
 ### S-0011
 
-status: open
+status: needing_refinement
 created: 2026-04-30
 updated: 2026-04-30
 
@@ -1319,5 +1382,89 @@ Must result in: understanding of what agricultural lending data exists across RB
 ### Context
 
 NZ banking is materially exposed to agricultural lending — ANZ, BNZ, and Rabobank have significant agri books (Rabobank is almost exclusively agricultural). Agricultural lending is more cyclical and weather-dependent than retail mortgages, and is a distinct risk factor. The RBNZ XLSX may contain agricultural lending sub-series in the asset quality section (beyond the total NPL/total loans figures already mapped). Disclosure capital adequacy notes (RWA by exposure class) also include agricultural/rural exposure. Investigate: (1) whether RBNZ series QIC or QIG have agricultural sub-series; (2) whether disclosure note tables can provide agricultural NPL or loan volume data; (3) whether RBNZ publishes standalone agricultural lending statistics in a separate series. The goal is to add an agricultural exposure lens to the Asset Quality tab.
+
+---
+
+## Phase 17: Engineering Quality (from Skills Review)
+
+### W-0069
+
+status: needing_refinement
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+The client-side JavaScript in `docs/index.html` and related static pages has a unit test suite covering: date-range filter logic, bank selector state, chart dataset computation (Cost-to-Income derivation, LDR derivation, sector average calculation, indexed-mode rebase), and the OCR event detection algorithm. Tests run without a browser using a DOM mock (jsdom via Jest or equivalent). The test suite is added to `package.json` and invoked from `.github/workflows/ci.yml`.
+
+### Context
+
+The `tdd` skill surfaces a structural gap: the frontend contains non-trivial algorithmic logic (derived metric computation, filter state management, OCR delta detection) with zero automated test coverage. This logic has no feedback loop shorter than manual browser testing. The gap costs most for the derived metrics (Cost-to-Income, LDR, RORWA, Provisioning Coverage) where a formula error is invisible without tests. No build step is required for the production site; the test toolchain is development-only and does not affect the static output.
+
+Challenge: The project has no `package.json` or Node tooling. Adding Jest introduces a new runtime dependency for development. Assess whether `vitest` (lighter, no config) or plain `node --test` (no extra dependency) is sufficient before committing to Jest. Document the choice in an ADR if it introduces new dev tooling.
+
+---
+
+### W-0070
+
+status: ready
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+All existing ADRs in `docs-adr/` (ADR-0001 through ADR-0004) gain YAML front matter (`title`, `status`, `date`, `authors`, `tags`, `supersedes`, `superseded_by`) and coded bullet identifiers (POS-001, NEG-001, ALT-001, IMP-001, REF-001) in the Consequences, Alternatives, Implementation Notes, and References sections. The format matches the `adr` skill standard. `docs-adr/README.md` index is updated. All future ADRs (starting with ADR-0005 from W-0049) use this format from the start.
+
+### Context
+
+The `adr` skill defines a richer format than the MADR format currently in use. The additions are not cosmetic: YAML front matter enables machine parsing and cross-referencing; coded bullet IDs make individual consequences citable across items; `superseded_by` fields preserve the audit trail when decisions change. The existing four ADRs cover load-bearing decisions (data format, directory structure, manual RBNZ file, data contract) and are worth upgrading.
+
+---
+
+### W-0071
+
+status: ready
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+A code review standard is added to `.github/copilot-instructions.md` under a new `## Code Review Standard` section. The checklist covers: correctness (output matches stated outcome), data accuracy (metric values sourced, not edited), test coverage (every new Python function has a test; every new derived metric formula has a client-side test once W-0069 is done), security (no credentials or raw data in `docs/`), idempotency (workflows produce the same result on re-run), and ADR compliance (new architectural choices have an ADR before merging). The standard applies to all PRs before merging.
+
+### Context
+
+The `code-review` skill defines a systematic multi-dimensional review process. The project has no documented PR review standard. Embedding the checklist in `copilot-instructions.md` means agent sessions working on PRs apply it automatically. It does not replace human review but raises the baseline for agent-authored PRs, which currently represent all PRs.
+
+---
+
+### W-0072
+
+status: ready
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+The auto-narrative panel templates (W-0047) pass a `plain-language` review before the feature ships: each generated sentence is at or below a Year 10 reading level, financial terms are either defined inline or linked to the glossary, and the output is readable by a non-specialist without additional context. Five example narrative outputs (one per bank selection scenario) are documented alongside the template strings as test fixtures. The glossary definitions on `docs/glossary.html` receive the same review pass.
+
+### Context
+
+The `plain-language` skill applies directly here: the narrative panel and glossary target a mixed audience including journalists and policy researchers who are not bank analysts. Jargon in the templates propagates to every generated sentence. Reviewing the prose before shipping the feature is cheaper than retrofitting after. This is a writing review pass, not a code change.
+
+---
+
+### W-0073
+
+status: ready
+created: 2026-04-30
+updated: 2026-04-30
+
+### Outcome
+
+The `remove-ai-slop` pre-commit checklist has been applied to all user-facing prose in the static site: `docs/glossary.html`, `docs/methodology.html`, `docs/lineage.html`, and the narrative panel templates (W-0047). Specific targets: em dashes removed throughout, passive constructions named and rewritten, AI vocabulary words replaced (`fundamentally`, `crucially`, `highlight`, `underscore`, `tapestry`), and no sentence opening with a Wh- word. `glossary.md` is updated as the source of truth. A prose-only PR, no pipeline changes.
+
+### Context
+
+The `remove-ai-slop` skill identifies patterns that reduce credibility in research contexts. User-facing content cited by analysts and journalists carries a higher standard. `glossary.md` already contains formulaic prose ("Measures X. Expressed as a percentage.") that will be visible on the public site. This pass makes the prose sound like it was written by a person with domain knowledge, not generated. Belongs after W-0021 (transparency pages) is built so the full prose surface exists before the review.
 
 ---
