@@ -317,6 +317,14 @@ financial_disclosures:
       #   2018-2023: /media/documents/about-us/governance/disclosure-statement-{month}-{year}.pdf
       # Note: www.kiwibank.co.nz blocks pipeline sandbox IPs (timeout). Manual download required.
       reports:
+        - period_end: "2025-12-31"
+          period_type: half_year
+          url: https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-december-2025.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
+        - period_end: "2025-06-30"
+          period_type: full_year
+          url: https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-june-2025.pdf
+          status: not_reachable  # www.kiwibank.co.nz blocks all pipeline downloads (timeout)
         - period_end: "2024-12-31"
           period_type: half_year
           url: https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-december-2024.pdf

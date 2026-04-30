@@ -1,0 +1,10 @@
+{
+  "bank_id": "kiwibank",
+  "bank_name": "Kiwibank",
+  "period_end": "2025-06-30",
+  "period_type": "full_year",
+  "source_url": "https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-june-2025.pdf",
+  "downloaded_at": "2026-04-29T20:08:15.852736+00:00",
+  "file_size_bytes": 2070544,
+  "sha256": "61db1ac7ec2e052c664c272e07c2506b78fb36bfb57db2ff2aaab93c1095f525"
+}

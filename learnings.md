@@ -102,3 +102,46 @@ _No spikes completed yet. See `backlog.md` for open spikes (S-0001, S-0002, S-00
 - Future backlog item: add an `entity_type` field (`standalone` | `group`) to the canonical schema if needed for filtering — not opened now.
 
 **Resulting updates:** ADR-0004 updated to mention group vs. standalone. No new backlog items.
+
+---
+
+## Spike output: PDF text extraction approach for NZ bank disclosures
+
+**Date completed:** 2026-04-30
+
+**Problem investigated:** Can `pdfplumber` extract structured quantitative metrics from NZ bank General Disclosure Statement PDFs reliably enough to build an automated pipeline?
+
+**Findings:**
+
+### Text extraction (Income Statement, Balance Sheet)
+
+- All five tested banks (ANZ, ASB, BNZ, Kiwibank, Rabobank) have PDFs where `page.extract_text()` returns structured text, not image scans. `readable_via_text: true` confirmed in spike S-0004 for all income statement and balance sheet sections.
+- Kiwibank (and likely others) uses "$ millions" as the unit header. ANZ uses "NZ$m". Older/smaller banks may use "$'000" (NZD thousands). Unit detection via the first 3000 characters of document text is sufficient.
+- Income statement lines follow the pattern: `<label> [note_ref] <current_value> <prior_value>`. Note references are small bare positive integers (≤ 99 for major banks). They can be safely skipped using the heuristic: positive integer, no commas, value ≤ 99.
+- Negative values are always represented as bracketed numbers: `(582)` = -582.
+- The "Historical summary" page (Kiwibank page 9) and the "Income statement" page (page 10) both contain income-statement metrics. For most metrics, the historical summary either omits them ("Net interest income" is absent in Kiwibank's summary) or repeats the current-period value first. Taking the first occurrence in document text is safe.
+
+### Capital adequacy ratio extraction
+
+- Capital ratio lines consistently appear in the capital adequacy section (late in the document, after notes).
+- Line format: `<ratio label> <minimum_requirement%> <banking_group_current%> <prior_period%>`. Three percentage values per line.
+- The **first** percentage is the regulatory minimum (RBNZ-set), not the bank's actual ratio. The **second** percentage is the current-period bank ratio. Must use a "second_pct" extraction strategy, not "first_value".
+- Example: `"Common equity Tier 1 capital ratio 4.5% 11.9% 10.3%"` → CET1 = 11.9%.
+- If only one percentage appears on a line, use it as a fallback (some older formats).
+
+### OCR XLSX data structure
+
+- RBNZ B2 Wholesale Interest Rates XLSX (`rbnz-ocr.xlsx`) contains monthly close data. Each row is one month.
+- The OCR column header contains "OCR" or "Official Cash Rate" (case may vary). Column detection by header substring search across the first 10 rows is reliable.
+- Monthly → quarterly conversion: group by calendar quarter (Q1 = Jan–Mar, Q2 = Apr–Jun, Q3 = Jul–Sep, Q4 = Oct–Dec) and take the **last available monthly value** per quarter. This gives the quarter-end policy rate, which aligns with bank reporting periods.
+- The first column with a `datetime` type value is the date column. Scanning rows 5–15 is sufficient to detect it.
+
+**Decision:**
+
+- Use `pdfplumber` `extract_text()` for all income statement, balance sheet, and capital adequacy extractions. No table extraction needed.
+- Two extraction strategies required: `first_value` (income/balance sheet) and `second_pct` (capital ratios).
+- Unit scale detection from the first 3000 characters of document text.
+- Note number filtering: skip positive integers ≤ 99 with no commas.
+- Implemented in `src/processing/extract_disclosures.py`.
+
+**Resulting updates:** W-0015 → done, W-0016 → wont-do, W-0019 → done, W-0022 → done.

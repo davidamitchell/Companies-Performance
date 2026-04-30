@@ -1,0 +1,10 @@
+{
+  "bank_id": "kiwibank",
+  "bank_name": "Kiwibank",
+  "period_end": "2023-12-31",
+  "period_type": "half_year",
+  "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2023.pdf",
+  "downloaded_at": "2026-04-29T20:08:15.838736+00:00",
+  "file_size_bytes": 1058907,
+  "sha256": "9a6b1bc3bb3bcdc19e11457b877a6d7e599336e9cdbed5003449487d5cdb6284"
+}

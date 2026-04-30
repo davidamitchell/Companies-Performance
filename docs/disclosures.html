@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disclosures — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <style>
+    /* ── Page-specific styles ─────────────────────────────────────────────── */
+    section h2 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Coverage summary cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .summary-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0.85rem 1rem;
+    }
+    .summary-card .bank-name {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+    .summary-card .count {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--teal);
+      line-height: 1;
+    }
+    .summary-card .range {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      align-items: center;
+    }
+    .filter-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-right: 0.25rem;
+    }
+    .filter-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--text-xs);
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.25rem 0.7rem;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: border-color 150ms, color 150ms;
+    }
+    .filter-btn:hover { border-color: var(--text); color: var(--text); }
+    .filter-btn.active { border-color: var(--teal); color: var(--teal); }
+
+    /* Table extras */
+    .period-type {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      text-transform: lowercase;
+      letter-spacing: 0.04em;
+    }
+    .filesize {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    td.bank-cell { font-weight: 600; color: var(--text); }
+    .source-link { color: var(--teal); font-size: var(--text-xs); }
+    .no-results {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      padding: 1.5rem 0.75rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html" class="active">Disclosures</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>Disclosures</h1>
+    <p>General Disclosure Statements published by NZ-registered banks — coverage by bank and period.</p>
+  </div>
+
+  <main>
+
+    <!-- ── Coverage summary ── -->
+    <section id="summary">
+      <h2>coverage</h2>
+      <div class="summary-grid" id="summary-grid">
+        <!-- filled by JS -->
+      </div>
+    </section>
+
+    <!-- ── Disclosure table ── -->
+    <section id="table-section">
+      <h2>statements</h2>
+
+      <div class="filter-bar" id="filter-bar">
+        <span class="filter-label">bank</span>
+        <!-- filter buttons filled by JS -->
+      </div>
+
+      <div class="table-wrap">
+        <table id="disclosures-table">
+          <thead>
+            <tr>
+              <th>bank</th>
+              <th>period end</th>
+              <th>type</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="3" class="no-results">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    Bank General Disclosure Statements sourced from NZ-registered bank public disclosures —
+    <a href="data-sources.html">data sources</a>
+  </footer>
+
+</div><!-- /page-wrap -->
+
+<script>
+  const DATA_URL = 'data/processed/disclosures.json';
+
+  function fmtBytes(n) {
+    if (!n) return '—';
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function fmtPeriodType(t) {
+    if (!t) return '—';
+    return t.replace(/_/g, ' ');
+  }
+
+  function buildSummary(records) {
+    const byBank = {};
+    for (const r of records) {
+      if (!byBank[r.bank_id]) byBank[r.bank_id] = { name: r.bank_name, periods: [] };
+      byBank[r.bank_id].periods.push(r.period_end);
+    }
+    const grid = document.getElementById('summary-grid');
+    grid.innerHTML = '';
+    for (const [id, info] of Object.entries(byBank).sort(([a],[b]) => a.localeCompare(b))) {
+      const sorted = info.periods.sort();
+      const earliest = sorted[0].slice(0, 4);
+      const latest   = sorted[sorted.length - 1].slice(0, 4);
+      const range    = earliest === latest ? earliest : earliest + '–' + latest;
+      const card = document.createElement('div');
+      card.className = 'summary-card';
+      card.innerHTML = `
+        <div class="bank-name">${info.name}</div>
+        <div class="count">${info.periods.length}</div>
+        <div class="range">${range}</div>`;
+      grid.appendChild(card);
+    }
+  }
+
+  function buildFilters(records, onFilter) {
+    const banks = [...new Set(records.map(r => r.bank_id))].sort();
+    const bar = document.getElementById('filter-bar');
+    let active = 'all';
+
+    const allBtn = document.createElement('button');
+    allBtn.className = 'filter-btn active';
+    allBtn.dataset.bank = 'all';
+    allBtn.textContent = 'All';
+    bar.appendChild(allBtn);
+
+    for (const id of banks) {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.dataset.bank = id;
+      btn.textContent = records.find(r => r.bank_id === id)?.bank_name ?? id;
+      bar.appendChild(btn);
+    }
+
+    bar.addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      active = btn.dataset.bank;
+      onFilter(active);
+    });
+  }
+
+  function renderTable(records, filter) {
+    const tbody = document.getElementById('table-body');
+    const filtered = filter === 'all' ? records : records.filter(r => r.bank_id === filter);
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="no-results">No records.</td></tr>';
+      return;
+    }
+    // Sort newest first within current filter
+    const rows = [...filtered].sort((a, b) => b.period_end.localeCompare(a.period_end));
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td class="bank-cell">${r.bank_name}</td>
+        <td>${r.period_end}</td>
+        <td><span class="period-type">${fmtPeriodType(r.period_type)}</span></td>
+      </tr>`).join('');
+  }
+
+  async function init() {
+    let records;
+    try {
+      const resp = await fetch(DATA_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      records = await resp.json();
+    } catch (err) {
+      document.getElementById('table-body').innerHTML =
+        `<tr><td colspan="3" class="no-results">Could not load disclosures data: ${err.message}</td></tr>`;
+      return;
+    }
+
+    buildSummary(records);
+
+    let currentFilter = 'all';
+    buildFilters(records, filter => {
+      currentFilter = filter;
+      renderTable(records, currentFilter);
+    });
+    renderTable(records, currentFilter);
+  }
+
+  init();
+</script>
+</body>
+</html>

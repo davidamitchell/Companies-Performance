@@ -4,112 +4,145 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f6fa;
-      color: #2d3436;
-    }
-    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    /* ── Page-specific overrides ────────────────────────────────────────────── */
 
-    /* ── Header ─────────────────────────────────────── */
-    header { margin-bottom: 1.5rem; }
-    header h1 { font-size: 1.6rem; font-weight: 700; }
-    header p { color: #636e72; margin-top: 0.3rem; font-size: 0.9rem; }
-    #status { margin-top: 0.4rem; font-size: 0.82rem; color: #0984e3; }
+    /* Status line */
+    #status { font-size: var(--text-xs); color: var(--teal); margin-top: 0.4rem;
+              letter-spacing: 0.04em; }
 
-    /* ── Bank selector ───────────────────────────────── */
-    .bank-selector { margin-top: 1rem; }
+    /* Bank selector */
+    .bank-selector { margin-top: 1.25rem; }
     .bank-selector-label {
-      font-size: 0.8rem; color: #636e72; margin-bottom: 0.4rem;
-      display: flex; align-items: center; gap: 0.75rem;
+      font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.75rem; letter-spacing: 0.05em;
     }
     .quick-btn {
-      background: none; border: 1px solid #dfe6e9; border-radius: 4px;
-      padding: 0.15rem 0.5rem; font-size: 0.75rem; cursor: pointer; color: #2d3436;
+      background: transparent; border: 1px solid var(--border);
+      padding: 0.15rem 0.5rem; font-size: var(--text-xs); cursor: pointer;
+      color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em;
     }
-    .quick-btn:hover { background: #f0f4ff; }
-    .bank-checks { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .quick-btn:hover { border-color: var(--teal); color: var(--text); }
+    .bank-checks { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
     .bank-check-label {
       display: flex; align-items: center; gap: 0.3rem;
-      background: #fff; border: 1px solid #dfe6e9; border-radius: 20px;
-      padding: 0.2rem 0.65rem; font-size: 0.8rem; cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem; font-size: var(--text-xs); cursor: pointer;
+      transition: border-color 150ms ease; color: var(--text-muted);
+      letter-spacing: 0.04em;
     }
-    .bank-check-label:hover { background: #f0f4ff; }
+    .bank-check-label:hover { border-color: var(--teal); color: var(--text); }
     .bank-check-label input { display: none; }
     .bank-check-label.checked {
-      background: var(--bank-color, #0984e3);
-      border-color: var(--bank-color, #0984e3);
+      background: var(--bank-color, var(--teal));
+      border-color: var(--bank-color, var(--teal));
       color: #fff;
     }
 
-    /* ── Section headings ────────────────────────────── */
-    section { margin-bottom: 2rem; }
-    .section-title {
-      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
-      display: flex; align-items: baseline; gap: 0.5rem;
-    }
-    .section-title span { font-size: 0.82rem; font-weight: 400; color: #636e72; }
-
-    /* ── Chart grid ─────────────────────────────────── */
+    /* Chart grid */
     .chart-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
       gap: 1rem;
     }
     .chart-card {
-      background: #fff; border-radius: 8px; padding: 1rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1rem 1.25rem;
     }
-    .chart-card h3 { font-size: 0.85rem; font-weight: 600; color: #2d3436; margin-bottom: 0.5rem; }
+    .chart-card h3 {
+      font-size: var(--text-xs); font-weight: 500; color: var(--text-muted);
+      margin-bottom: 0.6rem; letter-spacing: 0.08em; text-transform: lowercase;
+    }
     .chart-wrap { position: relative; height: 220px; }
 
-    /* ── Snapshot table ──────────────────────────────── */
+    /* Snapshot table */
     .snapshot-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; background: #fff;
-            border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
-    th { text-align: left; padding: 0.5rem 0.75rem; background: #f8f9fa; color: #636e72;
-         font-weight: 500; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
-    td { padding: 0.45rem 0.75rem; border-bottom: 1px solid #f0f0f0; }
-    tr:last-child td { border-bottom: none; }
-    .entity-cell { font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
-    .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .val-null { color: #b2bec3; }
-    .trend-up   { color: #00b894; font-size: 0.7rem; margin-left: 0.15rem; }
-    .trend-down { color: #d63031; font-size: 0.7rem; margin-left: 0.15rem; }
+    .entity-cell { font-weight: 500; display: flex; align-items: center; gap: 0.4rem; }
+    .swatch { width: 8px; height: 8px; flex-shrink: 0; }
+    .val-null { color: var(--text-muted); }
+    .trend-up   { color: var(--teal); font-size: var(--text-xs); margin-left: 0.15rem; }
+    .trend-down { color: var(--dusk); font-size: var(--text-xs); margin-left: 0.15rem; }
 
-    /* ── Footer ─────────────────────────────────────── */
-    footer { font-size: 0.78rem; color: #b2bec3; padding: 1.5rem 0 0.5rem; }
-    a { color: #0984e3; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    /* Override shared section-heading for dashboard sections */
+    .section-title {
+      font-size: var(--text-xs); font-weight: 500; margin-bottom: 1rem;
+      display: flex; align-items: baseline; gap: 0.5rem;
+      text-transform: lowercase; letter-spacing: 0.1em; color: var(--text-muted);
+      border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;
+    }
+    .section-title span { color: var(--text-muted); }
+
+    /* Range filter */
+    .range-filter {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-top: 0.75rem; flex-wrap: wrap;
+    }
+    .range-filter-label {
+      font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.05em;
+    }
+    .range-btn {
+      background: transparent; border: 1px solid var(--border);
+      padding: 0.15rem 0.5rem; font-size: var(--text-xs); cursor: pointer;
+      color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em; transition: border-color 150ms ease, color 150ms ease;
+    }
+    .range-btn:hover { border-color: var(--teal); color: var(--text); }
+    .range-btn.active { border-color: #00C3A5; color: var(--text); }
+
+    @media (max-width: 640px) {
+      .chart-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+    </div>
+  </div>
+</nav>
+
 <div class="page-wrap">
 
-  <header>
+  <div class="page-header">
     <h1>NZ Bank Performance</h1>
     <p>Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
 
     <div class="bank-selector">
       <div class="bank-selector-label">
-        Banks shown:
+        banks shown:
         <button class="quick-btn" id="btn-top6">Top 6</button>
         <button class="quick-btn" id="btn-all">All</button>
-        <button class="quick-btn" id="btn-standalone">Standalone only</button>
+        <button class="quick-btn" id="btn-standalone">Standalone</button>
       </div>
       <div class="bank-checks" id="bank-checks"></div>
     </div>
-  </header>
+    <div class="range-filter">
+      <span class="range-filter-label">period</span>
+      <button class="range-btn" data-range="4">Last 4Q</button>
+      <button class="range-btn" data-range="8">Last 8Q</button>
+      <button class="range-btn" data-range="16">Last 16Q</button>
+      <button class="range-btn active" data-range="all">All</button>
+    </div>
+  </div>
 
   <main>
     <section id="charts-section">
       <div class="section-title">
-        Historical Performance
+        historical performance
         <span id="period-range"></span>
       </div>
       <div class="chart-grid" id="chart-grid"></div>
@@ -117,7 +150,7 @@
 
     <section id="snapshot-section">
       <div class="section-title">
-        Latest Quarter Snapshot
+        latest quarter snapshot
         <span id="latest-period-label"></span>
       </div>
       <div class="snapshot-wrap">
@@ -130,18 +163,21 @@
   </main>
 
   <footer>
-    <p>
-      Data sourced from public disclosures including the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>.
-      Updated via GitHub Actions.
-      <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">Source</a>.
-    </p>
+    Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>
   </footer>
 
 </div>
 
 <script>
+  /* ── Chart.js dark-mode defaults ───────────────────────────────────────── */
+  Chart.defaults.color          = '#666';
+  Chart.defaults.borderColor    = '#252b33';
+  Chart.defaults.font.family    = "'IBM Plex Mono', monospace";
+  Chart.defaults.font.size      = 10;
+
   /* ── Configuration ─────────────────────────────────────────────────────── */
   const DATA_URL = 'data/processed/metrics.json';
+  const OCR_URL  = 'data/processed/ocr.json';
 
   // Key metrics to chart and show in snapshot.
   // 'Cost to Income Ratio' is derived client-side (not stored in data).
@@ -201,6 +237,8 @@
   let allEntities = [];
   let selectedEntities = new Set(TOP_6_BANKS);
   let charts = [];        // Chart.js instances
+  let ocrRows = [];       // OCR canonical rows [{entity,metric,value,period,source}]
+  let rangePreset = localStorage.getItem('rangePreset') || 'all';
 
   /* ── Derived data: Cost to Income Ratio ───────────────────────────────── */
   /**
@@ -251,12 +289,24 @@
         `${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
 
       buildBankSelector();
+      applyRangePreset(rangePreset, false);
       render();
     } catch (err) {
       statusEl.textContent =
         'No data yet — trigger the fetch-data then process-data workflows.';
-      statusEl.style.color = '#b2bec3';
+      statusEl.style.color = '#666';
       console.warn('Data load failed:', err);
+    }
+
+    // Load OCR data independently — failure is non-fatal
+    try {
+      const ocrResp = await fetch(OCR_URL);
+      if (ocrResp.ok) {
+        ocrRows = await ocrResp.json();
+        render(); // re-render with OCR overlay
+      }
+    } catch (err) {
+      console.warn('OCR data load failed (NIM chart will render without OCR overlay):', err);
     }
   }
 
@@ -300,22 +350,64 @@
   document.getElementById('btn-standalone').addEventListener('click', () =>
     applySelection(allEntities.filter(e => STANDALONE.includes(e))));
 
+  /* ── Range filter ─────────────────────────────────────────────────────── */
+  /**
+   * Apply a period range preset.
+   * @param {string|number} preset - 'all', 4, 8, or 16 (quarters)
+   * @param {boolean} [doRender=true] - Whether to trigger a re-render
+   */
+  function applyRangePreset(preset, doRender = true) {
+    rangePreset = String(preset);
+    localStorage.setItem('rangePreset', rangePreset);
+    // Update button styles
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.range === rangePreset);
+    });
+    if (doRender) render();
+  }
+
+  /** Return the filtered period array based on the active range preset. */
+  function getVisiblePeriods() {
+    const n = parseInt(rangePreset, 10);
+    if (!isNaN(n) && n > 0 && allPeriods.length > n) {
+      return allPeriods.slice(-n);
+    }
+    return allPeriods;
+  }
+
+  document.querySelectorAll('.range-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyRangePreset(btn.dataset.range));
+  });
+
   /* ── Render ───────────────────────────────────────────────────────────── */
   function render() {
     const lookup = buildLookup(allRows);
     const visible = allEntities.filter(e => selectedEntities.has(e));
+    const visiblePeriods = getVisiblePeriods();
 
-    renderCharts(lookup, visible);
-    renderSnapshot(lookup, visible);
+    renderCharts(lookup, visible, visiblePeriods);
+    renderSnapshot(lookup, visible, visiblePeriods);
 
-    const latestPeriod = allPeriods[allPeriods.length - 1] || '';
+    const latestPeriod = visiblePeriods[visiblePeriods.length - 1] || '';
     document.getElementById('latest-period-label').textContent = latestPeriod;
     document.getElementById('period-range').textContent =
-      allPeriods.length ? `${allPeriods[0]} – ${allPeriods[allPeriods.length - 1]}` : '';
+      visiblePeriods.length ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}` : '';
   }
 
   /* ── Charts ───────────────────────────────────────────────────────────── */
-  function renderCharts(lookup, visible) {
+  /**
+   * Build an OCR period→value lookup from the loaded ocrRows.
+   * @returns {Object} period → OCR value (%)
+   */
+  function buildOcrLookup() {
+    const ocr = {};
+    for (const r of ocrRows) {
+      ocr[r.period] = r.value;
+    }
+    return ocr;
+  }
+
+  function renderCharts(lookup, visible, visiblePeriods) {
     // Destroy existing charts
     charts.forEach(c => c.destroy());
     charts = [];
@@ -323,9 +415,13 @@
     const grid = document.getElementById('chart-grid');
     grid.innerHTML = '';
 
+    const ocrLookup = buildOcrLookup();
+    const isNimChart = (metric) => metric === 'NIM';
+
     for (let i = 0; i < KEY_METRICS.length; i++) {
       const metric = KEY_METRICS[i];
       const label  = METRIC_LABELS[metric] || metric;
+      const addOcr = isNimChart(metric) && ocrRows.length > 0;
 
       const card = document.createElement('div');
       card.className = 'chart-card';
@@ -333,7 +429,7 @@
       grid.appendChild(card);
 
       const datasets = visible.map(entity => {
-        const data = allPeriods.map(p => {
+        const data = visiblePeriods.map(p => {
           const v = lookup[entity]?.[p]?.[metric];
           return (v != null) ? v : null;
         });
@@ -347,13 +443,73 @@
           pointHoverRadius: 4,
           tension: 0.3,
           spanGaps: false,
+          yAxisID: 'y',
         };
       }).filter(ds => ds.data.some(v => v != null));
 
+      // Add OCR overlay on NIM chart only
+      if (addOcr) {
+        const ocrData = visiblePeriods.map(p => {
+          const v = ocrLookup[p];
+          return (v != null) ? v : null;
+        });
+        if (ocrData.some(v => v != null)) {
+          datasets.push({
+            label: 'OCR (%)',
+            data: ocrData,
+            borderColor: '#00C3A5',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 3],
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.3,
+            spanGaps: true,
+            yAxisID: 'yOCR',
+          });
+        }
+      }
+
       const ctx = document.getElementById(`chart-${i}`).getContext('2d');
+
+      const scalesConfig = {
+        x: {
+          ticks: {
+            font: { size: 10, family: "'IBM Plex Mono', monospace" },
+            color: '#666',
+            maxRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 16,
+          },
+          grid: { display: false },
+          border: { color: '#252b33' },
+        },
+        y: {
+          ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+          grid: { color: '#252b33' },
+          border: { color: '#252b33' },
+        },
+      };
+
+      if (addOcr) {
+        scalesConfig.yOCR = {
+          type: 'linear',
+          position: 'right',
+          title: {
+            display: true,
+            text: 'OCR (%)',
+            color: '#00C3A5',
+            font: { size: 9, family: "'IBM Plex Mono', monospace" },
+          },
+          ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#00C3A5' },
+          grid: { drawOnChartArea: false },
+          border: { color: '#252b33' },
+        };
+      }
+
       const chart = new Chart(ctx, {
         type: 'line',
-        data: { labels: allPeriods, datasets },
+        data: { labels: visiblePeriods, datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -361,29 +517,23 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { font: { size: 11 }, boxWidth: 12, padding: 8 },
+              labels: {
+                font: { size: 10, family: "'IBM Plex Mono', monospace" },
+                boxWidth: 10, padding: 8, color: '#666',
+              },
             },
             tooltip: {
+              backgroundColor: '#161b22',
+              borderColor: '#252b33',
+              borderWidth: 1,
+              titleColor: '#e6e6e6',
+              bodyColor: '#e6e6e6',
               callbacks: {
                 label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`,
               },
             },
           },
-          scales: {
-            x: {
-              ticks: {
-                font: { size: 10 },
-                maxRotation: 45,
-                autoSkip: true,
-                maxTicksLimit: 16,
-              },
-              grid: { display: false },
-            },
-            y: {
-              ticks: { font: { size: 10 } },
-              grid: { color: '#f0f0f0' },
-            },
-          },
+          scales: scalesConfig,
         },
       });
       charts.push(chart);
@@ -391,9 +541,9 @@
   }
 
   /* ── Snapshot table ───────────────────────────────────────────────────── */
-  function renderSnapshot(lookup, visible) {
-    const latestPeriod = allPeriods[allPeriods.length - 1];
-    const prevPeriod   = allPeriods[allPeriods.length - 2];
+  function renderSnapshot(lookup, visible, visiblePeriods) {
+    const latestPeriod = visiblePeriods[visiblePeriods.length - 1];
+    const prevPeriod   = visiblePeriods[visiblePeriods.length - 2];
 
     // Header
     const head = document.getElementById('snapshot-head');

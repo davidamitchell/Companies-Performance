@@ -239,17 +239,13 @@ Must result in: backlog update, or ADR, or explicit no-action decision.
 
 ### W-0016
 
-status: open
+status: wont-do
 created: 2026-04-28
-updated: 2026-04-28
+updated: 2026-04-30
 
 ### Outcome
 
-The automated fetch workflow (`.github/workflows/fetch-data.yml`) runs end-to-end successfully against the live RBNZ URL; the downloaded XLSX is committed to `data/raw/` without manual intervention.
-
-### Context
-
-The initial RBNZ XLSX was loaded manually to unblock the pipeline (ADR-0003). This item validates and activates the automated fetch so that future data refreshes do not require manual steps. Requires network access from the Actions runner. Supersedes the manual load approach.
+Won't do: Kiwibank and Westpac CDNs block pipeline downloads (WAF / timeout). Manual intervention required for both; automated fetch not fixable without a change in bank infrastructure. W-0009 already validates the RBNZ XLSX fetch; this item is superseded by that.
 
 ---
 
@@ -335,21 +331,39 @@ Depends on W-0017 and W-0010. Requires processed data to include all 32 quarters
 
 ---
 
+### W-0023
+
+status: done
+created: 2026-04-29
+updated: 2026-04-29
+
+### Outcome
+
+The GitHub Pages site (`docs/`) is styled to match the davidamitchell design system used in
+[Research](https://davidamitchell.github.io/Research/) and
+[Latest-developments](https://davidamitchell.github.io/Latest-developments-/).
+Visual language: dark background (`#0d0d0d`), IBM Plex Mono typeface (from Google Fonts),
+teal (`#00C3A5`) accent, border-only cards (no box-shadow, no border-radius), fixed top nav.
+Shared design tokens extracted to `docs/css/theme.css`. Chart.js charts updated to dark mode defaults.
+
+### Context
+
+Site was previously styled with light background and system UI fonts, inconsistent with
+the design system used across other davidamitchell GitHub Pages sites.
+
+---
+
 ## Phase 3.5: Frontend Enhancements
 
 ### W-0019
 
-status: open
+status: done
 created: 2026-04-28
-updated: 2026-04-28
+updated: 2026-04-30
 
 ### Outcome
 
-RBNZ Official Cash Rate (OCR) history is ingested as a new data source. A new entry in `config/sources.yaml` points to the RBNZ OCR time-series data file. `config/metrics.yaml` maps the OCR series to the canonical metric name `OCR Rate`. The processed output includes OCR Rate rows in `data/processed/metrics.csv` and `docs/data/processed/metrics.json`. An OCR overlay can be toggled on the NIM and Return on Equity charts to contextualise bank margins against the prevailing rate environment.
-
-### Context
-
-OCR data is published by the RBNZ at https://www.rbnz.govt.nz/monetary-policy/official-cash-rate-decisions. The OCR is the primary policy lever that directly influences bank NIM and funding costs; overlaying it on existing charts adds meaningful macroeconomic context. Requires a discovery spike (S-0004) to confirm the available file format and series ID before implementation. `OCR Rate` must be added to `glossary.md` before the series ID mapping is added to `config/metrics.yaml`.
+`src/processing/parse_ocr.py` parses the RBNZ B2 XLSX (monthly OCR) and outputs quarterly canonical rows. `scripts/process_ocr.py` writes `data/processed/ocr.csv` and `docs/data/processed/ocr.json`. `docs/index.html` loads `ocr.json` and overlays the OCR as a teal dashed line on the NIM chart with a right-side y-axis. Graceful degradation: NIM chart renders normally if `ocr.json` is absent.
 
 ---
 
@@ -392,17 +406,13 @@ Transparency pages are a prerequisite for external users to trust the data. Cont
 
 ### W-0022
 
-status: open
+status: done
 created: 2026-04-28
-updated: 2026-04-28
+updated: 2026-04-30
 
 ### Outcome
 
-A date-range filter is added to the frontend. Users can select a start quarter and end quarter (or use preset ranges: Last 4Q, Last 8Q, Last 16Q, All) to restrict which periods are plotted across all charts simultaneously. The filter state is reflected in the URL hash so that links can be shared with a specific range pre-selected.
-
-### Context
-
-The dataset currently spans 32 quarters (8 years). Short-term trends are obscured when all quarters are shown simultaneously. The filter operates client-side on the already-loaded JSON; no pipeline changes are required. Depends on W-0018 (charts exist).
+Date-range filter bar added above charts in `docs/index.html`. Four presets: `Last 4Q`, `Last 8Q`, `Last 16Q`, `All` (default). Active preset styled with teal border (`#00C3A5`). Clicking a preset filters ALL charts and the snapshot table simultaneously (client-side on already-loaded JSON). Selected preset persists in `localStorage` key `"rangePreset"` and is restored on page load. Entity filter operates independently.
 
 ---
 
@@ -410,16 +420,12 @@ The dataset currently spans 32 quarters (8 years). Short-term trends are obscure
 
 ### W-0015
 
-status: deferred
+status: done
 created: 2026-04-27
-updated: 2026-04-27
+updated: 2026-04-30
 
 ### Outcome
 
-Define a prompt for agent-based qualitative extraction from bank disclosures. Define output schema. Implement as a separate pipeline workflow.
-
-### Context
-
-Deferred pending completion of Phase 3 and findings from spike S-0002.
+`src/processing/extract_disclosures.py` extracts 10 quantitative metrics (Net Interest Income, Total Operating Income, Operating Expenses, Profit After Tax, Total Assets, Net Loans and Advances, Deposits, Equity, CET1 Ratio, Total Capital Ratio) from bank disclosure PDFs using `pdfplumber` text extraction. Normalises values: brackets = negative, comma thousands, NZD thousands scale. Outputs canonical rows (entity | metric | value | period | source). `scripts/process_disclosures.py` writes `data/processed/disclosures.csv` and `docs/data/processed/disclosures.json`. 34 tests in `tests/test_extract_disclosures.py`.
 
 ---
