@@ -79,6 +79,23 @@
     }
     .section-title span { color: var(--text-muted); }
 
+    /* Range filter */
+    .range-filter {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-top: 0.75rem; flex-wrap: wrap;
+    }
+    .range-filter-label {
+      font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.05em;
+    }
+    .range-btn {
+      background: transparent; border: 1px solid var(--border);
+      padding: 0.15rem 0.5rem; font-size: var(--text-xs); cursor: pointer;
+      color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em; transition: border-color 150ms ease, color 150ms ease;
+    }
+    .range-btn:hover { border-color: var(--teal); color: var(--text); }
+    .range-btn.active { border-color: #00C3A5; color: var(--text); }
+
     @media (max-width: 640px) {
       .chart-grid { grid-template-columns: 1fr; }
     }
@@ -112,6 +129,13 @@
         <button class="quick-btn" id="btn-standalone">Standalone</button>
       </div>
       <div class="bank-checks" id="bank-checks"></div>
+    </div>
+    <div class="range-filter">
+      <span class="range-filter-label">period</span>
+      <button class="range-btn" data-range="4">Last 4Q</button>
+      <button class="range-btn" data-range="8">Last 8Q</button>
+      <button class="range-btn" data-range="16">Last 16Q</button>
+      <button class="range-btn active" data-range="all">All</button>
     </div>
   </div>
 
@@ -153,6 +177,7 @@
 
   /* ── Configuration ─────────────────────────────────────────────────────── */
   const DATA_URL = 'data/processed/metrics.json';
+  const OCR_URL  = 'data/processed/ocr.json';
 
   // Key metrics to chart and show in snapshot.
   // 'Cost to Income Ratio' is derived client-side (not stored in data).
@@ -212,6 +237,8 @@
   let allEntities = [];
   let selectedEntities = new Set(TOP_6_BANKS);
   let charts = [];        // Chart.js instances
+  let ocrRows = [];       // OCR canonical rows [{entity,metric,value,period,source}]
+  let rangePreset = localStorage.getItem('rangePreset') || 'all';
 
   /* ── Derived data: Cost to Income Ratio ───────────────────────────────── */
   /**
@@ -262,12 +289,24 @@
         `${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
 
       buildBankSelector();
+      applyRangePreset(rangePreset, false);
       render();
     } catch (err) {
       statusEl.textContent =
         'No data yet — trigger the fetch-data then process-data workflows.';
       statusEl.style.color = '#666';
       console.warn('Data load failed:', err);
+    }
+
+    // Load OCR data independently — failure is non-fatal
+    try {
+      const ocrResp = await fetch(OCR_URL);
+      if (ocrResp.ok) {
+        ocrRows = await ocrResp.json();
+        render(); // re-render with OCR overlay
+      }
+    } catch (err) {
+      console.warn('OCR data load failed (NIM chart will render without OCR overlay):', err);
     }
   }
 
@@ -311,22 +350,64 @@
   document.getElementById('btn-standalone').addEventListener('click', () =>
     applySelection(allEntities.filter(e => STANDALONE.includes(e))));
 
+  /* ── Range filter ─────────────────────────────────────────────────────── */
+  /**
+   * Apply a period range preset.
+   * @param {string|number} preset - 'all', 4, 8, or 16 (quarters)
+   * @param {boolean} [doRender=true] - Whether to trigger a re-render
+   */
+  function applyRangePreset(preset, doRender = true) {
+    rangePreset = String(preset);
+    localStorage.setItem('rangePreset', rangePreset);
+    // Update button styles
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.range === rangePreset);
+    });
+    if (doRender) render();
+  }
+
+  /** Return the filtered period array based on the active range preset. */
+  function getVisiblePeriods() {
+    const n = parseInt(rangePreset, 10);
+    if (!isNaN(n) && n > 0 && allPeriods.length > n) {
+      return allPeriods.slice(-n);
+    }
+    return allPeriods;
+  }
+
+  document.querySelectorAll('.range-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyRangePreset(btn.dataset.range));
+  });
+
   /* ── Render ───────────────────────────────────────────────────────────── */
   function render() {
     const lookup = buildLookup(allRows);
     const visible = allEntities.filter(e => selectedEntities.has(e));
+    const visiblePeriods = getVisiblePeriods();
 
-    renderCharts(lookup, visible);
-    renderSnapshot(lookup, visible);
+    renderCharts(lookup, visible, visiblePeriods);
+    renderSnapshot(lookup, visible, visiblePeriods);
 
-    const latestPeriod = allPeriods[allPeriods.length - 1] || '';
+    const latestPeriod = visiblePeriods[visiblePeriods.length - 1] || '';
     document.getElementById('latest-period-label').textContent = latestPeriod;
     document.getElementById('period-range').textContent =
-      allPeriods.length ? `${allPeriods[0]} – ${allPeriods[allPeriods.length - 1]}` : '';
+      visiblePeriods.length ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}` : '';
   }
 
   /* ── Charts ───────────────────────────────────────────────────────────── */
-  function renderCharts(lookup, visible) {
+  /**
+   * Build an OCR period→value lookup from the loaded ocrRows.
+   * @returns {Object} period → OCR value (%)
+   */
+  function buildOcrLookup() {
+    const ocr = {};
+    for (const r of ocrRows) {
+      ocr[r.period] = r.value;
+    }
+    return ocr;
+  }
+
+  function renderCharts(lookup, visible, visiblePeriods) {
     // Destroy existing charts
     charts.forEach(c => c.destroy());
     charts = [];
@@ -334,9 +415,13 @@
     const grid = document.getElementById('chart-grid');
     grid.innerHTML = '';
 
+    const ocrLookup = buildOcrLookup();
+    const isNimChart = (metric) => metric === 'NIM';
+
     for (let i = 0; i < KEY_METRICS.length; i++) {
       const metric = KEY_METRICS[i];
       const label  = METRIC_LABELS[metric] || metric;
+      const addOcr = isNimChart(metric) && ocrRows.length > 0;
 
       const card = document.createElement('div');
       card.className = 'chart-card';
@@ -344,7 +429,7 @@
       grid.appendChild(card);
 
       const datasets = visible.map(entity => {
-        const data = allPeriods.map(p => {
+        const data = visiblePeriods.map(p => {
           const v = lookup[entity]?.[p]?.[metric];
           return (v != null) ? v : null;
         });
@@ -358,13 +443,73 @@
           pointHoverRadius: 4,
           tension: 0.3,
           spanGaps: false,
+          yAxisID: 'y',
         };
       }).filter(ds => ds.data.some(v => v != null));
 
+      // Add OCR overlay on NIM chart only
+      if (addOcr) {
+        const ocrData = visiblePeriods.map(p => {
+          const v = ocrLookup[p];
+          return (v != null) ? v : null;
+        });
+        if (ocrData.some(v => v != null)) {
+          datasets.push({
+            label: 'OCR (%)',
+            data: ocrData,
+            borderColor: '#00C3A5',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 3],
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.3,
+            spanGaps: true,
+            yAxisID: 'yOCR',
+          });
+        }
+      }
+
       const ctx = document.getElementById(`chart-${i}`).getContext('2d');
+
+      const scalesConfig = {
+        x: {
+          ticks: {
+            font: { size: 10, family: "'IBM Plex Mono', monospace" },
+            color: '#666',
+            maxRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 16,
+          },
+          grid: { display: false },
+          border: { color: '#252b33' },
+        },
+        y: {
+          ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+          grid: { color: '#252b33' },
+          border: { color: '#252b33' },
+        },
+      };
+
+      if (addOcr) {
+        scalesConfig.yOCR = {
+          type: 'linear',
+          position: 'right',
+          title: {
+            display: true,
+            text: 'OCR (%)',
+            color: '#00C3A5',
+            font: { size: 9, family: "'IBM Plex Mono', monospace" },
+          },
+          ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#00C3A5' },
+          grid: { drawOnChartArea: false },
+          border: { color: '#252b33' },
+        };
+      }
+
       const chart = new Chart(ctx, {
         type: 'line',
-        data: { labels: allPeriods, datasets },
+        data: { labels: visiblePeriods, datasets },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -388,24 +533,7 @@
               },
             },
           },
-          scales: {
-            x: {
-              ticks: {
-                font: { size: 10, family: "'IBM Plex Mono', monospace" },
-                color: '#666',
-                maxRotation: 45,
-                autoSkip: true,
-                maxTicksLimit: 16,
-              },
-              grid: { display: false },
-              border: { color: '#252b33' },
-            },
-            y: {
-              ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
-              grid: { color: '#252b33' },
-              border: { color: '#252b33' },
-            },
-          },
+          scales: scalesConfig,
         },
       });
       charts.push(chart);
@@ -413,9 +541,9 @@
   }
 
   /* ── Snapshot table ───────────────────────────────────────────────────── */
-  function renderSnapshot(lookup, visible) {
-    const latestPeriod = allPeriods[allPeriods.length - 1];
-    const prevPeriod   = allPeriods[allPeriods.length - 2];
+  function renderSnapshot(lookup, visible, visiblePeriods) {
+    const latestPeriod = visiblePeriods[visiblePeriods.length - 1];
+    const prevPeriod   = visiblePeriods[visiblePeriods.length - 2];
 
     // Header
     const head = document.getElementById('snapshot-head');

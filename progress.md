@@ -154,3 +154,35 @@ Last updated: 2026-04-28 (S-0004 financial disclosures spike and config)
   do not follow consistent URL conventions. The validation script is the structural fix;
   add it to the fetch workflow as a pre-check step (backlog item).
 
+
+---
+
+## 2026-04-30 — W-0015, W-0019, W-0022: PDF extraction, OCR overlay, date-range filter
+
+**Items completed:**
+
+### W-0015 — PDF disclosure extraction pipeline
+
+- `src/processing/extract_disclosures.py`: text extraction from bank disclosure PDFs using `pdfplumber`. Extracts 10 quantitative metrics (Net Interest Income, Total Operating Income, Operating Expenses, Profit After Tax, Total Assets, Net Loans and Advances, Deposits, Equity, CET1 Ratio, Total Capital Ratio). Normalises: brackets = negative, comma thousands, NZD thousands scale (÷1000). Outputs canonical rows `entity | metric | value | period | source`. Only processes PDFs with a `.meta.json` sidecar.
+- `scripts/process_disclosures.py`: writes `data/processed/disclosures.csv` and `docs/data/processed/disclosures.json`.
+- `tests/test_extract_disclosures.py`: 34 tests covering happy path, bracketed negatives, NZD thousands normalisation, missing sidecar, empty extraction, source field, period format.
+
+### W-0019 — OCR overlay on NIM chart
+
+- `src/processing/parse_ocr.py`: reads RBNZ B2 XLSX, detects OCR column (case-insensitive), converts monthly → quarterly (last value per quarter), outputs canonical rows `entity=RBNZ | metric=OCR | source=rbnz-ocr`. Falls back to any `rbnz-ocr*.xlsx` in `data/raw/` if primary path absent.
+- `scripts/process_ocr.py`: writes `data/processed/ocr.csv` and `docs/data/processed/ocr.json`.
+- `docs/index.html`: loads `ocr.json` alongside `metrics.json`. NIM chart gains a teal dashed secondary y-axis line (OCR %) on the right side. Graceful degradation: NIM chart renders normally if `ocr.json` fetch fails.
+- `tests/test_parse_ocr.py`: 20 tests covering happy path, monthly-to-quarterly conversion, missing file, no OCR column, fallback glob, canonical schema.
+
+### W-0022 — Date-range filter
+
+- `docs/index.html`: date-range filter bar above charts with four presets (`Last 4Q`, `Last 8Q`, `Last 16Q`, `All`). Active button styled teal border (`#00C3A5`). Clicking a preset filters ALL charts and the snapshot table client-side. Preset persists in `localStorage["rangePreset"]` and is restored on page load. Entity filter operates independently.
+
+**W-0016 — marked wont-do**: Kiwibank and Westpac CDNs block pipeline downloads (WAF / timeout). Not fixable without manual intervention.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — spike S-0004 findings were precise enough to design the extraction regex patterns without reading any additional PDF pages.
+- *What slowed things down?* Capital ratio extraction needed a "second percentage" strategy distinct from the "first value" strategy used for income/balance sheet metrics. This required a separate extraction path.
+- *Single change to prevent that next time?* Document the two extraction strategies (first_value vs second_pct) in the spike output before implementation begins, so the distinction is explicit.
+- *Is this a pattern?* Yes — financial disclosure PDFs consistently have a minimum-requirement column before the actual bank ratio column. Document this in `learnings.md`.
