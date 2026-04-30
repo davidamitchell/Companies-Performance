@@ -25,7 +25,12 @@ OUT_PATH = ROOT / "docs" / "data" / "processed" / "disclosures.json"
 
 
 def load_sidecars(raw_dir: Path) -> list[dict]:
-    """Return a list of sidecar dicts, sorted by (bank_id, period_end)."""
+    """Return a list of sidecar dicts, sorted by (bank_id, period_end).
+
+    Internal fields (source_url, sha256, downloaded_at, file_size_bytes) are
+    stripped — only public coverage metadata is included in the frontend JSON.
+    """
+    _internal_fields = {"source_url", "sha256", "downloaded_at", "file_size_bytes"}
     records: list[dict] = []
     for sidecar in sorted(raw_dir.glob("**/*.meta.json")):
         try:
@@ -33,7 +38,8 @@ def load_sidecars(raw_dir: Path) -> list[dict]:
         except json.JSONDecodeError as exc:
             logger.warning("skipping malformed sidecar %s: %s", sidecar, exc)
             continue
-        records.append(data)
+        public = {k: v for k, v in data.items() if k not in _internal_fields}
+        records.append(public)
         logger.info("loaded %s / %s", data.get("bank_id"), data.get("period_end"))
 
     records.sort(key=lambda r: (r.get("bank_id", ""), r.get("period_end", "")))

@@ -68,25 +68,23 @@
     <section id="pipeline">
       <h2>Pipeline Overview</h2>
       <p style="font-size:var(--text-sm);line-height:1.6;margin-bottom:1rem;color:var(--text-muted)">
-        All data is collected by GitHub Actions workflows and committed back to the repository.
+        All data is sourced from RBNZ Bank Dashboard publications and bank General Disclosure Statements.
         The processed output is served as static files by GitHub Pages.
         No server-side code runs at request time.
       </p>
       <div class="pipeline">
         <div class="pipeline-step">Source files<br><small style="color:var(--text-muted)">(XLSX, PDF)</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">GitHub Actions<br><small style="color:var(--text-muted)">fetch-data workflow</small></div>
+        <div class="pipeline-step">Collection<br><small style="color:var(--text-muted)">automated pipeline</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step"><code>data/raw/</code><br><small style="color:var(--text-muted)">PDFs committed; XLSX gitignored</small></div>
+        <div class="pipeline-step">Processing<br><small style="color:var(--text-muted)">normalise &amp; validate</small></div>
         <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step">GitHub Actions<br><small style="color:var(--text-muted)">process-data workflow</small></div>
-        <div class="pipeline-arrow">→</div>
-        <div class="pipeline-step"><code>data/processed/</code><br><small style="color:var(--text-muted)">CSV + JSON</small></div>
+        <div class="pipeline-step">Output<br><small style="color:var(--text-muted)">CSV + JSON</small></div>
         <div class="pipeline-arrow">→</div>
         <div class="pipeline-step">GitHub Pages<br><small style="color:var(--text-muted)">static frontend</small></div>
       </div>
       <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.5rem;letter-spacing:0.04em">
-        Workflows are triggered manually. All data commits are machine-authored and auditable in the git history.
+        Workflows are triggered manually. The pipeline is idempotent and re-runnable.
       </p>
     </section>
 
@@ -111,10 +109,8 @@
         </p>
         <h3>Collection</h3>
         <ul>
-          <li>Fetched by <code>scripts/fetch_data.py</code> via the <code>fetch-data</code> GitHub Actions workflow.</li>
-          <li>Raw XLSX is saved to <code>data/raw/rbnz-dashboard.xlsx</code> (not committed — regenerated each run).</li>
-          <li>Processed by <code>scripts/process_data.py</code> into <code>data/processed/metrics.csv</code>
-              and <code>docs/data/processed/metrics.json</code>.</li>
+          <li>Fetched quarterly from <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">bankdashboard.rbnz.govt.nz</a>.</li>
+          <li>Processed into the canonical metrics output on each pipeline run.</li>
         </ul>
         <h3>XLSX structure</h3>
         <ul>
@@ -177,8 +173,7 @@
         </p>
         <h3>Collection</h3>
         <ul>
-          <li>Fetched alongside the Dashboard XLSX by the <code>fetch-data</code> workflow.</li>
-          <li>Saved to <code>data/raw/rbnz-ocr.xlsx</code>.</li>
+          <li>Fetched monthly from <a href="https://www.rbnz.govt.nz/statistics/series/b/b2/" target="_blank" rel="noopener">rbnz.govt.nz/statistics/series/b/b2</a>.</li>
           <li>The OCR Rate series is extracted and merged into the canonical metrics output.</li>
         </ul>
       </div>
@@ -193,18 +188,6 @@
         to publish General Disclosure Statements (GDS) half-yearly.
         These PDFs contain full financial statements and risk metrics beyond what the RBNZ Dashboard publishes.
       </p>
-      <div class="card" style="margin-bottom:1.25rem;">
-        <div class="card-title">Storage convention</div>
-        <ul>
-          <li>PDFs are stored in <code>data/raw/financial_disclosures/&lt;bank_id&gt;/</code> and committed to git.</li>
-          <li>Each PDF has a <em>sidecar</em> file: <code>&lt;bank_id&gt;-disclosure-&lt;period_end&gt;.meta.json</code>
-              recording <code>source_url</code>, <code>downloaded_at</code>, <code>sha256</code>, <code>file_size_bytes</code>,
-              <code>period_end</code>, and <code>period_type</code>.</li>
-          <li>Script: <code>scripts/download_disclosures.py</code> — idempotent; use <code>--backfill-metadata</code>
-              for PDFs placed manually.</li>
-        </ul>
-      </div>
-
       <div class="table-wrap">
         <table>
           <thead>
@@ -222,44 +205,43 @@
               <td>30 Sep</td>
               <td>Sep 2018 – Sep 2025</td>
               <td><span class="status-partial">partial</span></td>
-              <td>2024–2025 confirmed. Pre-2024 CDN paths return 404; manual retrieval needed.</td>
+              <td>2024–2025 confirmed. Earlier periods require manual retrieval.</td>
             </tr>
             <tr>
               <td><strong>ASB</strong></td>
               <td>30 Jun</td>
               <td>Jun 2018 – Jun 2025</td>
               <td><span class="status-confirmed">✓ confirmed</span></td>
-              <td>All periods confirmed. URLs sourced from ASB disclosure-statements page.</td>
+              <td>All periods confirmed. URLs sourced from ASB public disclosure-statements page.</td>
             </tr>
             <tr>
               <td><strong>BNZ</strong></td>
               <td>30 Sep</td>
               <td>Mar 2018 – Sep 2024</td>
               <td><span class="status-partial">partial</span></td>
-              <td>Sep 2024 + older periods confirmed. Several 2021–2024 URLs removed from BNZ CDN.</td>
+              <td>Sep 2024 confirmed. Several 2021–2024 periods unavailable.</td>
             </tr>
             <tr>
               <td><strong>Westpac</strong></td>
               <td>30 Sep</td>
               <td>Mar 2018 – Sep 2024</td>
               <td><span class="status-blocked">blocked</span></td>
-              <td>All URLs verified; Westpac WAF blocks pipeline IPs (HTTP 403). Manual download required.</td>
+              <td>Not currently available — manual retrieval required.</td>
             </tr>
             <tr>
               <td><strong>Kiwibank</strong></td>
               <td>30 Jun</td>
               <td>Jun 2018 – Dec 2025</td>
               <td><span class="status-confirmed">✓ confirmed</span></td>
-              <td>All 12 periods manually downloaded from kiwibank.co.nz and committed.
-                  Metadata sidecars generated via <code>--backfill-metadata</code>.
-                  CDN blocks pipeline IPs (timeout); manual download required for future periods.</td>
+              <td>All 12 periods available (Jun 2020–Dec 2025).
+                  Future periods require manual retrieval.</td>
             </tr>
             <tr>
               <td><strong>Rabobank</strong></td>
               <td>31 Dec</td>
               <td>Jun 2018 – Dec 2024</td>
               <td><span class="status-partial">partial</span></td>
-              <td>Dec 2018, Dec 2019, Dec 2022 confirmed. Newer globalassets/ CDN returns HTTP 403.</td>
+              <td>Dec 2018, Dec 2019, Dec 2022 confirmed. Newer periods not yet available.</td>
             </tr>
           </tbody>
         </table>
@@ -267,10 +249,9 @@
 
       <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.75rem;letter-spacing:0.04em">
         <strong>Status key:</strong>
-        <span class="status-confirmed">confirmed</span> = URL verified and PDF downloaded;
+        <span class="status-confirmed">confirmed</span> = URL verified and PDF retrieved;
         <span class="status-partial">partial</span> = some periods available, others blocked or missing;
-        <span class="status-blocked">blocked</span> = CDN or WAF prevents pipeline download.
-        Full status detail is in <code>config/sources.yaml</code>.
+        <span class="status-blocked">blocked</span> = CDN or WAF prevents automated retrieval.
       </p>
     </section>
 
@@ -286,7 +267,7 @@
             </thead>
             <tbody>
               <tr><td><code>entity</code></td><td>string</td><td>Institution name as published by the RBNZ (e.g. <code>ANZ</code>, <code>Kiwibank</code>).</td></tr>
-              <tr><td><code>metric</code></td><td>string</td><td>Canonical metric name — must match the <a href="glossary.html">glossary</a> verbatim (source of truth: <code>glossary.md</code> in the repository).</td></tr>
+              <tr><td><code>metric</code></td><td>string</td><td>Canonical metric name — must match the <a href="glossary.html">glossary</a> verbatim.</td></tr>
               <tr><td><code>value</code></td><td>float | null</td><td>Numeric value as reported; not rounded or normalised. Null if absent in source.</td></tr>
               <tr><td><code>period</code></td><td>date string</td><td>Quarter-end date (YYYY-MM-DD).</td></tr>
               <tr><td><code>source</code></td><td>string</td><td>Source identifier (e.g. <code>rbnz-dashboard</code>).</td></tr>
@@ -294,10 +275,7 @@
           </table>
         </div>
         <p style="margin-top:0.75rem;">
-          Persisted as <code>data/processed/metrics.csv</code> (canonical) and
-          <code>docs/data/processed/metrics.json</code> (frontend consumption).
-          See <a href="https://github.com/davidamitchell/Companies-Performance/blob/main/docs-adr/0001-data-format.md" target="_blank" rel="noopener">ADR-0001</a>
-          for the decision rationale.
+          Published as CSV (canonical) and JSON (frontend consumption).
         </p>
       </div>
     </section>
@@ -306,8 +284,6 @@
 
   <footer>
     Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>
-    &mdash; updated via GitHub Actions &mdash;
-    <a href="https://github.com/davidamitchell/Companies-Performance" target="_blank" rel="noopener">source</a>
   </footer>
 
 </div>

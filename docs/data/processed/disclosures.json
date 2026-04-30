@@ -3,390 +3,234 @@
     "bank_id": "anz",
     "bank_name": "ANZ",
     "period_end": "2024-09-30",
-    "period_type": "full_year",
-    "source_url": "https://www.anz.co.nz/content/dam/anzconz/documents/about-us/disclosure-statements/ANZ-Bank-NZ-Ltd-DS-Sep24.pdf",
-    "downloaded_at": "2026-04-29T19:24:50.581467+00:00",
-    "file_size_bytes": 2213351,
-    "sha256": "647d98763877b9898138f150b8c5440b66fbc553e3d74fd39207ae9ec5eff2ef"
+    "period_type": "full_year"
   },
   {
     "bank_id": "anz",
     "bank_name": "ANZ",
     "period_end": "2025-03-31",
-    "period_type": "half_year",
-    "source_url": "https://www.anz.co.nz/content/dam/anzconz/documents/about-us/disclosure-statements/ANZ-Bank-NZ-Ltd-DS-Mar25.pdf",
-    "downloaded_at": "2026-04-29T19:24:49.714826+00:00",
-    "file_size_bytes": 1051836,
-    "sha256": "759a0bd5e464602f8a3d151030c8848d09d261e8f714ec3e3e6f8ee098a87485"
+    "period_type": "half_year"
   },
   {
     "bank_id": "anz",
     "bank_name": "ANZ",
     "period_end": "2025-09-30",
-    "period_type": "full_year",
-    "source_url": "https://www.anz.co.nz/content/dam/anzconz/documents/about-us/disclosure-statements/ANZ-Bank-NZ-Ltd-DS-Sep25.pdf",
-    "downloaded_at": "2026-04-29T19:24:48.890021+00:00",
-    "file_size_bytes": 2044803,
-    "sha256": "3b37d82d54581790b636985ddfd6cb02110b9b01e8c659f128a5e4ed2856aed1"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2018-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-and-annual-report-june-2018.pdf",
-    "downloaded_at": "2026-04-29T19:25:10.888703+00:00",
-    "file_size_bytes": 606613,
-    "sha256": "9e096976f0fba9122676ffa63bc3805418490f58d2136736af66b2e80499c720"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2018-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-december-2018.pdf",
-    "downloaded_at": "2026-04-29T19:25:10.602935+00:00",
-    "file_size_bytes": 851100,
-    "sha256": "1682dc8d7dd073e65b07f20ac29f911f10b064b20ab7d77dc5baeaaec97e5040"
+    "period_type": "half_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2019-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-and-annual-report-june-2019-v3.pdf",
-    "downloaded_at": "2026-04-29T19:25:10.313017+00:00",
-    "file_size_bytes": 870600,
-    "sha256": "98f89b9712b336a557e30992d9c826d3d61eec030061d32ffd1644cb69c4e1e4"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2019-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-december-2019.pdf",
-    "downloaded_at": "2026-04-29T19:25:09.038915+00:00",
-    "file_size_bytes": 420591,
-    "sha256": "ddc37e963ebc2e557f81ec9f650e00f76e2f5d67d6e94164141c1607dbb2977d"
+    "period_type": "half_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2020-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-and-annual-report-june-2020.pdf",
-    "downloaded_at": "2026-04-29T19:25:08.766292+00:00",
-    "file_size_bytes": 975865,
-    "sha256": "b724d720bc8de8b321db35d8efe4642eaa1d8e094e919c84503ae9420842958b"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2020-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/ASB Disclosure Statement for the six months ended 31 December 2020.pdf",
-    "downloaded_at": "2026-04-29T19:25:05.988498+00:00",
-    "file_size_bytes": 874932,
-    "sha256": "4e5e81e8ae3035ff538d293d5aeb1bfa669320df2dfbba05ad8240c71372e786"
+    "period_type": "half_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2021-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-and-annual-report-june-2021.pdf",
-    "downloaded_at": "2026-04-29T19:25:05.671547+00:00",
-    "file_size_bytes": 1290310,
-    "sha256": "eda54da6e7c1ec5b1330ec874aaa8f92e2894e1101472b470ecc36ff7fe24e7a"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2021-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-for-the-six-months-ended-31-december-2021.pdf",
-    "downloaded_at": "2026-04-29T19:25:00.340114+00:00",
-    "file_size_bytes": 542837,
-    "sha256": "d125d410cd0b576139c547482279bb312f79cc5b9978cbce4495576422371b76"
+    "period_type": "half_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2022-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-and-annual-report-june-2022.pdf",
-    "downloaded_at": "2026-04-29T19:25:00.069838+00:00",
-    "file_size_bytes": 1368634,
-    "sha256": "2a3ddc1e31645f5c6f3a8c27a973076a3b48549666e11f65da0e4dd6338c1b1c"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2022-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/asb-disclosure-statement-for-the-six-months-ended-31-december-2022.pdf",
-    "downloaded_at": "2026-04-29T19:24:59.655580+00:00",
-    "file_size_bytes": 679989,
-    "sha256": "75095aa914a7829803264def52335ea5d00ee8faebc200e455e19f3c09e0d8b8"
+    "period_type": "half_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2023-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2023/asb-disclosure-statement-and-annual-report-june-2023.pdf",
-    "downloaded_at": "2026-04-29T19:24:59.344424+00:00",
-    "file_size_bytes": 2011338,
-    "sha256": "a59da2861b7db140d45720b10fa2413cfcc0e256c87ad2b9617d374bde81fe47"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2023-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2023/asb-disclosure-statement-december-2023.pdf",
-    "downloaded_at": "2026-04-29T19:24:58.850665+00:00",
-    "file_size_bytes": 594911,
-    "sha256": "acd1bba58e8616dafa52a020c4d4776db32203f029f38b93be3a0509cbfadd86"
+    "period_type": "half_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2024-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2024/asb-disclosure-statement-and-annual-report-june-2024.pdf",
-    "downloaded_at": "2026-04-29T19:24:58.336945+00:00",
-    "file_size_bytes": 1393037,
-    "sha256": "4b2554e35ceca0e060061ccda55340ab89a9a654d5578353539e4decd09f3145"
+    "period_type": "full_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2024-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2024/asb-disclosure-statement-december-2024.pdf",
-    "downloaded_at": "2026-04-29T19:24:53.006309+00:00",
-    "file_size_bytes": 679025,
-    "sha256": "d4564b9bacc6dc4fb7f51f5c8438f24adfa789b65491e13f7788e3992b68cc62"
+    "period_type": "half_year"
   },
   {
     "bank_id": "asb",
     "bank_name": "ASB",
     "period_end": "2025-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.asb.co.nz/content/dam/asb/documents/legal/disclosurestatements/2025/asb-disclosure-statement-and-annual-report-june-2025.pdf",
-    "downloaded_at": "2026-04-29T19:24:51.974375+00:00",
-    "file_size_bytes": 1238780,
-    "sha256": "a403c9cd6a0260c221db02e815ee996499df207c0d3d2b7b18a46f967f8c88ff"
+    "period_type": "full_year"
   },
   {
     "bank_id": "bnz",
     "bank_name": "BNZ",
     "period_end": "2018-03-31",
-    "period_type": "half_year",
-    "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2018-03-31.pdf",
-    "downloaded_at": "2026-04-29T19:25:15.738429+00:00",
-    "file_size_bytes": 335898,
-    "sha256": "a5dad28b66c1c4d7efd8cdf8bc84c04e6fc0b6ce8a3b7b63ca0c30abd2acc5c0"
+    "period_type": "half_year"
   },
   {
     "bank_id": "bnz",
     "bank_name": "BNZ",
     "period_end": "2019-03-31",
-    "period_type": "half_year",
-    "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/BNZ-financial-disclosure-statement-31-March-2019.pdf",
-    "downloaded_at": "2026-04-29T19:25:15.391756+00:00",
-    "file_size_bytes": 324295,
-    "sha256": "96d22232426e75b1505feb708be5883c3ff36572f040f0d0d21ae7e173b4d5bf"
+    "period_type": "half_year"
   },
   {
     "bank_id": "bnz",
     "bank_name": "BNZ",
     "period_end": "2019-09-30",
-    "period_type": "full_year",
-    "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2019-09-30.pdf",
-    "downloaded_at": "2026-04-29T19:25:14.888410+00:00",
-    "file_size_bytes": 672453,
-    "sha256": "71eef777333fe642abaf370c07a493c4441b1ec7d59a3c4e83786d8cfa795141"
+    "period_type": "full_year"
   },
   {
     "bank_id": "bnz",
     "bank_name": "BNZ",
     "period_end": "2020-03-31",
-    "period_type": "half_year",
-    "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-financial-disclosure-statement-2020-03-31.pdf",
-    "downloaded_at": "2026-04-29T19:25:14.592683+00:00",
-    "file_size_bytes": 724376,
-    "sha256": "8f5d6844b139cae5d5525d5f5fba1028b94542556cf692938a660abce3b3d9cc"
+    "period_type": "half_year"
   },
   {
     "bank_id": "bnz",
     "bank_name": "BNZ",
     "period_end": "2020-09-30",
-    "period_type": "full_year",
-    "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/BNZ-Financial-Disclosure-Statement-2020-09-30.pdf",
-    "downloaded_at": "2026-04-29T19:25:14.258861+00:00",
-    "file_size_bytes": 886366,
-    "sha256": "321364da8c4979087f7585b2c613d98d7804f05bf692ca099876920816ef15a7"
+    "period_type": "full_year"
   },
   {
     "bank_id": "bnz",
     "bank_name": "BNZ",
     "period_end": "2024-09-30",
-    "period_type": "full_year",
-    "source_url": "https://www.bnz.co.nz/assets/about-us/financials/pdfs/bnz-disclosure-statement-year-ended-30-september-2024.pdf",
-    "downloaded_at": "2026-04-29T19:25:11.458597+00:00",
-    "file_size_bytes": 872551,
-    "sha256": "0a3fa228e9bb3a4674b7ce15dd7b507d1982089403524cfdb3ddd4ad4bc851d4"
+    "period_type": "full_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2020-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2020.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.835736+00:00",
-    "file_size_bytes": 2555160,
-    "sha256": "8356b87121c78c814e945e53d8c1480309b733ebfb849ebbcecf1f57b45f7117"
+    "period_type": "full_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2020-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2020.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.809736+00:00",
-    "file_size_bytes": 2282352,
-    "sha256": "d556023750757d35f1c88e2e25f5a1d64e3063ec6d3173fd2789c3da7bba1bc9"
+    "period_type": "half_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2021-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2021.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.875736+00:00",
-    "file_size_bytes": 3962186,
-    "sha256": "0861462da16447b82aa26d3166579b496de77c1015a4a4d4a02a5c004d009ef4"
+    "period_type": "full_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2021-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2021.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.813736+00:00",
-    "file_size_bytes": 1049022,
-    "sha256": "ef44d7e727f9f2a73117eecce404083477cb2b715be60bad69a925e37d7077d9"
+    "period_type": "half_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2022-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2022.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.883736+00:00",
-    "file_size_bytes": 2252116,
-    "sha256": "7bab4d3a42bf24e7b6225711408fe38cea641b0ce468ab416886be4c1f9929c9"
+    "period_type": "full_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2022-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2022.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.817736+00:00",
-    "file_size_bytes": 1317462,
-    "sha256": "7840e8456eb7e3332056a543d07a487a0433588fef0cbfcc1e0c3f0bbb323010"
+    "period_type": "half_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2023-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-june-2023.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.825736+00:00",
-    "file_size_bytes": 2220098,
-    "sha256": "4336ba50f7bb0d54edd0b033432d31e8a637524e798f24c8f8779a7e315c2c12"
+    "period_type": "full_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2023-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-us/governance/disclosure-statement-december-2023.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.838736+00:00",
-    "file_size_bytes": 1058907,
-    "sha256": "9a6b1bc3bb3bcdc19e11457b877a6d7e599336e9cdbed5003449487d5cdb6284"
+    "period_type": "half_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2024-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-june-2024.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.860736+00:00",
-    "file_size_bytes": 2066959,
-    "sha256": "a66c17a093fbca0e2fd452d195ac69c3e8fe24e4f688430e5c482dcf54cc4bbd"
+    "period_type": "full_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2024-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-december-2024.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.841736+00:00",
-    "file_size_bytes": 983860,
-    "sha256": "59d3f4c9cb06a07632f2ddf1bba7c827644613a7db4c195bee59e452339f25af"
+    "period_type": "half_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2025-06-30",
-    "period_type": "full_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-june-2025.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.852736+00:00",
-    "file_size_bytes": 2070544,
-    "sha256": "61db1ac7ec2e052c664c272e07c2506b78fb36bfb57db2ff2aaab93c1095f525"
+    "period_type": "full_year"
   },
   {
     "bank_id": "kiwibank",
     "bank_name": "Kiwibank",
     "period_end": "2025-12-31",
-    "period_type": "half_year",
-    "source_url": "https://www.kiwibank.co.nz/media/documents/about-kiwibank/disclaimers/kiwibank-disclosure-statement-december-2025.pdf",
-    "downloaded_at": "2026-04-29T20:08:15.845736+00:00",
-    "file_size_bytes": 1096171,
-    "sha256": "e07454e193db04f4c217505866c94c72e0c07d4383c322725c76f4a6d978c5f5"
+    "period_type": "half_year"
   },
   {
     "bank_id": "rabobank",
     "bank_name": "Rabobank",
     "period_end": "2018-12-31",
-    "period_type": "full_year",
-    "source_url": "https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2018/rnzl-disclosure-statement-dec-18.pdf",
-    "downloaded_at": "2026-04-29T19:34:33.352644+00:00",
-    "file_size_bytes": 4698720,
-    "sha256": "7f7e87f9b83f8b9ba0d52d536eafd616634210c61102a56d420426a7b400afc4"
+    "period_type": "full_year"
   },
   {
     "bank_id": "rabobank",
     "bank_name": "Rabobank",
     "period_end": "2019-12-31",
-    "period_type": "full_year",
-    "source_url": "https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2019/rnzl-disclosure-statement-dec-19-31032020.pdf",
-    "downloaded_at": "2026-04-29T19:34:30.020162+00:00",
-    "file_size_bytes": 2412535,
-    "sha256": "a1ff7485ea8ffc86051f764dbf6b3cf824a64f5147b565aae65102c94407083b"
+    "period_type": "full_year"
   },
   {
     "bank_id": "rabobank",
     "bank_name": "Rabobank",
     "period_end": "2022-12-31",
-    "period_type": "full_year",
-    "source_url": "https://www.rabobank.co.nz/content/dam/ranz/ranz-website-images/rbnz-files/pdf/disclosures/2022/rnzl-disclosurestatement-311222.pdf",
-    "downloaded_at": "2026-04-29T19:34:27.942963+00:00",
-    "file_size_bytes": 1893992,
-    "sha256": "c84a204f35aa298ccc3b52f22e27a3e59212b3f60d22d850559d64de1a649c18"
+    "period_type": "full_year"
   }
 ]

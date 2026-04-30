@@ -47,9 +47,11 @@ def test_load_sidecars_sorted(raw_dir: Path) -> None:
 
 def test_load_sidecars_fields(raw_dir: Path) -> None:
     records = load_sidecars(raw_dir)
-    required = {"bank_id", "bank_name", "period_end", "period_type", "source_url"}
+    required = {"bank_id", "bank_name", "period_end", "period_type"}
+    stripped = {"source_url", "sha256", "downloaded_at", "file_size_bytes"}
     for rec in records:
         assert required.issubset(rec.keys())
+        assert not stripped.intersection(rec.keys())
 
 
 def test_load_sidecars_skips_malformed(raw_dir: Path, tmp_path: Path) -> None:
