@@ -1,0 +1,345 @@
+entity,metric,value,period,source
+ANZ,Net Interest Income,4402.0,2024-Q3,disclosure-anz
+ANZ,Total Operating Income,4882.0,2024-Q3,disclosure-anz
+ANZ,Operating Expenses,-1760.0,2024-Q3,disclosure-anz
+ANZ,Profit After Tax,2208.0,2024-Q3,disclosure-anz
+ANZ,Total Assets,199176.0,2024-Q3,disclosure-anz
+ANZ,Net Loans and Advances,151666.0,2024-Q3,disclosure-anz
+ANZ,Deposits,142645.0,2024-Q3,disclosure-anz
+ANZ,Equity,18810.0,2024-Q3,disclosure-anz
+ANZ,CET1 Ratio,5.125,2024-Q3,disclosure-anz
+ANZ,Total Capital Ratio,9.0,2024-Q3,disclosure-anz
+ANZ,Net Interest Income,2287.0,2025-Q1,disclosure-anz
+ANZ,Total Operating Income,2783.0,2025-Q1,disclosure-anz
+ANZ,Operating Expenses,-893.0,2025-Q1,disclosure-anz
+ANZ,Profit After Tax,1365.0,2025-Q1,disclosure-anz
+ANZ,Total Assets,200893.0,2025-Q1,disclosure-anz
+ANZ,Net Loans and Advances,153644.0,2025-Q1,disclosure-anz
+ANZ,Deposits,148618.0,2025-Q1,disclosure-anz
+ANZ,Equity,19443.0,2025-Q1,disclosure-anz
+ANZ,CET1 Ratio,5.125,2025-Q1,disclosure-anz
+ANZ,Net Interest Income,4652.0,2025-Q3,disclosure-anz
+ANZ,Total Operating Income,5554.0,2025-Q3,disclosure-anz
+ANZ,Operating Expenses,-1812.0,2025-Q3,disclosure-anz
+ANZ,Profit After Tax,2714.0,2025-Q3,disclosure-anz
+ANZ,Total Assets,209989.0,2025-Q3,disclosure-anz
+ANZ,Net Loans and Advances,158683.0,2025-Q3,disclosure-anz
+ANZ,Deposits,153282.0,2025-Q3,disclosure-anz
+ANZ,Equity,19898.0,2025-Q3,disclosure-anz
+ANZ,CET1 Ratio,5.125,2025-Q3,disclosure-anz
+ANZ,Total Capital Ratio,9.0,2025-Q3,disclosure-anz
+ASB,Total Operating Income,22592.0,2018-Q2,disclosure-asb
+ASB,Operating Expenses,8879.0,2018-Q2,disclosure-asb
+ASB,Total Assets,995413.0,2018-Q2,disclosure-asb
+ASB,Deposits,662419.0,2018-Q2,disclosure-asb
+ASB,Equity,77872.0,2018-Q2,disclosure-asb
+ASB,CET1 Ratio,4.5,2018-Q2,disclosure-asb
+ASB,Total Capital Ratio,13.8,2018-Q2,disclosure-asb
+ASB,Total Operating Income,1393.0,2018-Q4,disclosure-asb
+ASB,Operating Expenses,473.0,2018-Q4,disclosure-asb
+ASB,Total Assets,97002.0,2018-Q4,disclosure-asb
+ASB,Deposits,65677.0,2018-Q4,disclosure-asb
+ASB,Equity,8238.0,2018-Q4,disclosure-asb
+ASB,Total Capital Ratio,14.1,2018-Q4,disclosure-asb
+ASB,Net Interest Income,22144.0,2019-Q2,disclosure-asb
+ASB,Total Operating Income,22821.0,2019-Q2,disclosure-asb
+ASB,Operating Expenses,9967.0,2019-Q2,disclosure-asb
+ASB,Profit After Tax,11274.0,2019-Q2,disclosure-asb
+ASB,Total Assets,11.2,2019-Q2,disclosure-asb
+ASB,Deposits,666216.0,2019-Q2,disclosure-asb
+ASB,Equity,115.2,2019-Q2,disclosure-asb
+ASB,CET1 Ratio,4.5,2019-Q2,disclosure-asb
+ASB,Total Capital Ratio,13.9,2019-Q2,disclosure-asb
+ASB,Net Interest Income,11070.0,2019-Q4,disclosure-asb
+ASB,Total Operating Income,11398.0,2019-Q4,disclosure-asb
+ASB,Operating Expenses,5534.0,2019-Q4,disclosure-asb
+ASB,Profit After Tax,5599.0,2019-Q4,disclosure-asb
+ASB,Total Assets,1100547.0,2019-Q4,disclosure-asb
+ASB,Deposits,668726.0,2019-Q4,disclosure-asb
+ASB,Equity,88025.0,2019-Q4,disclosure-asb
+ASB,Total Capital Ratio,18.0,2019-Q4,disclosure-asb
+ASB,Net Interest Income,22142.0,2020-Q2,disclosure-asb
+ASB,Total Operating Income,22749.0,2020-Q2,disclosure-asb
+ASB,Operating Expenses,11104.0,2020-Q2,disclosure-asb
+ASB,Profit After Tax,9958.0,2020-Q2,disclosure-asb
+ASB,Total Assets,0.9,2020-Q2,disclosure-asb
+ASB,Deposits,774388.0,2020-Q2,disclosure-asb
+ASB,Equity,112.3,2020-Q2,disclosure-asb
+ASB,CET1 Ratio,4.5,2020-Q2,disclosure-asb
+ASB,Total Capital Ratio,18.0,2020-Q2,disclosure-asb
+ASB,Net Interest Income,1110.0,2020-Q4,disclosure-asb
+ASB,Total Operating Income,1416.0,2020-Q4,disclosure-asb
+ASB,Operating Expenses,518.0,2020-Q4,disclosure-asb
+ASB,Profit After Tax,625.0,2020-Q4,disclosure-asb
+ASB,Total Assets,109231.0,2020-Q4,disclosure-asb
+ASB,Deposits,76379.0,2020-Q4,disclosure-asb
+ASB,Equity,8497.0,2020-Q4,disclosure-asb
+ASB,Total Capital Ratio,18.0,2020-Q4,disclosure-asb
+ASB,Net Interest Income,2354.0,2021-Q2,disclosure-asb
+ASB,Total Operating Income,2972.0,2021-Q2,disclosure-asb
+ASB,Operating Expenses,1141.0,2021-Q2,disclosure-asb
+ASB,Profit After Tax,1321.0,2021-Q2,disclosure-asb
+ASB,Total Assets,1.2,2021-Q2,disclosure-asb
+ASB,Deposits,77259.0,2021-Q2,disclosure-asb
+ASB,Equity,15.2,2021-Q2,disclosure-asb
+ASB,CET1 Ratio,10.8,2021-Q2,disclosure-asb
+ASB,Total Capital Ratio,2.0,2021-Q2,disclosure-asb
+ASB,Net Interest Income,1275.0,2021-Q4,disclosure-asb
+ASB,Total Operating Income,1600.0,2021-Q4,disclosure-asb
+ASB,Operating Expenses,554.0,2021-Q4,disclosure-asb
+ASB,Profit After Tax,762.0,2021-Q4,disclosure-asb
+ASB,Total Assets,116839.0,2021-Q4,disclosure-asb
+ASB,Deposits,82847.0,2021-Q4,disclosure-asb
+ASB,Equity,9316.0,2021-Q4,disclosure-asb
+ASB,CET1 Ratio,11.6,2021-Q4,disclosure-asb
+ASB,Total Capital Ratio,2.0,2021-Q4,disclosure-asb
+ASB,Net Interest Income,2599.0,2022-Q2,disclosure-asb
+ASB,Total Operating Income,3251.0,2022-Q2,disclosure-asb
+ASB,Operating Expenses,1175.0,2022-Q2,disclosure-asb
+ASB,Profit After Tax,1471.0,2022-Q2,disclosure-asb
+ASB,Total Assets,1.2,2022-Q2,disclosure-asb
+ASB,Deposits,80458.0,2022-Q2,disclosure-asb
+ASB,Equity,14.8,2022-Q2,disclosure-asb
+ASB,CET1 Ratio,12.7,2022-Q2,disclosure-asb
+ASB,Total Capital Ratio,15.0,2022-Q2,disclosure-asb
+ASB,Net Interest Income,1548.0,2022-Q4,disclosure-asb
+ASB,Total Operating Income,1826.0,2022-Q4,disclosure-asb
+ASB,Operating Expenses,609.0,2022-Q4,disclosure-asb
+ASB,Profit After Tax,840.0,2022-Q4,disclosure-asb
+ASB,Total Assets,124485.0,2022-Q4,disclosure-asb
+ASB,Deposits,88170.0,2022-Q4,disclosure-asb
+ASB,Equity,10379.0,2022-Q4,disclosure-asb
+ASB,CET1 Ratio,12.9,2022-Q4,disclosure-asb
+ASB,Total Capital Ratio,14.6,2022-Q4,disclosure-asb
+ASB,Net Interest Income,3045.0,2023-Q2,disclosure-asb
+ASB,Total Operating Income,3489.0,2023-Q2,disclosure-asb
+ASB,Operating Expenses,1258.0,2023-Q2,disclosure-asb
+ASB,Profit After Tax,1559.0,2023-Q2,disclosure-asb
+ASB,Total Assets,1.2,2023-Q2,disclosure-asb
+ASB,Deposits,84421.0,2023-Q2,disclosure-asb
+ASB,Equity,14.8,2023-Q2,disclosure-asb
+ASB,CET1 Ratio,12.3,2023-Q2,disclosure-asb
+ASB,Total Capital Ratio,15.7,2023-Q2,disclosure-asb
+ASB,Net Interest Income,1473.0,2023-Q4,disclosure-asb
+ASB,Total Operating Income,1698.0,2023-Q4,disclosure-asb
+ASB,Operating Expenses,647.0,2023-Q4,disclosure-asb
+ASB,Profit After Tax,749.0,2023-Q4,disclosure-asb
+ASB,Total Assets,126446.0,2023-Q4,disclosure-asb
+ASB,Deposits,91733.0,2023-Q4,disclosure-asb
+ASB,CET1 Ratio,14.1,2023-Q4,disclosure-asb
+ASB,Total Capital Ratio,15.5,2023-Q4,disclosure-asb
+ASB,Net Interest Income,2928.0,2024-Q2,disclosure-asb
+ASB,Total Operating Income,3393.0,2024-Q2,disclosure-asb
+ASB,Operating Expenses,1296.0,2024-Q2,disclosure-asb
+ASB,Profit After Tax,1455.0,2024-Q2,disclosure-asb
+ASB,Total Assets,127089.0,2024-Q2,disclosure-asb
+ASB,Deposits,87486.0,2024-Q2,disclosure-asb
+ASB,Equity,12.5,2024-Q2,disclosure-asb
+ASB,CET1 Ratio,14.3,2024-Q2,disclosure-asb
+ASB,Total Capital Ratio,16.3,2024-Q2,disclosure-asb
+ASB,Net Interest Income,1546.0,2024-Q4,disclosure-asb
+ASB,Total Operating Income,1776.0,2024-Q4,disclosure-asb
+ASB,Operating Expenses,697.0,2024-Q4,disclosure-asb
+ASB,Profit After Tax,763.0,2024-Q4,disclosure-asb
+ASB,Total Assets,131900.0,2024-Q4,disclosure-asb
+ASB,Deposits,94846.0,2024-Q4,disclosure-asb
+ASB,CET1 Ratio,14.1,2024-Q4,disclosure-asb
+ASB,Total Capital Ratio,9.0,2024-Q4,disclosure-asb
+ASB,Net Interest Income,3058.0,2025-Q2,disclosure-asb
+ASB,Total Operating Income,3502.0,2025-Q2,disclosure-asb
+ASB,Operating Expenses,1427.0,2025-Q2,disclosure-asb
+ASB,Profit After Tax,1449.0,2025-Q2,disclosure-asb
+ASB,Total Assets,135164.0,2025-Q2,disclosure-asb
+ASB,Deposits,93422.0,2025-Q2,disclosure-asb
+ASB,CET1 Ratio,14.9,2025-Q2,disclosure-asb
+ASB,Total Capital Ratio,16.3,2025-Q2,disclosure-asb
+BNZ,Net Interest Income,958.0,2018-Q1,disclosure-bnz
+BNZ,Total Operating Income,1270.0,2018-Q1,disclosure-bnz
+BNZ,Operating Expenses,542.0,2018-Q1,disclosure-bnz
+BNZ,Total Assets,97065.0,2018-Q1,disclosure-bnz
+BNZ,Net Loans and Advances,80216.0,2018-Q1,disclosure-bnz
+BNZ,Deposits,62983.0,2018-Q1,disclosure-bnz
+BNZ,Equity,400.0,2018-Q1,disclosure-bnz
+BNZ,Net Interest Income,1034.0,2019-Q1,disclosure-bnz
+BNZ,Total Operating Income,1302.0,2019-Q1,disclosure-bnz
+BNZ,Operating Expenses,492.0,2019-Q1,disclosure-bnz
+BNZ,Total Assets,103758.0,2019-Q1,disclosure-bnz
+BNZ,Net Loans and Advances,85681.0,2019-Q1,disclosure-bnz
+BNZ,Deposits,66390.0,2019-Q1,disclosure-bnz
+BNZ,Equity,400.0,2019-Q1,disclosure-bnz
+BNZ,Total Capital Ratio,14.12,2019-Q1,disclosure-bnz
+BNZ,Net Interest Income,2061.0,2019-Q3,disclosure-bnz
+BNZ,Total Operating Income,2656.0,2019-Q3,disclosure-bnz
+BNZ,Operating Expenses,1135.0,2019-Q3,disclosure-bnz
+BNZ,Total Assets,109112.0,2019-Q3,disclosure-bnz
+BNZ,Net Loans and Advances,88041.0,2019-Q3,disclosure-bnz
+BNZ,Deposits,67968.0,2019-Q3,disclosure-bnz
+BNZ,Equity,400.0,2019-Q3,disclosure-bnz
+BNZ,CET1 Ratio,10.56,2019-Q3,disclosure-bnz
+BNZ,Total Capital Ratio,14.12,2019-Q3,disclosure-bnz
+BNZ,Net Interest Income,1051.0,2020-Q1,disclosure-bnz
+BNZ,Total Operating Income,1317.0,2020-Q1,disclosure-bnz
+BNZ,Operating Expenses,656.0,2020-Q1,disclosure-bnz
+BNZ,Total Assets,118500.0,2020-Q1,disclosure-bnz
+BNZ,Net Loans and Advances,89549.0,2020-Q1,disclosure-bnz
+BNZ,Deposits,72956.0,2020-Q1,disclosure-bnz
+BNZ,Equity,400.0,2020-Q1,disclosure-bnz
+BNZ,CET1 Ratio,5.125,2020-Q1,disclosure-bnz
+BNZ,Total Capital Ratio,14.68,2020-Q1,disclosure-bnz
+BNZ,Net Interest Income,2082.0,2020-Q3,disclosure-bnz
+BNZ,Total Operating Income,2539.0,2020-Q3,disclosure-bnz
+BNZ,Operating Expenses,1177.0,2020-Q3,disclosure-bnz
+BNZ,Total Assets,112310.0,2020-Q3,disclosure-bnz
+BNZ,Net Loans and Advances,88149.0,2020-Q3,disclosure-bnz
+BNZ,Deposits,71841.0,2020-Q3,disclosure-bnz
+BNZ,Equity,424.0,2020-Q3,disclosure-bnz
+BNZ,CET1 Ratio,10.97,2020-Q3,disclosure-bnz
+BNZ,Total Capital Ratio,14.68,2020-Q3,disclosure-bnz
+BNZ,Net Interest Income,2909.0,2024-Q3,disclosure-bnz
+BNZ,Total Operating Income,3616.0,2024-Q3,disclosure-bnz
+BNZ,Operating Expenses,1392.0,2024-Q3,disclosure-bnz
+BNZ,Profit After Tax,1506.0,2024-Q3,disclosure-bnz
+BNZ,Total Assets,130737.0,2024-Q3,disclosure-bnz
+BNZ,Net Loans and Advances,106101.0,2024-Q3,disclosure-bnz
+BNZ,Deposits,84254.0,2024-Q3,disclosure-bnz
+BNZ,Equity,13328.0,2024-Q3,disclosure-bnz
+BNZ,CET1 Ratio,13.9,2024-Q3,disclosure-bnz
+BNZ,Total Capital Ratio,19.88,2024-Q3,disclosure-bnz
+Kiwibank,Net Interest Income,455.0,2020-Q2,disclosure-kiwibank
+Kiwibank,Total Operating Income,553.0,2020-Q2,disclosure-kiwibank
+Kiwibank,Operating Expenses,-428.0,2020-Q2,disclosure-kiwibank
+Kiwibank,Profit After Tax,108.0,2020-Q2,disclosure-kiwibank
+Kiwibank,Total Assets,25510.0,2020-Q2,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,22222.0,2020-Q2,disclosure-kiwibank
+Kiwibank,Deposits,20597.0,2020-Q2,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2020-Q2,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,16.0,2020-Q2,disclosure-kiwibank
+Kiwibank,Net Interest Income,250.0,2020-Q4,disclosure-kiwibank
+Kiwibank,Total Operating Income,287.0,2020-Q4,disclosure-kiwibank
+Kiwibank,Operating Expenses,-209.0,2020-Q4,disclosure-kiwibank
+Kiwibank,Total Assets,27283.0,2020-Q4,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,23809.0,2020-Q4,disclosure-kiwibank
+Kiwibank,Deposits,21891.0,2020-Q4,disclosure-kiwibank
+Kiwibank,CET1 Ratio,10.9,2020-Q4,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,13.3,2020-Q4,disclosure-kiwibank
+Kiwibank,Net Interest Income,528.0,2021-Q2,disclosure-kiwibank
+Kiwibank,Total Operating Income,577.0,2021-Q2,disclosure-kiwibank
+Kiwibank,Operating Expenses,-422.0,2021-Q2,disclosure-kiwibank
+Kiwibank,Profit After Tax,126.0,2021-Q2,disclosure-kiwibank
+Kiwibank,Total Assets,28229.0,2021-Q2,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,25207.0,2021-Q2,disclosure-kiwibank
+Kiwibank,Deposits,22399.0,2021-Q2,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2021-Q2,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,16.0,2021-Q2,disclosure-kiwibank
+Kiwibank,Net Interest Income,298.0,2021-Q4,disclosure-kiwibank
+Kiwibank,Total Operating Income,328.0,2021-Q4,disclosure-kiwibank
+Kiwibank,Operating Expenses,-232.0,2021-Q4,disclosure-kiwibank
+Kiwibank,Profit After Tax,126.0,2021-Q4,disclosure-kiwibank
+Kiwibank,Total Assets,30970.0,2021-Q4,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,27103.0,2021-Q4,disclosure-kiwibank
+Kiwibank,Deposits,23822.0,2021-Q4,disclosure-kiwibank
+Kiwibank,Equity,2069.0,2021-Q4,disclosure-kiwibank
+Kiwibank,CET1 Ratio,10.4,2021-Q4,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,13.7,2021-Q4,disclosure-kiwibank
+Kiwibank,Net Interest Income,2020.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Total Operating Income,680.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Operating Expenses,-480.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Profit After Tax,126.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Total Assets,31547.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,103.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Deposits,24216.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Equity,2202.0,2022-Q2,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2022-Q2,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,16.0,2022-Q2,disclosure-kiwibank
+Kiwibank,Net Interest Income,386.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Total Operating Income,415.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Operating Expenses,-263.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Profit After Tax,131.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Total Assets,33368.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,28898.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Deposits,25262.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Equity,2299.0,2022-Q4,disclosure-kiwibank
+Kiwibank,CET1 Ratio,4.5,2022-Q4,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,8.0,2022-Q4,disclosure-kiwibank
+Kiwibank,Net Interest Income,794.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Total Operating Income,816.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Operating Expenses,-534.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Profit After Tax,131.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Total Assets,33838.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,102.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Deposits,25756.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Equity,2311.0,2023-Q2,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2023-Q2,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,16.0,2023-Q2,disclosure-kiwibank
+Kiwibank,Net Interest Income,431.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Total Operating Income,448.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Operating Expenses,-286.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Profit After Tax,105.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Total Assets,35394.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,30988.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Deposits,26835.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Equity,2538.0,2023-Q4,disclosure-kiwibank
+Kiwibank,CET1 Ratio,4.5,2023-Q4,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,8.0,2023-Q4,disclosure-kiwibank
+Kiwibank,Net Interest Income,824.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Total Operating Income,880.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Operating Expenses,-582.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Profit After Tax,202.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Total Assets,36650.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,32445.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Deposits,28176.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Equity,2621.0,2024-Q2,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2024-Q2,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,16.0,2024-Q2,disclosure-kiwibank
+Kiwibank,Net Interest Income,430.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Total Operating Income,461.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Operating Expenses,-311.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Profit After Tax,105.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Total Assets,39502.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,34416.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Deposits,29961.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Equity,2967.0,2024-Q4,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2024-Q4,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,9.0,2024-Q4,disclosure-kiwibank
+Kiwibank,Net Interest Income,858.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Total Operating Income,912.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Operating Expenses,-619.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Profit After Tax,191.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Total Assets,40660.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,35840.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Deposits,30337.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Equity,3079.0,2025-Q2,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2025-Q2,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,16.0,2025-Q2,disclosure-kiwibank
+Kiwibank,Net Interest Income,446.0,2025-Q4,disclosure-kiwibank
+Kiwibank,Total Operating Income,478.0,2025-Q4,disclosure-kiwibank
+Kiwibank,Operating Expenses,-329.0,2025-Q4,disclosure-kiwibank
+Kiwibank,Profit After Tax,103.0,2025-Q4,disclosure-kiwibank
+Kiwibank,Total Assets,43074.0,2025-Q4,disclosure-kiwibank
+Kiwibank,Net Loans and Advances,37620.0,2025-Q4,disclosure-kiwibank
+Kiwibank,Deposits,31780.0,2025-Q4,disclosure-kiwibank
+Kiwibank,Equity,3186.0,2025-Q4,disclosure-kiwibank
+Kiwibank,CET1 Ratio,11.5,2025-Q4,disclosure-kiwibank
+Kiwibank,Total Capital Ratio,16.5,2025-Q4,disclosure-kiwibank
+Rabobank,Net Interest Income,54.19,2018-Q4,disclosure-rabobank
+Rabobank,Total Operating Income,55.71,2018-Q4,disclosure-rabobank
+Rabobank,Operating Expenses,111.64,2018-Q4,disclosure-rabobank
+Rabobank,Profit After Tax,3.1,2018-Q4,disclosure-rabobank
+Rabobank,Total Assets,1977.36,2018-Q4,disclosure-rabobank
+Rabobank,Net Loans and Advances,612948.0,2018-Q4,disclosure-rabobank
+Rabobank,Deposits,46980.0,2018-Q4,disclosure-rabobank
+Rabobank,Equity,1475617.0,2018-Q4,disclosure-rabobank
+Rabobank,CET1 Ratio,4.5,2018-Q4,disclosure-rabobank
+Rabobank,Total Capital Ratio,8.0,2018-Q4,disclosure-rabobank
+Rabobank,Net Interest Income,62.12,2019-Q4,disclosure-rabobank
+Rabobank,Total Operating Income,63.3,2019-Q4,disclosure-rabobank
+Rabobank,Operating Expenses,126.43,2019-Q4,disclosure-rabobank
+Rabobank,Profit After Tax,9.34,2019-Q4,disclosure-rabobank
+Rabobank,Total Assets,2543.53,2019-Q4,disclosure-rabobank
+Rabobank,Net Loans and Advances,-583589.0,2019-Q4,disclosure-rabobank
+Rabobank,Deposits,672620.0,2019-Q4,disclosure-rabobank
+Rabobank,Equity,668.41,2019-Q4,disclosure-rabobank
+Rabobank,CET1 Ratio,4.5,2019-Q4,disclosure-rabobank
+Rabobank,Total Capital Ratio,8.0,2019-Q4,disclosure-rabobank
+Rabobank,Net Loans and Advances,1.0,2022-Q4,disclosure-rabobank
+Rabobank,Deposits,466617.0,2022-Q4,disclosure-rabobank

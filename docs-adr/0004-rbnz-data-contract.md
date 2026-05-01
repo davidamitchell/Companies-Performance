@@ -24,6 +24,7 @@ Every row in `data/processed/metrics.csv` (and `docs/data/processed/metrics.json
 | `value`  | numeric | Raw value as-is from source; `null` if missing                           |
 | `period` | string  | Quarter string derived from quarter-end date (e.g. `2024-Q1`)           |
 | `source` | string  | Source identifier: always `rbnz-dashboard` for this source              |
+| `entity_type` | string  | `"standalone"` or `"group"` — classifies the RBNZ entity reporting boundary. Group entities (ANZ Group, BOC Group, CBA Group, CCB Group, ICBC Group, Rabo Group, WBC Group) have a different regulatory perimeter than their standalone NZ subsidiaries. Hardcoded in `src/processing/parse.py`; consumer-facing filter should use this field rather than name matching. |
 
 No derived, rounded, or imputed values are stored. If a value is missing in the source, `null` is stored and a `WARNING` is logged.
 
@@ -83,6 +84,7 @@ The following glossary metrics are **not available** in the RBNZ XLSX:
 4. Include group-level entities (e.g. `ANZ Group`) without filtering; consumers filter as needed.
 5. Store `null` for missing values and log a `WARNING`; do not impute.
 6. Only process series that are mapped in `config/metrics.yaml`; unmapped series are ignored.
+7. Add `entity_type` to every row, classifying each entity as `"standalone"` or `"group"` using a static lookup in `src/processing/parse.py`. This replaces ad-hoc name-matching in consumers.
 
 ---
 

@@ -68,6 +68,21 @@ A qualitative or quantitative assessment of how a customer cohort's revenue cont
 ### Core Funding Ratio (CFR)
 **Core Funding Ratio.** The ratio of stable funding sources (retail deposits, long-term wholesale) to total loans and advances. A New Zealand regulatory metric. Higher is more stable. Expressed as a percentage.
 
+### 1-Month Mismatch Ratio
+The ratio of a bank's 1-month cumulative net cash position to its total liabilities, per RBNZ liquidity policy (BS13). Measures short-term funding resilience over a one-month horizon. Expressed as a percentage. RBNZ series `DBB.QIH10`.
+
+### 1-Week Mismatch Ratio
+The ratio of a bank's 1-week cumulative net cash position to its total liabilities, per RBNZ liquidity policy (BS13). Measures short-term funding resilience over a one-week horizon. Expressed as a percentage. RBNZ series `DBB.QIH20`.
+
+### Top 5 Non-Bank Credit Exposures
+The sum of the five largest non-bank credit exposures as a percentage of the bank's CET1 capital. Measures single-borrower concentration risk in the non-bank lending book. Expressed as a percentage of CET1. RBNZ series `DBB.QIJ10`.
+
+### Top 5 Bank Credit Exposures
+The sum of the five largest interbank credit exposures as a percentage of the bank's CET1 capital. Measures interbank counterparty concentration risk. Expressed as a percentage of CET1. RBNZ series `DBB.QIJ30`.
+
+### Bank Exposures ≥10% of CET1
+The total of all interbank credit exposures that individually exceed 10% of the bank's CET1 capital. Identifies material single-counterparty interbank concentrations. Expressed as a percentage of CET1. RBNZ series `DBB.QIJ40`.
+
 ---
 
 ## Strategic Evolution

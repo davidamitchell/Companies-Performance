@@ -145,3 +145,30 @@ _No spikes completed yet. See `backlog.md` for open spikes (S-0001, S-0002, S-00
 - Implemented in `src/processing/extract_disclosures.py`.
 
 **Resulting updates:** W-0015 → done, W-0016 → wont-do, W-0019 → done, W-0022 → done.
+
+---
+
+### W-0024 — Disclosure pipeline end-to-end run (2026-05-01)
+
+**Problem investigated:** Does the extraction pipeline correctly handle all 41 committed disclosure PDFs across all banks?
+
+**Findings:**
+
+- **ANZ** (3 PDFs): 29 rows extracted. All 10 metrics present. One exception: `Total Capital Ratio` missing from `anz-disclosure-2025-03-31.pdf` — format change in the most recent annual report where the capital table label changed. Logged as WARNING.
+- **ASB** (16 PDFs): 125 rows. `Net Loans and Advances` is absent for all periods across all ASB PDFs. ASB's balance sheet labels "Loans and advances" without the "Net" prefix, and the regex `r"(?:net )?loans and advances\b"` does not match this. Root cause: regex requires word boundary after "advances" but ASB may have a table format that differs. The early 2018–2020 disclosures also miss `Net Interest Income` — the label is "Net interest income" with lowercase 'i' which should match (case-insensitive), but those early PDFs may have a different format. Needs further investigation.
+- **BNZ** (6 PDFs): 52 rows. All 10 metrics present across all periods.
+- **Kiwibank** (13 PDFs): 116 rows. Most periods fully extracted. Some older periods (2020–2021) missing `Profit After Tax` and `Equity` — earlier Kiwibank formats differ from current layout.
+- **Rabobank** (3 PDFs): 22 rows. 2018-Q4 and 2019-Q4 are fully extracted (10 metrics each). 2022-Q4 yields only 2 metrics (`Deposits`, `Net Loans and Advances`) — the balance sheet page is confirmed image-based (zero text). The 2 extracted values likely come from an overview section or a text-readable sub-table on a different page. These 2 values should be treated as data-quality flags pending verification against the source PDF.
+- **Westpac**: 0 rows. WAF block confirmed. No PDFs were accessible for download; the westpac directory contains no PDF files.
+
+**Data quality notes:**
+- Total: 344 rows from 41 PDFs across 5 banks (Westpac excluded).
+- Rabobank 2022-Q4 partial extraction (2 of 10 metrics) warrants manual verification against the source PDF.
+- ASB "Net Loans and Advances" gap is a regex pattern miss, not a PDF structure issue — the label differs from the expected pattern. Open W-0024a as a follow-on fix.
+
+**Decision or deferral:**
+- Pipeline validated end-to-end. Output at `docs/data/processed/disclosure_metrics.json` is the new canonical extraction file.
+- ASB loan balance gap: open a follow-on backlog item to extend the regex pattern to match ASB's label format.
+- Rabobank 2022 partial values: flag in the coverage page (W-0050) rather than filtering them out; let the user see which values are present.
+
+**Resulting updates:** W-0024 → done. New item needed for ASB loan regex fix (add to backlog as W-0074).

@@ -186,3 +186,41 @@ Last updated: 2026-04-28 (S-0004 financial disclosures spike and config)
 - *What slowed things down?* Capital ratio extraction needed a "second percentage" strategy distinct from the "first value" strategy used for income/balance sheet metrics. This required a separate extraction path.
 - *Single change to prevent that next time?* Document the two extraction strategies (first_value vs second_pct) in the spike output before implementation begins, so the distinction is explicit.
 - *Is this a pattern?* Yes — financial disclosure PDFs consistently have a minimum-requirement column before the actual bank ratio column. Document this in `learnings.md`.
+
+---
+
+## 2026-05-01 — W-0049, W-0033, W-0030, W-0024: ADR-0005, entity_type, new metrics series, disclosure pipeline run
+
+**Items completed:**
+
+### W-0049 — ADR-0005: PDF Disclosure Extraction Strategy
+
+- `docs-adr/0005-pdf-extraction-approach.md`: Documents the extraction architecture (pdfplumber `extract_text()` + two-strategy regex approach). Captures the `first_value` and `second_pct` strategies, unit detection logic, known gaps (Rabobank image-based, Westpac WAF), four rejected alternatives (extract_tables, LLM, OCR, manual entry), and implementation notes including the TDD workflow for adding new metrics.
+- `docs-adr/README.md`: ADR-0005 entry added to index.
+
+### W-0033 — entity_type field in canonical schema
+
+- `src/processing/parse.py`: Added `_GROUP_ENTITIES` frozenset classifying 7 group entities (ANZ Group, BOC Group, CBA Group, CCB Group, ICBC Group, Rabo Group, WBC Group). Every row now includes `entity_type: "standalone" | "group"`. CSV writer updated to include `entity_type` in field list.
+- `docs/data/processed/metrics.json` + `data/processed/metrics.csv`: Regenerated with `entity_type` field.
+- `docs/index.html`: "Standalone only" button now derives group entities from `entity_type` field in data rather than hardcoded name list.
+- `docs-adr/0004-rbnz-data-contract.md`: Schema table and Decision section updated to document the new field.
+- `tests/test_processing.py`: 4 new tests (TDD Red→Green): standalone entity type, group entity type, unknown defaults to standalone, all 7 known group entities classified correctly.
+
+### W-0030 — Mismatch ratios + credit concentration series
+
+- `config/metrics.yaml`: Added 5 confirmed RBNZ series: `DBB.QIH10` (1-Month Mismatch Ratio), `DBB.QIH20` (1-Week Mismatch Ratio), `DBB.QIJ10` (Top 5 Non-Bank Credit Exposures), `DBB.QIJ30` (Top 5 Bank Credit Exposures), `DBB.QIJ40` (Bank Exposures ≥10% of CET1).
+- `docs/data/processed/metrics.json` + `data/processed/metrics.csv`: Regenerated — 13900 → 17375 rows (+3475 new rows for 5 series).
+- `glossary.md`: 5 new metric definitions added with RBNZ series IDs and units.
+
+### W-0024 — Disclosure extraction end-to-end
+
+- `scripts/process_disclosures.py`: Fixed output path from `disclosures.json` (the existing PDF index file) to `disclosure_metrics.json` (distinct metrics file). Added `_log_extraction_summary()` to log extracted/null counts per bank per period.
+- Script run against full corpus (ANZ ×3, ASB ×16, BNZ ×6, Kiwibank ×13, Rabobank ×3 = 41 PDFs).
+- Outputs: `data/processed/disclosures.csv` and `docs/data/processed/disclosure_metrics.json`.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — TDD cycle caught the CSV header regression immediately (existing test for field list needed updating for the new `entity_type` field). Fixed in the same cycle before the commit.
+- *What slowed things down?* The process_disclosures.py output path bug (writing to `disclosures.json` which overwrites the PDF index) was found only when reading the W-0024 backlog item carefully. The naming should have been caught when W-0015 was initially implemented.
+- *Single change to prevent this next time?* When a script produces a new output file, check whether the path conflicts with existing files in the same directory before choosing the name. Add this as a code-review checklist item.
+- *Is this a pattern?* Yes — naming ambiguity between index files and metrics files. Document in copilot-instructions.md: processed output files should use descriptive names (`_metrics`, `_index`) to avoid collision.

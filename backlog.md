@@ -497,9 +497,9 @@ updated: 2026-04-30
 
 ### W-0024
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -599,9 +599,9 @@ Funding mix is a key dimension of bank risk — high wholesale funding reliance 
 
 ### W-0030
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -647,9 +647,9 @@ Capital ratios without the minimum context are hard to interpret. A bank at 13% 
 
 ### W-0033
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -927,9 +927,9 @@ Trend flags make the snapshot table row (▲/▼ vs prior quarter only) more rob
 
 ### W-0049
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -1466,5 +1466,23 @@ The `remove-ai-slop` pre-commit checklist has been applied to all user-facing pr
 ### Context
 
 The `remove-ai-slop` skill identifies patterns that reduce credibility in research contexts. User-facing content cited by analysts and journalists carries a higher standard. `glossary.md` already contains formulaic prose ("Measures X. Expressed as a percentage.") that will be visible on the public site. This pass makes the prose sound like it was written by a person with domain knowledge, not generated. Belongs after W-0021 (transparency pages) is built so the full prose surface exists before the review.
+
+---
+
+## Phase 17.5: Extraction Quality Fixes
+
+### W-0074
+
+status: ready
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+ASB "Net Loans and Advances" extraction is fixed. The existing regex `r"(?:net )?loans and advances\b"` misses ASB's label format ("Loans and advances" without the word "Net" and without the trailing word boundary matching "to customers" or similar suffix). The updated pattern is validated against all 16 ASB PDFs in the corpus and the metric is present in `disclosure_metrics.json` for all ASB periods. `tests/test_extract_disclosures.py` gains a test for the ASB label variant. W-0024 learnings.md entry updated to reflect the fix.
+
+### Context
+
+End-to-end run (W-0024, 2026-05-01) showed ASB "Net Loans and Advances" absent from all 16 ASB periods. Root cause: ASB balance sheet uses "Loans and advances" (no "Net" prefix, lowercase) which fails the existing regex. This is a TDD fix: write a failing test with an ASB-format line, extend the pattern, verify the test passes, re-run the full corpus. Low effort — one regex extension. Unblocks ASB completeness for the disclosure charts (W-0025).
 
 ---
