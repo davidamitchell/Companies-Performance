@@ -43,15 +43,17 @@ _SOURCE_ID = "rbnz-dashboard"
 
 # Classification of RBNZ-registered entities. Group entities have a different
 # regulatory reporting boundary than their standalone subsidiary.
-_GROUP_ENTITIES: frozenset[str] = frozenset({
-    "ANZ Group",
-    "BOC Group",
-    "CBA Group",
-    "CCB Group",
-    "ICBC Group",
-    "Rabo Group",
-    "WBC Group",
-})
+_GROUP_ENTITIES: frozenset[str] = frozenset(
+    {
+        "ANZ Group",
+        "BOC Group",
+        "CBA Group",
+        "CCB Group",
+        "ICBC Group",
+        "Rabo Group",
+        "WBC Group",
+    }
+)
 
 
 def parse_rbnz_xlsx(

@@ -393,7 +393,15 @@ def test_parse_rbnz_xlsx_unknown_entity_defaults_to_standalone(tmp_path: Path) -
 
 
 def test_parse_rbnz_xlsx_all_known_group_entities(tmp_path: Path) -> None:
-    groups = ["ANZ Group", "BOC Group", "CBA Group", "CCB Group", "ICBC Group", "Rabo Group", "WBC Group"]
+    groups = [
+        "ANZ Group",
+        "BOC Group",
+        "CBA Group",
+        "CCB Group",
+        "ICBC Group",
+        "Rabo Group",
+        "WBC Group",
+    ]
     data = [(datetime(2024, 3, 31), g, 10.0) for g in groups]
     wb = _make_workbook(data)
     xlsx_path = _save_and_get_path(wb, tmp_path)
