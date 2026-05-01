@@ -1,0 +1,57 @@
+# Significant NZ and global events affecting bank performance.
+# Each event has a period (YYYY-QN), a short label (≤20 chars), and a category.
+# Category controls marker colour: monetary=teal, regulatory=amber, macro/market=grey.
+# Used by docs/index.html to render optional event overlay on time-series charts.
+
+events:
+  - period: "2019-Q4"
+    label: "RBNZ capital reform"
+    category: "regulatory"
+
+  - period: "2020-Q1"
+    label: "COVID-19 lockdown"
+    category: "macro"
+
+  - period: "2020-Q1"
+    label: "OCR → 0.25%"
+    category: "monetary"
+
+  - period: "2020-Q3"
+    label: "OCR → 0.10% (floor)"
+    category: "monetary"
+
+  - period: "2020-Q4"
+    label: "FLP launched"
+    category: "monetary"
+
+  - period: "2021-Q1"
+    label: "LVR removed"
+    category: "regulatory"
+
+  - period: "2021-Q3"
+    label: "OCR hikes begin"
+    category: "monetary"
+
+  - period: "2021-Q4"
+    label: "LVR reinstated"
+    category: "regulatory"
+
+  - period: "2022-Q2"
+    label: "Kiwibank buyback"
+    category: "market"
+
+  - period: "2023-Q1"
+    label: "SVB/Credit Suisse"
+    category: "market"
+
+  - period: "2023-Q3"
+    label: "OCR peaks 5.50%"
+    category: "monetary"
+
+  - period: "2023-Q3"
+    label: "Capital reform starts"
+    category: "regulatory"
+
+  - period: "2024-Q3"
+    label: "OCR easing begins"
+    category: "monetary"

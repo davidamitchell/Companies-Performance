@@ -9,6 +9,35 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script>
+    /* ── OCR vertical-line annotation plugin ────────────────────────────────── */
+    const verticalLinesPlugin = {
+      id: 'verticalLines',
+      afterDraw(chart, args, pluginOptions) {
+        if (!pluginOptions.lines || pluginOptions.lines.length === 0) return;
+        const { ctx, scales, chartArea } = chart;
+        const xScale = scales.x;
+        for (const { period, delta, color } of pluginOptions.lines) {
+          const idx = chart.data.labels.indexOf(period);
+          if (idx === -1) continue;
+          const x = xScale.getPixelForValue(idx);
+          // color: explicit (NZ events) → delta sign (OCR events) → default teal
+          const strokeColor = color || (delta > 0 ? '#ff6b6b' : '#00C3A5');
+          ctx.save();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 3]);
+          ctx.globalAlpha = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    };
+    Chart.register(verticalLinesPlugin);
+  </script>
   <style>
     /* ── Page-specific overrides ────────────────────────────────────────────── */
 
@@ -136,6 +165,14 @@
       <button class="range-btn" data-range="8">Last 8Q</button>
       <button class="range-btn" data-range="16">Last 16Q</button>
       <button class="range-btn active" data-range="all">All</button>
+      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
+        <input type="checkbox" id="chk-ocr-events" style="cursor:pointer;">
+        OCR rate changes
+      </label>
+      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
+        <input type="checkbox" id="chk-nz-events" style="cursor:pointer;">
+        NZ events
+      </label>
     </div>
   </div>
 
@@ -247,6 +284,28 @@
   let charts = [];        // Chart.js instances
   let ocrRows = [];       // OCR canonical rows [{entity,metric,value,period,source}]
   let rangePreset = localStorage.getItem('rangePreset') || 'all';
+  let showOcrEvents  = localStorage.getItem('showOcrEvents')  === 'true';
+  let showNzEvents   = localStorage.getItem('showNzEvents')   === 'true';
+
+  // NZ/global events sourced from config/events.yaml — inlined for static-site delivery.
+  // Category colours: monetary=teal, regulatory=amber, macro/market=grey.
+  const NZ_EVENTS = [
+    { period: '2019-Q4', label: 'RBNZ capital reform', category: 'regulatory' },
+    { period: '2020-Q1', label: 'COVID-19 lockdown',   category: 'macro'      },
+    { period: '2020-Q1', label: 'OCR → 0.25%',         category: 'monetary'   },
+    { period: '2020-Q3', label: 'OCR → 0.10% (floor)', category: 'monetary'   },
+    { period: '2020-Q4', label: 'FLP launched',         category: 'monetary'   },
+    { period: '2021-Q1', label: 'LVR removed',          category: 'regulatory' },
+    { period: '2021-Q3', label: 'OCR hikes begin',      category: 'monetary'   },
+    { period: '2021-Q4', label: 'LVR reinstated',       category: 'regulatory' },
+    { period: '2022-Q2', label: 'Kiwibank buyback',     category: 'market'     },
+    { period: '2023-Q1', label: 'SVB/Credit Suisse',    category: 'market'     },
+    { period: '2023-Q3', label: 'OCR peaks 5.50%',      category: 'monetary'   },
+    { period: '2023-Q3', label: 'Capital reform starts',category: 'regulatory' },
+    { period: '2024-Q3', label: 'OCR easing begins',    category: 'monetary'   },
+  ];
+
+  const EVENT_COLORS = { monetary: '#00C3A5', regulatory: '#f0a500', macro: '#888', market: '#888' };
 
   /* ── Derived data: Cost to Income Ratio ───────────────────────────────── */
   /**
@@ -421,6 +480,27 @@
     btn.addEventListener('click', () => applyRangePreset(btn.dataset.range));
   });
 
+  /* ── OCR events toggle ────────────────────────────────────────────────── */
+  (function initOcrToggle() {
+    const chk = document.getElementById('chk-ocr-events');
+    chk.checked = showOcrEvents;
+    chk.addEventListener('change', () => {
+      showOcrEvents = chk.checked;
+      localStorage.setItem('showOcrEvents', showOcrEvents);
+      render();
+    });
+  })();
+
+  (function initNzEventsToggle() {
+    const chk = document.getElementById('chk-nz-events');
+    chk.checked = showNzEvents;
+    chk.addEventListener('change', () => {
+      showNzEvents = chk.checked;
+      localStorage.setItem('showNzEvents', showNzEvents);
+      render();
+    });
+  })();
+
   /* ── Render ───────────────────────────────────────────────────────────── */
   function render() {
     const lookup = buildLookup(allRows);
@@ -449,6 +529,30 @@
     return ocr;
   }
 
+  /**
+   * Build OCR rate-change events for the visible periods.
+   * A rate change is defined as |delta| >= 0.25 between consecutive allPeriods entries.
+   * @param {string[]} visiblePeriods
+   * @returns {{period:string, delta:number}[]}
+   */
+  function buildOcrEvents(visiblePeriods) {
+    const ocrLookup = buildOcrLookup();
+    const visibleSet = new Set(visiblePeriods);
+    const events = [];
+    for (let i = 1; i < allPeriods.length; i++) {
+      const prev = allPeriods[i - 1];
+      const curr = allPeriods[i];
+      const prevVal = ocrLookup[prev];
+      const currVal = ocrLookup[curr];
+      if (prevVal == null || currVal == null) continue;
+      const delta = currVal - prevVal;
+      if (Math.abs(delta) >= 0.25 && visibleSet.has(curr)) {
+        events.push({ period: curr, delta: Math.round(delta * 100) / 100 });
+      }
+    }
+    return events;
+  }
+
   function renderCharts(lookup, visible, visiblePeriods) {
     // Destroy existing charts
     charts.forEach(c => c.destroy());
@@ -459,6 +563,12 @@
 
     const ocrLookup = buildOcrLookup();
     const isNimChart = (metric) => metric === 'NIM';
+    const ocrEvents = showOcrEvents ? buildOcrEvents(visiblePeriods) : [];
+    const nzEventLines = showNzEvents
+      ? NZ_EVENTS
+          .filter(e => visiblePeriods.includes(e.period))
+          .map(e => ({ period: e.period, delta: null, color: EVENT_COLORS[e.category] || '#888', label: e.label }))
+      : [];
 
     for (let i = 0; i < KEY_METRICS.length; i++) {
       const metric = KEY_METRICS[i];
@@ -574,6 +684,7 @@
                 label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`,
               },
             },
+            verticalLines: { lines: [...ocrEvents, ...nzEventLines] },
           },
           scales: scalesConfig,
         },
