@@ -209,6 +209,22 @@ tr:hover td { background: var(--surface-2); }
   font-weight: 500;
 }
 
+/* ── Skip link ────────────────────────────────────────────────────────────── */
+.skip-link {
+  position: absolute; top: -100%; left: 1rem;
+  background: var(--bg); border: 1px solid var(--teal);
+  color: var(--teal); padding: 0.4rem 0.75rem; font-size: var(--text-xs);
+  letter-spacing: 0.04em; z-index: 200; text-decoration: none;
+}
+.skip-link:focus { top: 0.5rem; }
+
+/* ── Page subtitle ────────────────────────────────────────────────────────── */
+.page-header .page-subtitle { font-size: var(--text-sm); color: var(--text-muted); margin-top: 0.4rem; }
+
+/* ── Table scroll wrapper ─────────────────────────────────────────────────── */
+.table-scroll-wrap { overflow-x: auto; position: relative; }
+.table-scroll-wrap table { min-width: 600px; }
+
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 footer {
   font-size: var(--text-xs);
@@ -220,6 +236,10 @@ footer {
 }
 footer a { color: var(--text-muted); }
 footer a:hover { color: var(--text); text-decoration: none; }
+footer nav { display: flex; gap: 1.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+footer nav a { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.05em; }
+footer nav a:hover { color: var(--text); }
+footer p { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.04em; }
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {

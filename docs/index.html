@@ -58,6 +58,7 @@
       letter-spacing: 0.05em;
     }
     .quick-btn:hover { border-color: var(--teal); color: var(--text); }
+    .quick-btn.active { border-color: var(--teal); color: var(--teal); }
     .bank-checks { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
     .bank-check-label {
       display: flex; align-items: center; gap: 0.3rem;
@@ -92,7 +93,6 @@
     .chart-wrap { position: relative; height: 220px; }
 
     /* Snapshot table */
-    .snapshot-wrap { overflow-x: auto; }
     .entity-cell { font-weight: 500; display: flex; align-items: center; gap: 0.4rem; }
     .swatch { width: 8px; height: 8px; flex-shrink: 0; }
     .val-null { color: var(--text-muted); }
@@ -202,13 +202,120 @@
     @media (max-width: 640px) {
       .chart-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Sticky controls bar ─────────────────────────────────────────────── */
+    .sticky-controls {
+      position: sticky;
+      top: 48px;
+      z-index: 50;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 0;
+      margin-bottom: 1.25rem;
+    }
+    .controls-row {
+      display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start;
+      margin-top: 0.5rem;
+    }
+    .ctrl-group {
+      border: none; padding: 0; margin: 0;
+      display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;
+    }
+    .ctrl-group legend {
+      font-size: var(--text-xs); color: var(--text-muted);
+      letter-spacing: 0.08em; padding-right: 0.5rem;
+      float: left;
+      margin-right: 0.5rem;
+    }
+
+    /* ── KPI summary row ─────────────────────────────────────────────────── */
+    .kpi-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.85rem 1rem; flex: 1; min-width: 180px;
+    }
+    .kpi-card .kpi-label {
+      font-size: var(--text-xs); color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: lowercase; margin-bottom: 0.3rem;
+    }
+    .kpi-card .kpi-value {
+      font-size: var(--text-xl); font-weight: 600; color: var(--teal); line-height: 1;
+    }
+    .kpi-card .kpi-sub {
+      font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.35rem;
+    }
+
+    /* ── Sticky bank column ──────────────────────────────────────────────── */
+    #snapshot-table td:first-child,
+    #snapshot-table th:first-child {
+      position: sticky; left: 0;
+      background: var(--surface-2);
+      z-index: 1;
+    }
+    #snapshot-table th:first-child { background: var(--surface-2); }
+
+    /* Chart nav link */
+    .chart-nav { text-align: right; margin-top: 0.35rem; }
+    .chart-nav-link { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.05em; }
+    .chart-nav-link:hover, .chart-nav-link:focus { color: var(--teal); outline: none; }
+
+    /* NZ events legend */
+    .nz-legend {
+      display: none;
+      flex-wrap: wrap; align-items: center; gap: 0.4rem 1.25rem;
+      margin-top: 0.5rem; margin-bottom: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: var(--text-xs); color: var(--text-muted);
+    }
+    .nz-legend.visible { display: flex; }
+    .nz-legend-hd { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.06em; margin-right: 0.25rem; white-space: nowrap; }
+    .nz-legend-item { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+    .nz-legend-dash { display: inline-block; width: 14px; height: 2px; border-radius: 1px; flex-shrink: 0; }
+
+    /* Metric info popover */
+    #metric-popover {
+      display: none; position: fixed; z-index: 600;
+      background: var(--surface-2); border: 1px solid var(--border);
+      padding: 1rem 1.15rem; max-width: 340px; width: 90vw;
+      font-size: var(--text-xs); color: var(--text-muted);
+      line-height: 1.65; box-shadow: 0 6px 28px rgba(0,0,0,0.6);
+    }
+    #metric-popover h4 {
+      color: var(--text); font-size: var(--text-sm); margin-bottom: 0.65rem;
+      font-weight: 600; padding-right: 1.5rem; text-transform: lowercase; letter-spacing: 0.05em;
+    }
+    .popover-close-btn {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 14px; padding: 0; font-family: 'IBM Plex Mono', monospace;
+    }
+    .popover-close-btn:hover { color: var(--text); }
+    .popover-block { margin-bottom: 0.6rem; }
+    .popover-block:last-child { margin-bottom: 0; }
+    .popover-lbl {
+      font-size: var(--text-xs); text-transform: lowercase; letter-spacing: 0.08em;
+      color: var(--text-muted); margin-bottom: 0.15rem; opacity: 0.75;
+    }
+    .popover-val { color: var(--text); }
+    .popover-footer {
+      border-top: 1px solid var(--border); margin-top: 0.65rem; padding-top: 0.5rem;
+      display: flex; gap: 1rem;
+    }
+    .popover-footer a { color: var(--teal); text-decoration: none; font-size: var(--text-xs); }
+    .popover-footer a:hover { text-decoration: underline; }
+
+    /* Snapshot entity link */
+    .entity-link:hover { color: var(--teal) !important; }
   </style>
 </head>
 <body>
 
-<nav class="site-nav">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
-    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <a class="nav-brand" href="index.html" aria-current="page">NZ Bank Performance</a>
     <div class="nav-links">
       <a href="data-sources.html">Data Sources</a>
       <a href="glossary.html">Glossary</a>
@@ -221,51 +328,65 @@
 
   <div class="page-header">
     <h1>NZ Bank Performance</h1>
-    <p>Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
+    <p class="page-subtitle">Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
     <div id="freshness" style="font-size:var(--text-xs);color:var(--teal);margin-top:0.25rem;"></div>
+  </div>
 
+  <div class="sticky-controls">
     <div class="bank-selector">
       <div class="bank-selector-label">
         banks shown:
         <button class="quick-btn" id="btn-top6">Top 6</button>
         <button class="quick-btn" id="btn-all">All</button>
-        <button class="quick-btn" id="btn-standalone" style="border-color:#00C3A5;color:#00C3A5;">Standalone only</button>
+        <button class="quick-btn" id="btn-standalone">Standalone only</button>
       </div>
       <div class="bank-checks" id="bank-checks"></div>
     </div>
-    <div class="range-filter">
-      <span class="range-filter-label">period</span>
-      <button class="range-btn" data-range="4">Last 4Q</button>
-      <button class="range-btn" data-range="8">Last 8Q</button>
-      <button class="range-btn" data-range="16">Last 16Q</button>
-      <button class="range-btn active" data-range="all">All</button>
-      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
-        <input type="checkbox" id="chk-ocr-events" style="cursor:pointer;">
-        OCR rate changes
-      </label>
-      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
-        <input type="checkbox" id="chk-nz-events" style="cursor:pointer;">
-        NZ events
-      </label>
-      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
-        <input type="checkbox" id="chk-sector-avg" style="cursor:pointer;">
-        Sector avg
-      </label>
+    <div class="controls-row">
+      <fieldset class="ctrl-group">
+        <legend>Period</legend>
+        <button class="range-btn" data-range="4">Last 4Q</button>
+        <button class="range-btn" data-range="8">Last 8Q</button>
+        <button class="range-btn" data-range="16">Last 16Q</button>
+        <button class="range-btn active" data-range="all">All</button>
+      </fieldset>
+      <fieldset class="ctrl-group">
+        <legend>Overlays</legend>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-ocr-events" style="cursor:pointer;">
+          OCR rate changes
+        </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-nz-events" style="cursor:pointer;">
+          NZ events
+        </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-sector-avg" style="cursor:pointer;">
+          Sector avg
+        </label>
+      </fieldset>
     </div>
   </div>
 
-  <main>
-    <section id="charts-section">
+  <main id="main-content">
+    <section id="kpi-summary" aria-label="Sector KPI summary">
+      <div class="kpi-row" id="kpi-row">
+        <!-- filled by JS -->
+      </div>
+    </section>
+
+    <section id="charts-section" aria-label="Historical performance">
       <div class="section-title">
         historical performance
         <span id="period-range"></span>
       </div>
       <div class="tab-bar" id="tab-bar"></div>
       <div class="chart-grid" id="chart-grid"></div>
+      <div id="nz-events-legend" class="nz-legend" aria-live="polite"></div>
     </section>
 
-    <section id="snapshot-section">
+    <section id="snapshot-section" aria-label="Latest quarter snapshot">
       <div class="section-title">
         latest quarter snapshot
         <span id="latest-period-label"></span>
@@ -274,8 +395,9 @@
         <span>period:</span>
         <select class="snapshot-period-sel" id="snapshot-period-sel"></select>
       </div>
-      <div class="snapshot-wrap">
+      <div class="table-scroll-wrap">
         <table id="snapshot-table">
+          <caption>Latest quarter performance comparison — all visible banks and key metrics</caption>
           <thead><tr id="snapshot-head"></tr></thead>
           <tbody id="snapshot-body"></tbody>
         </table>
@@ -284,7 +406,13 @@
   </main>
 
   <footer>
-    Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
 
 </div>
@@ -301,6 +429,16 @@
     <div id="chart-modal-body">
       <canvas id="modal-canvas"></canvas>
     </div>
+  </div>
+</div>
+
+<div id="metric-popover" role="dialog" aria-modal="true" aria-labelledby="pop-title" style="position:fixed;">
+  <button class="popover-close-btn" id="pop-close" aria-label="Close">×</button>
+  <h4 id="pop-title"></h4>
+  <div id="pop-body"></div>
+  <div class="popover-footer">
+    <a id="pop-glossary-link" href="glossary.html">Glossary ↗</a>
+    <a href="#snapshot-section" id="pop-snapshot-link">Snapshot ↓</a>
   </div>
 </div>
 
@@ -347,6 +485,123 @@
     'Bank Exposures ≥10% of CET1':     'Bank Exposures ≥10% CET1 (count)',
   };
 
+  const METRIC_INFO = {
+    'NIM': {
+      definition: 'Net Interest Margin. The difference between interest income earned and interest paid, expressed as a percentage of average earning assets.',
+      source: 'RBNZ series DBB.QIE15',
+      note: 'Core profitability metric for banks. Rises when asset repricing outpaces liability repricing in a rate-increase cycle.',
+      good: 'NZ majors typically 1.5%–2.5%. Higher is generally better.',
+    },
+    'Return on Equity': {
+      definition: 'Annualised profit after tax divided by average equity.',
+      source: 'RBNZ series DBB.QIE13',
+      note: 'Measures profitability relative to shareholder capital. Affected by leverage decisions.',
+      good: 'NZ major banks target ~12%–15%. Above cost-of-equity (~10%) is value-creating.',
+    },
+    'Return on Assets': {
+      definition: 'Annualised profit after tax divided by average total assets.',
+      source: 'RBNZ series DBB.QIE10',
+      note: 'Capital-structure-neutral profitability. Not inflated by leverage.',
+      good: 'NZ major banks typically 0.8%–1.2%.',
+    },
+    'Cost to Income Ratio': {
+      definition: 'Operating expenses divided by total operating income (net interest income + non-interest income).',
+      source: 'Derived: Operating Expenses ÷ (Net Interest Income + Non-Interest Income). RBNZ series DBB.QIE60, QIE40, QIE50, QIE55, QIE57.',
+      note: 'Efficiency ratio — how much is spent to earn each dollar of income. Lower means more efficient.',
+      good: 'Below 45% is efficient. Above 55% signals cost pressure.',
+    },
+    'RORWA': {
+      definition: 'Return on Risk-Weighted Assets. Annualised profit after tax divided by total risk-weighted assets.',
+      source: 'Derived: Profit After Tax ÷ Total Risk-Weighted Assets. RBNZ series DBB.QIE90, QIB90.',
+      note: 'Capital-structure-neutral profitability. Unlike ROE, not affected by leverage.',
+      good: 'NZ major banks typically 1.0%–1.5%.',
+    },
+    'CET1 Ratio': {
+      definition: 'Common Equity Tier 1 Ratio. CET1 capital divided by risk-weighted assets.',
+      source: 'RBNZ series DBB.QIB12',
+      note: 'Core capital buffer. RBNZ capital reform (2019–2028) raises minimums. D-SIB buffer applies to ANZ, ASB, BNZ, Westpac.',
+      good: 'Higher is more resilient. RBNZ minimum ~4.5%; majors target 11%–13%.',
+    },
+    'Tier 1 Capital Ratio': {
+      definition: 'Tier 1 capital (CET1 + Additional Tier 1 instruments) divided by risk-weighted assets.',
+      source: 'RBNZ series DBB.QIB14',
+      note: 'Broader than CET1; AT1 instruments absorb losses on a going-concern basis.',
+      good: 'NZ major banks typically 11%–14%.',
+    },
+    'Total Capital Ratio': {
+      definition: 'Total regulatory capital (Tier 1 + Tier 2) divided by risk-weighted assets.',
+      source: 'RBNZ series DBB.QIB10',
+      note: 'Broadest capital measure. Tier 2 includes subordinated debt.',
+      good: 'NZ major banks typically 13%–16%. RBNZ minimum 8%.',
+    },
+    'Loan-to-Deposit Ratio': {
+      definition: 'Net Loans and Advances divided by Deposits.',
+      source: 'Derived: Net Loans ÷ Deposits. RBNZ series DBB.QIG30, QIG55.',
+      note: 'Funding structure. Above 100% means loans exceed deposits — bank relies on wholesale funding.',
+      good: 'Closer to 100% means more stable retail-funded balance sheet.',
+    },
+    'Risk Density': {
+      definition: 'Total Risk-Weighted Assets divided by Net Loans and Advances.',
+      source: 'Derived: RWA ÷ Net Loans. RBNZ series DBB.QIB90, QIG30.',
+      note: 'Average risk weight of the loan book. Rising density signals shift to higher-risk exposures. IRB banks (ANZ, ASB, BNZ, Westpac) show lower density than standardised approach banks.',
+      good: 'IRB banks typically 30%–40%; standardised approach ~50%–70%.',
+    },
+    'NPL Ratio': {
+      definition: 'Non-Performing Loan Ratio. Non-performing loans (90+ days past due or impaired) as a percentage of total gross loans.',
+      source: 'RBNZ series DBB.QIC10',
+      note: 'Asset quality indicator. Rising NPL ratio signals credit cycle deterioration.',
+      good: 'Below 1.0% is low-stress. Above 2% indicates material credit stress.',
+    },
+    'Total Non-Performing Loans': {
+      definition: 'Sum of impaired loans and loans 90+ days past due but not yet impaired. Expressed in NZDm.',
+      source: 'RBNZ series DBB.QIC50',
+      note: 'Absolute value of NPLs. Use alongside NPL Ratio for context.',
+      good: 'Monitor trends relative to loan book size.',
+    },
+    'Provisioning Coverage': {
+      definition: 'Total provisions (Individual + Collective) divided by Total Non-Performing Loans.',
+      source: 'Derived from RBNZ series DBB.QIC60, QIC70, QIC50.',
+      note: 'Above 100% means provisions exceed NPLs — buffer against unrecognised losses.',
+      good: 'Above 100% is well-provisioned. NZ major banks typically 80%–150%.',
+    },
+    'Core Funding Ratio (CFR)': {
+      definition: 'Ratio of stable funding (retail deposits + long-term wholesale) to total loans and advances. NZ-specific regulatory metric.',
+      source: 'RBNZ series DBB.QIH30',
+      note: 'RBNZ minimum is 75%. Measures funding stability — reliance on short-term wholesale funding is a systemic risk.',
+      good: 'Higher is more stable. Regulatory minimum 75%; banks typically hold 80%–90%.',
+    },
+    '1-Month Mismatch Ratio': {
+      definition: '1-month cumulative net cash position as a ratio of total liabilities (RBNZ liquidity policy BS13).',
+      source: 'RBNZ series DBB.QIH10',
+      note: 'Negative means net cash outflow over 1 month under a stress scenario.',
+      good: 'Less negative is better. Regulatory minimum varies by institution.',
+    },
+    '1-Week Mismatch Ratio': {
+      definition: '1-week cumulative net cash position as a ratio of total liabilities (RBNZ BS13).',
+      source: 'RBNZ series DBB.QIH20',
+      note: 'Immediate liquidity resilience. More negative means higher short-term rollover risk.',
+      good: 'Less negative is better.',
+    },
+    'Top 5 Non-Bank Credit Exposures': {
+      definition: 'Sum of five largest non-bank credit exposures as a percentage of CET1 capital.',
+      source: 'RBNZ series DBB.QIJ10',
+      note: 'Single-borrower concentration risk. High values indicate dependence on a small number of large borrowers.',
+      good: 'Lower is better. Consistent with RBNZ large-exposure limits.',
+    },
+    'Top 5 Bank Credit Exposures': {
+      definition: 'Sum of five largest interbank credit exposures as a percentage of CET1 capital.',
+      source: 'RBNZ series DBB.QIJ30',
+      note: 'Interbank counterparty concentration. Relevant for systemic risk — can amplify contagion.',
+      good: 'Lower is better.',
+    },
+    'Bank Exposures ≥10% of CET1': {
+      definition: 'Total of all interbank exposures that individually exceed 10% of CET1 capital, expressed as a percentage of CET1.',
+      source: 'RBNZ series DBB.QIJ40',
+      note: 'Count or total of material single-counterparty interbank positions.',
+      good: 'Lower indicates fewer concentrated interbank positions.',
+    },
+  };
+
   const TOP_6_BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];
   const STANDALONE  = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
                         'Heartland','ICBC','CCB','BOC','BOB','BOI'];
@@ -367,7 +622,8 @@
   let allRows      = [];
   let allPeriods   = [];
   let allEntities  = [];
-  let selectedEntities = new Set(TOP_6_BANKS);
+  const savedBanks = localStorage.getItem('selectedBanks');
+  let selectedEntities = savedBanks ? new Set(JSON.parse(savedBanks)) : new Set(TOP_6_BANKS);
   let charts       = [];
   let chartMeta    = [];   // { metric, label, chartConfig } per chart in current tab
   let modalChart   = null;
@@ -464,6 +720,7 @@
         `${allRows.length.toLocaleString()} metric rows — ` +
         `${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
       buildBankSelector();
+      setActiveQuickBtn('btn-top6');
       buildTabBar();
       buildSnapshotPeriodSelector();
       applyRangePreset(rangePreset, false);
@@ -513,6 +770,7 @@
       label.addEventListener('change', e => {
         if (e.target.checked) { selectedEntities.add(entity); label.classList.add('checked'); }
         else { selectedEntities.delete(entity); label.classList.remove('checked'); }
+        localStorage.setItem('selectedBanks', JSON.stringify([...selectedEntities]));
         render();
       });
       container.appendChild(label);
@@ -521,6 +779,7 @@
 
   function applySelection(entities) {
     selectedEntities = new Set(entities);
+    localStorage.setItem('selectedBanks', JSON.stringify([...selectedEntities]));
     document.querySelectorAll('.bank-check-label').forEach(label => {
       const cb = label.querySelector('input');
       const sel = selectedEntities.has(cb.value);
@@ -530,10 +789,18 @@
     render();
   }
 
-  document.getElementById('btn-top6').addEventListener('click', () => applySelection(TOP_6_BANKS));
-  document.getElementById('btn-all').addEventListener('click', () => applySelection(allEntities));
+  function setActiveQuickBtn(id) {
+    ['btn-top6', 'btn-all', 'btn-standalone'].forEach(bid => {
+      const el = document.getElementById(bid);
+      if (el) el.classList.toggle('active', bid === id);
+    });
+  }
+
+  document.getElementById('btn-top6').addEventListener('click', () => { applySelection(TOP_6_BANKS); setActiveQuickBtn('btn-top6'); });
+  document.getElementById('btn-all').addEventListener('click', () => { applySelection(allEntities); setActiveQuickBtn('btn-all'); });
   document.getElementById('btn-standalone').addEventListener('click', () => {
     applySelection(getStandaloneEntities(allEntities));
+    setActiveQuickBtn('btn-standalone');
   });
 
   /** Return entities that are not group-level, using entity_type field or STANDALONE fallback. */
@@ -650,12 +917,47 @@
     lastLookup = lookup;
     lastVisible = visible;
     const visiblePeriods = getVisiblePeriods();
+    renderKpiRow(lookup, visible);
     renderCharts(lookup, visible, visiblePeriods);
     renderSnapshot(lookup, visible);
     document.getElementById('period-range').textContent =
       visiblePeriods.length
         ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}`
         : '';
+  }
+
+  /* ── KPI summary row ──────────────────────────────────────────────────── */
+  function renderKpiRow(lookup, visible) {
+    const kpiEl = document.getElementById('kpi-row');
+    if (!kpiEl) return;
+    const period = allPeriods[allPeriods.length - 1];
+    if (!period) { kpiEl.innerHTML = ''; return; }
+    const standalone = getStandaloneEntities(visible);
+    const KPI_CARDS = [
+      { metric: 'CET1 Ratio',           label: 'CET1 Ratio',          unit: '%' },
+      { metric: 'Return on Equity',     label: 'Return on Equity',     unit: '%' },
+      { metric: 'Cost to Income Ratio', label: 'Cost to Income',       unit: '%' },
+      { metric: 'NIM',                  label: 'Net Interest Margin',  unit: '%' },
+    ];
+    kpiEl.innerHTML = KPI_CARDS.map(({ metric, label, unit }) => {
+      const vals = standalone.map(e => lookup[e]?.[period]?.[metric]).filter(v => v != null);
+      if (!vals.length) return '';
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      const best  = standalone.reduce((best, entity) => {
+        const v = lookup[entity]?.[period]?.[metric]; return (v != null && (best == null || v > best.v)) ? { e: entity, v } : best;
+      }, null);
+      const worst = standalone.reduce((worst, entity) => {
+        const v = lookup[entity]?.[period]?.[metric]; return (v != null && (worst == null || v < worst.v)) ? { e: entity, v } : worst;
+      }, null);
+      const bestStr  = best  ? `<span aria-label="Best: ${best.e} ${best.v.toFixed(1)}${unit}">↑ ${best.e} ${best.v.toFixed(1)}${unit}</span>` : '';
+      const worstStr = worst ? `<span aria-label="Worst: ${worst.e} ${worst.v.toFixed(1)}${unit}">↓ ${worst.e} ${worst.v.toFixed(1)}${unit}</span>` : '';
+      return `<div class="kpi-card">
+        <div class="kpi-label">${label}</div>
+        <div class="kpi-value">${avg.toFixed(1)}<span style="font-size:var(--text-xs);color:var(--text-muted)">${unit}</span></div>
+        <div class="kpi-sub">${bestStr}</div>
+        <div class="kpi-sub">${worstStr}</div>
+      </div>`;
+    }).join('');
   }
 
   /* ── Charts ───────────────────────────────────────────────────────────── */
@@ -682,6 +984,23 @@
     return events;
   }
 
+  /** Fallback used when ocr.json has not yet been generated. Uses monetary NZ_EVENTS as markers. */
+  function buildOcrFallbackEvents(visiblePeriods) {
+    return NZ_EVENTS
+      .filter(e => e.category === 'monetary' && visiblePeriods.includes(e.period))
+      .map(e => ({ period: e.period, delta: null, color: '#00C3A5', label: e.label }));
+  }
+
+  /** Returns OCR rate-change events for the visible period window.
+   *  Prefers quarter-over-quarter delta detection from ocrRows when available;
+   *  falls back to hardcoded NZ_EVENTS monetary markers otherwise. */
+  function getOcrEvents(visiblePeriods) {
+    if (!showOcrEvents) return [];
+    return ocrRows.length > 0
+      ? buildOcrEvents(visiblePeriods)
+      : buildOcrFallbackEvents(visiblePeriods);
+  }
+
   function renderCharts(lookup, visible, visiblePeriods) {
     charts.forEach(c => c.destroy());
     charts = [];
@@ -692,7 +1011,7 @@
 
     const tabMetrics    = TABS[activeTab] || [];
     const ocrLookup     = buildOcrLookup();
-    const ocrEvents     = showOcrEvents ? buildOcrEvents(visiblePeriods) : [];
+    const ocrEvents     = getOcrEvents(visiblePeriods);
     const nzEventLines  = showNzEvents
       ? NZ_EVENTS
           .filter(e => visiblePeriods.includes(e.period))
@@ -713,11 +1032,13 @@
         <div class="chart-card-hd">
           <h3>${escHtml(label)}</h3>
           <div class="chart-actions">
+            <button class="chart-btn chart-info-btn" data-action="info" data-idx="${i}" title="Metric info">ℹ</button>
             <button class="chart-btn" data-action="download" data-idx="${i}" title="Download PNG">↓</button>
             <button class="chart-btn" data-action="fullscreen" data-idx="${i}" title="Fullscreen">⛶</button>
           </div>
         </div>
-        <div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>`;
+        <div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>
+        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a></div>`;
       grid.appendChild(card);
 
       card.addEventListener('click', e => {
@@ -726,6 +1047,7 @@
         const idx = parseInt(btn.dataset.idx, 10);
         if (btn.dataset.action === 'download') downloadChart(idx);
         else if (btn.dataset.action === 'fullscreen') openFullscreen(idx);
+        else if (btn.dataset.action === 'info') openMetricPopover(idx, btn);
       });
 
       const datasets = visible.map(entity => {
@@ -832,6 +1154,7 @@
       charts.push(chart);
       chartMeta.push({ metric, label, chartConfig, tooltipCallback });
     }
+    renderNzLegend(visiblePeriods);
   }
 
   /* ── Chart download ───────────────────────────────────────────────────── */
@@ -865,12 +1188,13 @@
     const overlay = document.getElementById('chart-modal-overlay');
     overlay.style.display = 'flex';
     if (modalChart) { modalChart.destroy(); modalChart = null; }
-    const canvas = document.getElementById('modal-canvas');
-    // structuredClone copies all serialisable config; tooltip callback is stored
-    // separately on chartMeta and reattached below (functions can't be cloned).
-    const modalConfig = structuredClone(meta.chartConfig);
-    modalConfig.options.plugins.tooltip.callbacks = { label: meta.tooltipCallback };
-    modalChart = new Chart(canvas, modalConfig);
+    // Defer chart creation to after the browser has completed layout at the new display size.
+    requestAnimationFrame(() => {
+      const canvas = document.getElementById('modal-canvas');
+      const modalConfig = structuredClone(meta.chartConfig);
+      modalConfig.options.plugins.tooltip.callbacks = { label: meta.tooltipCallback };
+      modalChart = new Chart(canvas, modalConfig);
+    });
   }
 
   function closeFullscreen() {
@@ -879,12 +1203,78 @@
     modalChartIdx = -1;
   }
 
+  /* ── NZ events legend ────────────────────────────────────────────────── */
+  function renderNzLegend(visiblePeriods) {
+    const el = document.getElementById('nz-events-legend');
+    if (!el) return;
+    if (!showNzEvents) { el.classList.remove('visible'); return; }
+    const visible = NZ_EVENTS.filter(e => visiblePeriods.includes(e.period));
+    if (!visible.length) { el.classList.remove('visible'); return; }
+    el.classList.add('visible');
+    el.innerHTML = '<span class="nz-legend-hd">events:</span>' +
+      visible.map(e => {
+        const color = EVENT_COLORS[e.category] || '#888';
+        return `<span class="nz-legend-item"><span class="nz-legend-dash" style="background:${color}"></span><span>${escHtml(e.period)} — ${escHtml(e.label)}</span></span>`;
+      }).join('');
+  }
+
+  /* ── Metric info popover ─────────────────────────────────────────────── */
+  function openMetricPopover(idx, triggerEl) {
+    if (idx < 0 || idx >= chartMeta.length) return;
+    const meta = chartMeta[idx];
+    const info = METRIC_INFO[meta.metric] || {};
+    document.getElementById('pop-title').textContent = meta.label;
+    let html = '';
+    if (info.definition) html += `<div class="popover-block"><div class="popover-lbl">definition</div><div class="popover-val">${escHtml(info.definition)}</div></div>`;
+    if (info.source)     html += `<div class="popover-block"><div class="popover-lbl">source</div><div class="popover-val">${escHtml(info.source)}</div></div>`;
+    if (info.note)       html += `<div class="popover-block"><div class="popover-lbl">context</div><div class="popover-val">${escHtml(info.note)}</div></div>`;
+    if (info.good)       html += `<div class="popover-block"><div class="popover-lbl">what good looks like</div><div class="popover-val">${escHtml(info.good)}</div></div>`;
+    if (!html)           html  = `<div class="popover-block"><div class="popover-val">No additional information available.</div></div>`;
+    document.getElementById('pop-body').innerHTML = html;
+    const metricSlug = meta.metric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    document.getElementById('pop-glossary-link').href = `glossary.html#${metricSlug}`;
+    const pop = document.getElementById('metric-popover');
+    pop.style.display = 'block';
+    // Positioning strategy: popover appears below the trigger button. If there is
+    // insufficient vertical space below, it flips above. Constrained to viewport
+    // with POPOVER_SCREEN_MARGIN px margins on all sides.
+    const POPOVER_MAX_WIDTH      = 340;
+    const POPOVER_SCREEN_MARGIN  = 8;
+    const POPOVER_TRIGGER_OFFSET = 6;
+    const rect    = triggerEl.getBoundingClientRect();
+    const popW    = Math.min(POPOVER_MAX_WIDTH, window.innerWidth * 0.9);
+    const popH    = pop.offsetHeight; // actual rendered height after display:block
+    let left = rect.left;
+    if (left + popW > window.innerWidth - POPOVER_SCREEN_MARGIN) left = window.innerWidth - popW - POPOVER_SCREEN_MARGIN;
+    if (left < POPOVER_SCREEN_MARGIN) left = POPOVER_SCREEN_MARGIN;
+    let top = rect.bottom + POPOVER_TRIGGER_OFFSET;
+    if (top + popH > window.innerHeight - POPOVER_SCREEN_MARGIN) top = rect.top - popH - POPOVER_TRIGGER_OFFSET;
+    if (top < POPOVER_SCREEN_MARGIN) top = POPOVER_SCREEN_MARGIN;
+    pop.style.left = left + 'px';
+    pop.style.top  = top + 'px';
+  }
+
+  function closeMetricPopover() {
+    document.getElementById('metric-popover').style.display = 'none';
+  }
+
   document.getElementById('chart-modal-close').addEventListener('click', closeFullscreen);
   document.getElementById('chart-modal-dl').addEventListener('click', () => downloadChart(-1));
   document.getElementById('chart-modal-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('chart-modal-overlay')) closeFullscreen();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFullscreen(); closeMetricPopover(); } });
+
+  document.getElementById('pop-close').addEventListener('click', closeMetricPopover);
+  function shouldClosePopoverOnClick(e, pop) {
+    return pop.style.display === 'block'
+      && !pop.contains(e.target)
+      && !e.target.closest('.chart-info-btn');
+  }
+  document.addEventListener('click', e => {
+    const pop = document.getElementById('metric-popover');
+    if (shouldClosePopoverOnClick(e, pop)) closeMetricPopover();
+  });
 
   /* ── Snapshot table ───────────────────────────────────────────────────── */
   function renderSnapshot(lookup, visible) {
@@ -899,11 +1289,11 @@
 
     // Header with sortable columns
     const head = document.getElementById('snapshot-head');
-    head.innerHTML = '<th>Bank</th>' +
+    head.innerHTML = '<th scope="col">Bank</th>' +
       KEY_METRICS.map((m, colIdx) => {
         let cls = 'sortable';
         if (sortState.col === colIdx) cls += sortState.dir === 1 ? ' sort-asc' : ' sort-desc';
-        return `<th class="${cls}" data-col="${colIdx}">${escHtml(METRIC_LABELS[m] || m)}</th>`;
+        return `<th scope="col" class="${cls}" data-col="${colIdx}">${escHtml(METRIC_LABELS[m] || m)}</th>`;
       }).join('');
 
     head.querySelectorAll('th.sortable').forEach(th => {
@@ -954,9 +1344,9 @@
     body.innerHTML = '';
     for (const { entity, latest, prev } of rows) {
       const tr = document.createElement('tr');
-      let cells = `<td><div class="entity-cell">
+      let cells = `<td scope="row"><div class="entity-cell">
         <span class="swatch" style="background:${bankColor(entity)}"></span>
-        ${escHtml(entity)}
+        <a href="#charts-section" class="entity-link" data-entity="${escHtml(entity)}" style="color:inherit;text-decoration:none;">${escHtml(entity)}</a>
       </div></td>`;
       KEY_METRICS.forEach((metric, colIdx) => {
         const val  = latest[metric];
@@ -978,6 +1368,14 @@
       tr.innerHTML = cells;
       body.appendChild(tr);
     }
+    body.querySelectorAll('.entity-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        applySelection([link.dataset.entity]);
+        setActiveQuickBtn('');
+        document.getElementById('charts-section').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
   }
 
   /* ── Utilities ────────────────────────────────────────────────────────── */

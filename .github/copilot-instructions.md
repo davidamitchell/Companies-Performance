@@ -109,3 +109,25 @@ Processed output files in `docs/data/processed/` must use descriptive suffixes t
 - `_index.json` — lookup or reference lists (e.g. the list of available PDFs with their metadata)
 
 Do not use bare names like `disclosures.json` when both a metrics file and an index file exist for the same source. Use `disclosure_metrics.json` and `disclosures.json` (or similar) to make the purpose unambiguous. When creating a new output file, check whether the chosen path already exists and serves a different purpose.
+
+---
+
+## Available Skills
+
+Skills are stored as sub-agent definitions in `.github/skills/`. Use the appropriate skill for each type of work:
+
+| Skill | When to use |
+|---|---|
+| `backlog-worker` | Working the backlog autonomously — selects the next `ready` item, decomposes it, executes, reviews, records learnings, and advances to `done`. Use when asked to "work the backlog" or "execute the next item". |
+| `backlog-manager` | Reading, adding, refining, starting, completing, and archiving backlog items. Use before `backlog-worker` to ensure items are in `ready` status. |
+| `swe` | Implementing features, making architectural decisions, reviewing designs for SOLID/REST/pattern adherence. |
+| `tdd` | Writing tests before or alongside implementation. Use with `swe` for all production code changes. |
+| `code-review` | Reviewing completed code for quality, correctness, and adherence to conventions. Apply at the end of every `backlog-worker` execution cycle. |
+| `technical-writer` | Writing and updating documentation (ADRs, progress.md, learnings.md, glossary.md). |
+| `adr` | Drafting Architecture Decision Records in `docs-adr/`. Use when making a significant technical decision. |
+| `research` | Investigating unknowns before acting. Use when an item requires discovery before implementation. |
+| `feedback` | Evaluating non-code outputs (documentation, data analysis, UI copy) before marking an item done. |
+
+**How to invoke a skill**: Call the skill sub-agent at the start of work that matches its scope. Skills compose — `backlog-worker` orchestrates `swe`, `tdd`, `code-review`, `technical-writer`, and `feedback` as needed for each item.
+
+**Backlog workflow**: `backlog-manager` to refine items to `ready` → `backlog-worker` to execute them → `code-review` to verify → `technical-writer` to update docs → `backlog-manager Complete` to close.
