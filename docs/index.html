@@ -186,13 +186,19 @@
     'Return on Equity',
     'Return on Assets',
     'NIM',
+    'RORWA',
+    'Risk Density',
+    'Provisioning Coverage',
   ];
 
   const METRIC_LABELS = {
-    'Cost to Income Ratio': 'Cost to Income (%)',
-    'Return on Equity':     'Return on Equity (%)',
-    'Return on Assets':     'Return on Assets (%)',
-    'NIM':                  'Net Interest Margin (%)',
+    'Cost to Income Ratio':  'Cost to Income (%)',
+    'Return on Equity':      'Return on Equity (%)',
+    'Return on Assets':      'Return on Assets (%)',
+    'NIM':                   'Net Interest Margin (%)',
+    'RORWA':                 'Return on Risk-Weighted Assets (%)',
+    'Risk Density':          'Risk Density (%)',
+    'Provisioning Coverage': 'Provisioning Coverage (%)',
   };
 
   // Default banks shown on load.
@@ -267,6 +273,30 @@
             lookup[entity][period]['Cost to Income Ratio'] =
               Math.round((opex / income) * 1000) / 10; // round to 1dp
           }
+        }
+
+        // RORWA = (Profit After Tax / Total Risk-Weighted Assets) × 100
+        const pat = metrics['Profit After Tax'];
+        const rwa = metrics['Total Risk-Weighted Assets'];
+        if (pat != null && rwa != null && rwa !== 0) {
+          lookup[entity][period]['RORWA'] =
+            Math.round((pat / rwa) * 10000) / 100; // round to 2dp
+        }
+
+        // Risk Density = (Total Risk-Weighted Assets / Net Loans and Advances) × 100
+        const loans = metrics['Net Loans and Advances'];
+        if (rwa != null && loans != null && loans !== 0) {
+          lookup[entity][period]['Risk Density'] =
+            Math.round((rwa / loans) * 10000) / 100; // round to 2dp
+        }
+
+        // Provisioning Coverage = ((Individual Provisions + Collective Provisions) / Total Non-Performing Loans) × 100
+        const indProv  = metrics['Individual Provisions'];
+        const colProv  = metrics['Collective Provisions'];
+        const npl      = metrics['Total Non-Performing Loans'];
+        if (indProv != null && colProv != null && npl != null && npl !== 0) {
+          lookup[entity][period]['Provisioning Coverage'] =
+            Math.round(((indProv + colProv) / npl) * 10000) / 100; // round to 2dp
         }
       }
     }

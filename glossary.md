@@ -11,6 +11,27 @@ Metrics measuring capital adequacy, liquidity, and asset quality.
 ### CET1 Ratio
 **Common Equity Tier 1 Ratio.** The ratio of a bank's Common Equity Tier 1 capital to its risk-weighted assets. Measures the core capital buffer available to absorb losses. Expressed as a percentage.
 
+### Total Risk-Weighted Assets
+Total assets adjusted for credit, market, and operational risk weights as defined by RBNZ prudential standards. The denominator for CET1 Ratio and RORWA. Expressed in NZDm. RBNZ series `DBB.QIB90`.
+
+### RORWA
+**Return on Risk-Weighted Assets.** Annualised Profit After Tax divided by Total Risk-Weighted Assets. Capital-structure-neutral profitability metric: unlike ROE, it is not affected by leverage decisions. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
+### Risk Density
+Total Risk-Weighted Assets divided by Net Loans and Advances. Measures the average risk weight of the loan book. A rising density indicates portfolio mix is shifting toward higher-risk exposures. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
+### Individual Provisions
+Specific loan loss provisions set against individually identified impaired loans. Measured by the bank's credit team on a case-by-case basis. Expressed in NZDm. RBNZ series `DBB.QIC60`.
+
+### Collective Provisions
+General loan loss provisions held against the performing loan portfolio as a buffer against unidentified losses. Expressed in NZDm. RBNZ series `DBB.QIC70`.
+
+### Provisioning Coverage
+Total provisions (Individual + Collective) divided by Total Non-Performing Loans. Measures the adequacy of reserves against known bad loans. A ratio above 100% means provisions exceed non-performing loans. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
+### Provision Charge
+The quarterly change in total provisions (Individual + Collective), expressed as a percentage of Net Loans and Advances. The primary credit cycle indicator: spikes in downturns when banks front-load expected losses, and negative in recoveries when provisions are released. Derived client-side; not stored (ADR-0001).
+
 ### LCR
 **Liquidity Coverage Ratio.** The ratio of high-quality liquid assets to net cash outflows over a 30-day stress period. Measures short-term liquidity resilience. Expressed as a percentage; regulatory minimum is 100%.
 
