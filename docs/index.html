@@ -602,7 +602,8 @@
     },
   };
 
-  const TOP_6_BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];  const STANDALONE  = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
+  const TOP_6_BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];
+  const STANDALONE  = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
                         'Heartland','ICBC','CCB','BOC','BOB','BOI'];
 
   const BANK_COLORS = {
@@ -983,6 +984,13 @@
     return events;
   }
 
+  /** Fallback used when ocr.json has not yet been generated. Uses monetary NZ_EVENTS as markers. */
+  function buildOcrFallbackEvents(visiblePeriods) {
+    return NZ_EVENTS
+      .filter(e => e.category === 'monetary' && visiblePeriods.includes(e.period))
+      .map(e => ({ period: e.period, delta: null, color: '#00C3A5', label: e.label }));
+  }
+
   function renderCharts(lookup, visible, visiblePeriods) {
     charts.forEach(c => c.destroy());
     charts = [];
@@ -994,10 +1002,7 @@
     const tabMetrics    = TABS[activeTab] || [];
     const ocrLookup     = buildOcrLookup();
     const ocrEvents = showOcrEvents
-      ? (ocrRows.length > 0
-          ? buildOcrEvents(visiblePeriods)
-          : NZ_EVENTS.filter(e => e.category === 'monetary' && visiblePeriods.includes(e.period))
-              .map(e => ({ period: e.period, delta: null, color: '#00C3A5', label: e.label })))
+      ? (ocrRows.length > 0 ? buildOcrEvents(visiblePeriods) : buildOcrFallbackEvents(visiblePeriods))
       : [];
     const nzEventLines  = showNzEvents
       ? NZ_EVENTS
@@ -1218,18 +1223,22 @@
     if (info.good)       html += `<div class="popover-block"><div class="popover-lbl">what good looks like</div><div class="popover-val">${escHtml(info.good)}</div></div>`;
     if (!html)           html  = `<div class="popover-block"><div class="popover-val">No additional information available.</div></div>`;
     document.getElementById('pop-body').innerHTML = html;
-    const slug = meta.metric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    document.getElementById('pop-glossary-link').href = `glossary.html#${slug}`;
+    const metricSlug = meta.metric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    document.getElementById('pop-glossary-link').href = `glossary.html#${metricSlug}`;
     const pop = document.getElementById('metric-popover');
     pop.style.display = 'block';
+    const POPOVER_MAX_WIDTH      = 340;
+    const POPOVER_SCREEN_MARGIN  = 8;
+    const POPOVER_TRIGGER_OFFSET = 6;
+    const POPOVER_EST_HEIGHT     = 200;
     const rect = triggerEl.getBoundingClientRect();
-    const popW = Math.min(340, window.innerWidth * 0.9);
+    const popW = Math.min(POPOVER_MAX_WIDTH, window.innerWidth * 0.9);
     let left = rect.left;
-    if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
-    if (left < 8) left = 8;
-    let top = rect.bottom + 6;
-    if (top + 200 > window.innerHeight) top = rect.top - 200 - 6;
-    if (top < 8) top = 8;
+    if (left + popW > window.innerWidth - POPOVER_SCREEN_MARGIN) left = window.innerWidth - popW - POPOVER_SCREEN_MARGIN;
+    if (left < POPOVER_SCREEN_MARGIN) left = POPOVER_SCREEN_MARGIN;
+    let top = rect.bottom + POPOVER_TRIGGER_OFFSET;
+    if (top + POPOVER_EST_HEIGHT > window.innerHeight) top = rect.top - POPOVER_EST_HEIGHT - POPOVER_TRIGGER_OFFSET;
+    if (top < POPOVER_SCREEN_MARGIN) top = POPOVER_SCREEN_MARGIN;
     pop.style.left = left + 'px';
     pop.style.top  = top + 'px';
   }
