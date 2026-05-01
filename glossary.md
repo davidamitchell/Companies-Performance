@@ -183,3 +183,33 @@ Total operating expenses divided by total operating income (Net Interest Income 
 **Official Cash Rate.** The wholesale interest rate set by the Reserve Bank of New Zealand (RBNZ) at each Monetary Policy Committee meeting. It is the primary monetary policy instrument and directly influences short-term borrowing and deposit rates across the economy. Expressed as a percentage per annum. Published by the RBNZ.
 
 ---
+
+## Labour and Customer Productivity
+
+Metrics measuring how efficiently a bank generates income and profit relative to its workforce and customer base. These metrics require data from sources outside the RBNZ Dashboard (annual reports, NZBA, Stats NZ). All per-employee values are in NZD per FTE; all per-customer values are in NZD per active retail customer.
+
+### FTE Employees
+**Full-Time Equivalent Employees.** The total headcount of a bank expressed as full-time equivalents, accounting for part-time and fixed-term staff. FTE is preferred over raw headcount because it normalises for part-time work. Sourced from bank annual reports or General Disclosure Statements where disclosed; otherwise triangulated from Stats NZ Business Demography bands, KPMG FIPS data, or NZBA aggregate benchmarks. Expressed as a number of persons.
+
+### Active Retail Customers
+The count of retail (personal banking) customers who have transacted or logged in within a defined activity window (typically 90 or 180 days). No single authoritative public source exists per bank; estimates are triangulated from NZBA Retail Banking Insights (industry ~10 million unique retail customers, H2 2024), individual bank disclosures, account-to-customer ratios (typically 2–4 accounts per customer), and active-user adjustments (typically 75–90% of unique customers). Expressed as a number of persons.
+
+### Profit per Employee
+Profit after tax divided by FTE employees for a given period. Measures the average earnings contribution per unit of labour. A higher value indicates greater workforce productivity. Expressed in NZD per FTE (annualised). **Derived from Profit After Tax ÷ FTE Employees; not stored in the RBNZ Dashboard.**
+
+### Gross Income per Employee
+Total operating income (Net Interest Income + Trading and Hedging Gains + Fees and Commission Income + Other Income) divided by FTE employees for a given period. Measures revenue-generating capacity per staff member. Expressed in NZD per FTE (annualised). **Derived from Total Operating Income ÷ FTE Employees; not stored in the RBNZ Dashboard.**
+
+### Expenses per Employee
+Total operating expenses divided by FTE employees for a given period. Measures the cost burden per staff member. Expressed in NZD per FTE (annualised). **Derived from Operating Expenses ÷ FTE Employees; not stored in the RBNZ Dashboard.**
+
+### Profit per Customer
+Profit after tax divided by estimated active retail customers for a given period. Measures how much profit the bank earns per active customer relationship. Expressed in NZD per active customer (annualised). **Derived from Profit After Tax ÷ Active Retail Customers; not stored in the RBNZ Dashboard.**
+
+### Gross Income per Customer
+Total operating income divided by estimated active retail customers for a given period. Measures revenue generated per active customer relationship. Expressed in NZD per active customer (annualised). **Derived from Total Operating Income ÷ Active Retail Customers; not stored in the RBNZ Dashboard.**
+
+### Expenses per Customer
+Total operating expenses divided by estimated active retail customers for a given period. Measures the cost of serving each active customer. Expressed in NZD per active customer (annualised). **Derived from Operating Expenses ÷ Active Retail Customers; not stored in the RBNZ Dashboard.**
+
+---
