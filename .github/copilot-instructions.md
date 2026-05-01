@@ -95,10 +95,13 @@ Ask:
 - Was any assumption made without evidence? If so, open a spike or ADR to resolve it.
 - Did any step require backtracking because a decision was made too early?
 - Is there a workflow, template, or convention that would prevent the same friction next time?
+- What **class** of problem did this item represent? Has the root cause been addressed so the same class cannot recur?
 
 Record actionable findings as backlog items (`backlog.md`) or ADRs (`docs-adr/`). Discard observations that produced no action. Do not improve things that aren't broken.
 
 This is not a review of the application's correctness — it is a review of the process that built it.
+
+**Retrospective outputs must address root causes, not symptoms.** If a finding is a symptom (e.g. "a field was missing"), trace it to its root cause (e.g. "the schema contract was not documented") and add a backlog item that eliminates the root cause. Point fixes to recurring problems are not acceptable — the fix must make the class of problem structurally impossible or explicitly governed.
 
 ---
 
@@ -112,6 +115,21 @@ Do not use bare names like `disclosures.json` when both a metrics file and an in
 
 ---
 
+## Systemic Improvement Principles
+
+**Fix root causes and classes of problems — not point solutions.**
+
+When a bug, friction, or gap is found, ask: *what class of problem is this?* If it is symptomatic of a structural or process gap, the fix must address the root cause, not just the symptom. Apply this at all layers: data pipeline, processing logic, frontend, infrastructure, conventions, and this instruction set itself.
+
+Applying this principle in practice:
+- When a convention is violated, update the convention so it cannot be violated again — do not just fix the one instance.
+- When a workflow step fails, ask whether the workflow design prevents this failure class. If not, propose a structural fix in the backlog.
+- When a retrospective identifies friction, add a backlog item that eliminates the **type** of friction, not just the specific instance.
+- When a decision is made under uncertainty, open a research spike immediately rather than deferring indefinitely.
+- Use `strategy-author` when the root cause is a missing strategic direction or incoherent guiding policy — not every problem needs code; some need a decision.
+
+---
+
 ## Available Skills
 
 Skills are stored as sub-agent definitions in `.github/skills/`. Use the appropriate skill for each type of work:
@@ -120,6 +138,7 @@ Skills are stored as sub-agent definitions in `.github/skills/`. Use the appropr
 |---|---|
 | `backlog-worker` | Working the backlog autonomously — selects the next `ready` item, decomposes it, executes, reviews, records learnings, and advances to `done`. Use when asked to "work the backlog" or "execute the next item". |
 | `backlog-manager` | Reading, adding, refining, starting, completing, and archiving backlog items. Use before `backlog-worker` to ensure items are in `ready` status. |
+| `strategy-author` | Producing strategy using Rumelt's Kernel (Diagnosis, Guiding Policy, Coherent Actions). Use when defining or reviewing the guiding policy, evaluating strategic options, or translating a diagnosis into a coherent set of backlog priorities. Use before `backlog-manager` when the priority stack or guiding policy needs revision. |
 | `swe` | Implementing features, making architectural decisions, reviewing designs for SOLID/REST/pattern adherence. |
 | `tdd` | Writing tests before or alongside implementation. Use with `swe` for all production code changes. |
 | `code-review` | Reviewing completed code for quality, correctness, and adherence to conventions. Apply at the end of every `backlog-worker` execution cycle. |
@@ -130,4 +149,4 @@ Skills are stored as sub-agent definitions in `.github/skills/`. Use the appropr
 
 **How to invoke a skill**: Call the skill sub-agent at the start of work that matches its scope. Skills compose — `backlog-worker` orchestrates `swe`, `tdd`, `code-review`, `technical-writer`, and `feedback` as needed for each item.
 
-**Backlog workflow**: `backlog-manager` to refine items to `ready` → `backlog-worker` to execute them → `code-review` to verify → `technical-writer` to update docs → `backlog-manager Complete` to close.
+**Backlog workflow**: `strategy-author` to validate or revise the guiding policy → `backlog-manager` to refine items to `ready` → `backlog-worker` to execute them → `code-review` to verify → `technical-writer` to update docs → `backlog-manager Complete` to close.
