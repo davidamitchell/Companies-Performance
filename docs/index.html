@@ -533,9 +533,16 @@
   document.getElementById('btn-top6').addEventListener('click', () => applySelection(TOP_6_BANKS));
   document.getElementById('btn-all').addEventListener('click', () => applySelection(allEntities));
   document.getElementById('btn-standalone').addEventListener('click', () => {
-    const groupEntities = new Set(allRows.filter(r => r.entity_type === 'group').map(r => r.entity));
-    applySelection(allEntities.filter(e => !groupEntities.has(e)));
+    applySelection(getStandaloneEntities(allEntities));
   });
+
+  /** Return entities that are not group-level, using entity_type field or STANDALONE fallback. */
+  function getStandaloneEntities(entities) {
+    const groupEntities = new Set(allRows.filter(r => r.entity_type === 'group').map(r => r.entity));
+    return groupEntities.size > 0
+      ? entities.filter(e => !groupEntities.has(e))
+      : entities.filter(e => STANDALONE.includes(e));
+  }
 
   /* ── Tab bar ──────────────────────────────────────────────────────────── */
   function buildTabBar() {
@@ -693,10 +700,7 @@
       : [];
 
     // Sector avg: use entity_type field to identify standalone banks, fall back to constant
-    const groupEntities = new Set(allRows.filter(r => r.entity_type === 'group').map(r => r.entity));
-    const standaloneVisible = visible.filter(e =>
-      groupEntities.size > 0 ? !groupEntities.has(e) : STANDALONE.includes(e)
-    );
+    const standaloneVisible = getStandaloneEntities(visible);
 
     for (let i = 0; i < tabMetrics.length; i++) {
       const metric = tabMetrics[i];
@@ -862,8 +866,9 @@
     overlay.style.display = 'flex';
     if (modalChart) { modalChart.destroy(); modalChart = null; }
     const canvas = document.getElementById('modal-canvas');
-    // Deep-clone serialisable config, then restore callback
-    const modalConfig = JSON.parse(JSON.stringify(meta.chartConfig));
+    // structuredClone copies all serialisable config; tooltip callback is stored
+    // separately on chartMeta and reattached below (functions can't be cloned).
+    const modalConfig = structuredClone(meta.chartConfig);
     modalConfig.options.plugins.tooltip.callbacks = { label: meta.tooltipCallback };
     modalChart = new Chart(canvas, modalConfig);
   }

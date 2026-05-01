@@ -372,9 +372,9 @@
       'ANZ': '#0064A3', 'ASB': '#C8102E', 'BNZ': '#231F20',
       'Westpac': '#D5001C', 'Kiwibank': '#1B7A3E', 'Rabobank': '#FF6600',
     };
-    function bColor(name) {
-      for (const [k, v] of Object.entries(BANK_COLORS)) {
-        if (name.includes(k)) return v;
+    function bankColor(name) {
+      for (const [bankName, color] of Object.entries(BANK_COLORS)) {
+        if (name.includes(bankName)) return color;
       }
       return '#636e72';
     }
@@ -419,7 +419,7 @@
       return new Chart(ctx, {
         type: 'line',
         data: { labels: periods, datasets: datasetsIn },
-        options: JSON.parse(JSON.stringify(CHART_OPTS)),
+        options: structuredClone(CHART_OPTS),
       });
     }
 
@@ -436,8 +436,8 @@
         return {
           label: bank,
           data,
-          borderColor: bColor(bank),
-          backgroundColor: bColor(bank) + '22',
+          borderColor: bankColor(bank),
+          backgroundColor: bankColor(bank) + '22',
           borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
           tension: 0.3, spanGaps: false,
         };
@@ -510,15 +510,15 @@
             opex != null ? Math.abs(opex) : null,
             pat  != null ? pat         : null,
           ],
-          backgroundColor: bColor(bank) + 'cc',
-          borderColor:     bColor(bank),
+          backgroundColor: bankColor(bank) + 'cc',
+          borderColor:     bankColor(bank),
           borderWidth: 1,
         };
       }).filter(ds => ds.data.some(v => v != null));
 
       const waterfallCtx = document.getElementById('disc-chart-waterfall');
       if (waterfallCtx && waterfallDatasets.length) {
-        const wOpts = JSON.parse(JSON.stringify(CHART_OPTS));
+        const wOpts = structuredClone(CHART_OPTS);
         new Chart(waterfallCtx, {
           type: 'bar',
           data: { labels: waterfallGroups, datasets: waterfallDatasets },
@@ -543,7 +543,7 @@
           capitalDatasets.push({
             label: `${bank} CET1`,
             data: cet1Data,
-            borderColor: bColor(bank),
+            borderColor: bankColor(bank),
             backgroundColor: 'transparent',
             borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: false,
           });
@@ -552,7 +552,7 @@
           capitalDatasets.push({
             label: `${bank} Total Cap`,
             data: tcData,
-            borderColor: bColor(bank),
+            borderColor: bankColor(bank),
             backgroundColor: 'transparent',
             borderWidth: 2, borderDash: [5, 3],
             pointRadius: 0, tension: 0.3, spanGaps: false,
@@ -564,7 +564,7 @@
         new Chart(capCtx, {
           type: 'line',
           data: { labels: periods, datasets: capitalDatasets },
-          options: JSON.parse(JSON.stringify(CHART_OPTS)),
+          options: structuredClone(CHART_OPTS),
         });
       }
 
@@ -581,7 +581,7 @@
           loansDatasets.push({
             label: `${bank} Loans`,
             data: loanData,
-            borderColor: bColor(bank),
+            borderColor: bankColor(bank),
             backgroundColor: 'transparent',
             borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: false,
           });
@@ -590,7 +590,7 @@
           loansDatasets.push({
             label: `${bank} Deposits`,
             data: depositData,
-            borderColor: bColor(bank),
+            borderColor: bankColor(bank),
             backgroundColor: 'transparent',
             borderWidth: 2, borderDash: [5, 3],
             pointRadius: 0, tension: 0.3, spanGaps: false,
@@ -602,7 +602,7 @@
         new Chart(loansCtx, {
           type: 'line',
           data: { labels: periods, datasets: loansDatasets },
-          options: JSON.parse(JSON.stringify(CHART_OPTS)),
+          options: structuredClone(CHART_OPTS),
         });
       }
     }
