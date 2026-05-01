@@ -183,12 +183,6 @@
         <div class="disc-chart-wrap" style="height:300px;"><canvas id="disc-chart-waterfall"></canvas></div>
       </div>
 
-      <!-- Opex over time (line chart, absolute values) -->
-      <div class="disc-chart-card" style="margin-bottom:1rem;">
-        <h3>operating expenses (NZDm)</h3>
-        <div class="disc-chart-wrap"><canvas id="disc-chart-opex2"></canvas></div>
-      </div>
-
       <!-- Capital ratios: CET1 + Total Capital per bank -->
       <div class="disc-chart-card" style="margin-bottom:1rem;">
         <h3>capital ratios (%)</h3>
@@ -525,10 +519,6 @@
           options: wOpts,
         });
       }
-
-      // ── Opex over time (line) ────────────────────────────────────────────
-      makeLineChart('disc-chart-opex2', periods,
-        buildLineDatasets(rows, 'Operating Expenses', banks, periods, v => Math.abs(v)));
 
       // ── Capital ratios: CET1 + Total Capital per bank ────────────────────
       const capitalDatasets = [];
