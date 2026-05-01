@@ -119,12 +119,15 @@
 </head>
 <body>
 
-<nav class="site-nav">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
     <a class="nav-brand" href="index.html">NZ Bank Performance</a>
     <div class="nav-links">
+      <a href="index.html">Dashboard</a>
       <a href="data-sources.html">Data Sources</a>
-      <a href="glossary.html" class="active">Glossary</a>
+      <a href="glossary.html" aria-current="page" class="active">Glossary</a>
       <a href="disclosures.html">Disclosures</a>
     </div>
   </div>
@@ -134,13 +137,13 @@
 
   <div class="page-header">
     <h1>Glossary &amp; Calculations</h1>
-    <p>Definitions for every metric, and the exact formula used for each chart on the dashboard.</p>
+    <p class="page-subtitle">Definitions for every metric shown on the dashboard, with calculation notes.</p>
   </div>
 
-  <main>
+  <main id="main-content">
 
     <!-- ── Chart calculations ── -->
-    <section id="calculations">
+    <section id="calculations" aria-label="Chart calculations">
       <h2>Chart Calculations</h2>
       <p style="font-size:var(--text-sm);line-height:1.6;margin-bottom:1.25rem;color:var(--text-muted)">
         The four charts shown on the <a href="index.html">main dashboard</a> use the metrics
@@ -234,7 +237,7 @@ NIM (%) =
     </section>
 
     <!-- ── Full glossary ── -->
-    <section id="glossary">
+    <section id="glossary" aria-label="Metric glossary">
       <h2>Metric Glossary</h2>
       <p style="font-size:var(--text-sm);line-height:1.6;margin-bottom:1.25rem;color:var(--text-muted)">
         All metric names used in code, configuration, and data files must match these definitions
@@ -634,7 +637,13 @@ NIM (%) =
   </main>
 
   <footer>
-    Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
 
 </div>

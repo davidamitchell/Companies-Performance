@@ -92,7 +92,6 @@
     .chart-wrap { position: relative; height: 220px; }
 
     /* Snapshot table */
-    .snapshot-wrap { overflow-x: auto; }
     .entity-cell { font-weight: 500; display: flex; align-items: center; gap: 0.4rem; }
     .swatch { width: 8px; height: 8px; flex-shrink: 0; }
     .val-null { color: var(--text-muted); }
@@ -202,13 +201,66 @@
     @media (max-width: 640px) {
       .chart-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Sticky controls bar ─────────────────────────────────────────────── */
+    .sticky-controls {
+      position: sticky;
+      top: 48px;
+      z-index: 50;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 0;
+      margin-bottom: 1.25rem;
+    }
+    .controls-row {
+      display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start;
+      margin-top: 0.5rem;
+    }
+    .ctrl-group {
+      border: none; padding: 0; margin: 0;
+      display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;
+    }
+    .ctrl-group legend {
+      font-size: var(--text-xs); color: var(--text-muted);
+      letter-spacing: 0.08em; padding-right: 0.5rem;
+      float: left;
+      margin-right: 0.5rem;
+    }
+
+    /* ── KPI summary row ─────────────────────────────────────────────────── */
+    .kpi-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.85rem 1rem; flex: 1; min-width: 180px;
+    }
+    .kpi-card .kpi-label {
+      font-size: var(--text-xs); color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: lowercase; margin-bottom: 0.3rem;
+    }
+    .kpi-card .kpi-value {
+      font-size: var(--text-xl); font-weight: 600; color: var(--teal); line-height: 1;
+    }
+    .kpi-card .kpi-sub {
+      font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.35rem;
+    }
+
+    /* ── Sticky bank column ──────────────────────────────────────────────── */
+    #snapshot-table td:first-child,
+    #snapshot-table th:first-child {
+      position: sticky; left: 0;
+      background: var(--surface-2);
+      z-index: 1;
+    }
+    #snapshot-table th:first-child { background: var(--surface-2); }
   </style>
 </head>
 <body>
 
-<nav class="site-nav">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
-    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <a class="nav-brand" href="index.html" aria-current="page">NZ Bank Performance</a>
     <div class="nav-links">
       <a href="data-sources.html">Data Sources</a>
       <a href="glossary.html">Glossary</a>
@@ -221,10 +273,12 @@
 
   <div class="page-header">
     <h1>NZ Bank Performance</h1>
-    <p>Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
+    <p class="page-subtitle">Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
     <div id="freshness" style="font-size:var(--text-xs);color:var(--teal);margin-top:0.25rem;"></div>
+  </div>
 
+  <div class="sticky-controls">
     <div class="bank-selector">
       <div class="bank-selector-label">
         banks shown:
@@ -234,29 +288,40 @@
       </div>
       <div class="bank-checks" id="bank-checks"></div>
     </div>
-    <div class="range-filter">
-      <span class="range-filter-label">period</span>
-      <button class="range-btn" data-range="4">Last 4Q</button>
-      <button class="range-btn" data-range="8">Last 8Q</button>
-      <button class="range-btn" data-range="16">Last 16Q</button>
-      <button class="range-btn active" data-range="all">All</button>
-      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
-        <input type="checkbox" id="chk-ocr-events" style="cursor:pointer;">
-        OCR rate changes
-      </label>
-      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
-        <input type="checkbox" id="chk-nz-events" style="cursor:pointer;">
-        NZ events
-      </label>
-      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
-        <input type="checkbox" id="chk-sector-avg" style="cursor:pointer;">
-        Sector avg
-      </label>
+    <div class="controls-row">
+      <fieldset class="ctrl-group">
+        <legend>Period</legend>
+        <button class="range-btn" data-range="4">Last 4Q</button>
+        <button class="range-btn" data-range="8">Last 8Q</button>
+        <button class="range-btn" data-range="16">Last 16Q</button>
+        <button class="range-btn active" data-range="all">All</button>
+      </fieldset>
+      <fieldset class="ctrl-group">
+        <legend>Overlays</legend>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-ocr-events" style="cursor:pointer;">
+          OCR rate changes
+        </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-nz-events" style="cursor:pointer;">
+          NZ events
+        </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-sector-avg" style="cursor:pointer;">
+          Sector avg
+        </label>
+      </fieldset>
     </div>
   </div>
 
-  <main>
-    <section id="charts-section">
+  <main id="main-content">
+    <section id="kpi-summary" aria-label="Sector KPI summary">
+      <div class="kpi-row" id="kpi-row">
+        <!-- filled by JS -->
+      </div>
+    </section>
+
+    <section id="charts-section" aria-label="Historical performance">
       <div class="section-title">
         historical performance
         <span id="period-range"></span>
@@ -265,7 +330,7 @@
       <div class="chart-grid" id="chart-grid"></div>
     </section>
 
-    <section id="snapshot-section">
+    <section id="snapshot-section" aria-label="Latest quarter snapshot">
       <div class="section-title">
         latest quarter snapshot
         <span id="latest-period-label"></span>
@@ -274,8 +339,9 @@
         <span>period:</span>
         <select class="snapshot-period-sel" id="snapshot-period-sel"></select>
       </div>
-      <div class="snapshot-wrap">
+      <div class="table-scroll-wrap">
         <table id="snapshot-table">
+          <caption>Latest quarter performance comparison — all visible banks and key metrics</caption>
           <thead><tr id="snapshot-head"></tr></thead>
           <tbody id="snapshot-body"></tbody>
         </table>
@@ -284,7 +350,13 @@
   </main>
 
   <footer>
-    Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
 
 </div>
@@ -367,7 +439,8 @@
   let allRows      = [];
   let allPeriods   = [];
   let allEntities  = [];
-  let selectedEntities = new Set(TOP_6_BANKS);
+  const _savedBanks = localStorage.getItem('selectedBanks');
+  let selectedEntities = _savedBanks ? new Set(JSON.parse(_savedBanks)) : new Set(TOP_6_BANKS);
   let charts       = [];
   let chartMeta    = [];   // { metric, label, chartConfig } per chart in current tab
   let modalChart   = null;
@@ -513,6 +586,7 @@
       label.addEventListener('change', e => {
         if (e.target.checked) { selectedEntities.add(entity); label.classList.add('checked'); }
         else { selectedEntities.delete(entity); label.classList.remove('checked'); }
+        localStorage.setItem('selectedBanks', JSON.stringify([...selectedEntities]));
         render();
       });
       container.appendChild(label);
@@ -521,6 +595,7 @@
 
   function applySelection(entities) {
     selectedEntities = new Set(entities);
+    localStorage.setItem('selectedBanks', JSON.stringify([...selectedEntities]));
     document.querySelectorAll('.bank-check-label').forEach(label => {
       const cb = label.querySelector('input');
       const sel = selectedEntities.has(cb.value);
@@ -650,12 +725,47 @@
     lastLookup = lookup;
     lastVisible = visible;
     const visiblePeriods = getVisiblePeriods();
+    renderKpiRow(lookup, visible);
     renderCharts(lookup, visible, visiblePeriods);
     renderSnapshot(lookup, visible);
     document.getElementById('period-range').textContent =
       visiblePeriods.length
         ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}`
         : '';
+  }
+
+  /* ── KPI summary row ──────────────────────────────────────────────────── */
+  function renderKpiRow(lookup, visible) {
+    const kpiEl = document.getElementById('kpi-row');
+    if (!kpiEl) return;
+    const period = allPeriods[allPeriods.length - 1];
+    if (!period) { kpiEl.innerHTML = ''; return; }
+    const standalone = getStandaloneEntities(visible);
+    const KPI_CARDS = [
+      { metric: 'CET1 Ratio',           label: 'CET1 Ratio',          unit: '%' },
+      { metric: 'Return on Equity',     label: 'Return on Equity',     unit: '%' },
+      { metric: 'Cost to Income Ratio', label: 'Cost to Income',       unit: '%' },
+      { metric: 'NIM',                  label: 'Net Interest Margin',  unit: '%' },
+    ];
+    kpiEl.innerHTML = KPI_CARDS.map(({ metric, label, unit }) => {
+      const vals = standalone.map(e => lookup[e]?.[period]?.[metric]).filter(v => v != null);
+      if (!vals.length) return '';
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      const best  = standalone.reduce((best, e) => {
+        const v = lookup[e]?.[period]?.[metric]; return (v != null && (best == null || v > best.v)) ? { e, v } : best;
+      }, null);
+      const worst = standalone.reduce((worst, e) => {
+        const v = lookup[e]?.[period]?.[metric]; return (v != null && (worst == null || v < worst.v)) ? { e, v } : worst;
+      }, null);
+      const bestStr  = best  ? `↑ ${best.e}  ${best.v.toFixed(1)}${unit}` : '';
+      const worstStr = worst ? `↓ ${worst.e} ${worst.v.toFixed(1)}${unit}` : '';
+      return `<div class="kpi-card">
+        <div class="kpi-label">${label}</div>
+        <div class="kpi-value">${avg.toFixed(1)}<span style="font-size:var(--text-xs);color:var(--text-muted)">${unit}</span></div>
+        <div class="kpi-sub">${bestStr}</div>
+        <div class="kpi-sub">${worstStr}</div>
+      </div>`;
+    }).join('');
   }
 
   /* ── Charts ───────────────────────────────────────────────────────────── */
@@ -899,11 +1009,11 @@
 
     // Header with sortable columns
     const head = document.getElementById('snapshot-head');
-    head.innerHTML = '<th>Bank</th>' +
+    head.innerHTML = '<th scope="col">Bank</th>' +
       KEY_METRICS.map((m, colIdx) => {
         let cls = 'sortable';
         if (sortState.col === colIdx) cls += sortState.dir === 1 ? ' sort-asc' : ' sort-desc';
-        return `<th class="${cls}" data-col="${colIdx}">${escHtml(METRIC_LABELS[m] || m)}</th>`;
+        return `<th scope="col" class="${cls}" data-col="${colIdx}">${escHtml(METRIC_LABELS[m] || m)}</th>`;
       }).join('');
 
     head.querySelectorAll('th.sortable').forEach(th => {
@@ -954,7 +1064,7 @@
     body.innerHTML = '';
     for (const { entity, latest, prev } of rows) {
       const tr = document.createElement('tr');
-      let cells = `<td><div class="entity-cell">
+      let cells = `<td scope="row"><div class="entity-cell">
         <span class="swatch" style="background:${bankColor(entity)}"></span>
         ${escHtml(entity)}
       </div></td>`;

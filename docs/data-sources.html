@@ -44,11 +44,14 @@
 </head>
 <body>
 
-<nav class="site-nav">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
     <a class="nav-brand" href="index.html">NZ Bank Performance</a>
     <div class="nav-links">
-      <a href="data-sources.html" class="active">Data Sources</a>
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html" aria-current="page" class="active">Data Sources</a>
       <a href="glossary.html">Glossary</a>
       <a href="disclosures.html">Disclosures</a>
     </div>
@@ -59,13 +62,13 @@
 
   <div class="page-header">
     <h1>Data Sources</h1>
-    <p>Where the data comes from, how it is collected, and how it flows through the pipeline.</p>
+    <p class="page-subtitle">Where the data comes from, how it is collected, and how it flows through the pipeline.</p>
   </div>
 
-  <main>
+  <main id="main-content">
 
     <!-- ── Pipeline overview ── -->
-    <section id="pipeline">
+    <section id="pipeline" aria-label="Pipeline overview">
       <h2>Pipeline Overview</h2>
       <p style="font-size:var(--text-sm);line-height:1.6;margin-bottom:1rem;color:var(--text-muted)">
         All data is sourced from RBNZ Bank Dashboard publications and bank General Disclosure Statements.
@@ -89,7 +92,7 @@
     </section>
 
     <!-- ── RBNZ Dashboard ── -->
-    <section id="rbnz-dashboard">
+    <section id="rbnz-dashboard" aria-label="RBNZ Bank Financial Strength Dashboard">
       <h2>RBNZ Bank Financial Strength Dashboard</h2>
       <div class="card">
         <div class="card-title">
@@ -152,7 +155,7 @@
     </section>
 
     <!-- ── RBNZ B2 OCR ── -->
-    <section id="rbnz-ocr">
+    <section id="rbnz-ocr" aria-label="RBNZ B2 Wholesale Interest Rates">
       <h2>RBNZ B2 Wholesale Interest Rates</h2>
       <div class="card">
         <div class="card-title">
@@ -180,7 +183,7 @@
     </section>
 
     <!-- ── Bank PDFs ── -->
-    <section id="bank-disclosures">
+    <section id="bank-disclosures" aria-label="Bank General Disclosure Statements">
       <h2>Bank General Disclosure Statements</h2>
       <p style="font-size:var(--text-sm);line-height:1.6;margin-bottom:1rem;color:var(--text-muted)">
         NZ-registered banks are required under the
@@ -256,7 +259,7 @@
     </section>
 
     <!-- ── Canonical schema ── -->
-    <section id="schema">
+    <section id="schema" aria-label="Canonical data schema">
       <h2>Canonical Data Schema</h2>
       <div class="card">
         <p>All processed metrics are stored in a flat schema:</p>
@@ -283,7 +286,13 @@
   </main>
 
   <footer>
-    Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
 
 </div>

@@ -133,13 +133,16 @@
 </head>
 <body>
 
-<nav class="site-nav">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
   <div class="site-nav-inner">
     <a class="nav-brand" href="index.html">NZ Bank Performance</a>
     <div class="nav-links">
+      <a href="index.html">Dashboard</a>
       <a href="data-sources.html">Data Sources</a>
       <a href="glossary.html">Glossary</a>
-      <a href="disclosures.html" class="active">Disclosures</a>
+      <a href="disclosures.html" aria-current="page" class="active">Disclosures</a>
     </div>
   </div>
 </nav>
@@ -148,13 +151,21 @@
 
   <div class="page-header">
     <h1>Disclosures</h1>
-    <p>General Disclosure Statements published by NZ-registered banks — coverage by bank and period.</p>
+    <p class="page-subtitle">Extracted metrics and PDF links from NZ bank General Disclosure Statements.</p>
   </div>
 
-  <main>
+  <main id="main-content">
+
+    <!-- ── Coverage summary ── -->
+    <section id="summary" aria-label="Coverage summary">
+      <h2>coverage</h2>
+      <div class="summary-grid" id="summary-grid">
+        <!-- filled by JS -->
+      </div>
+    </section>
 
     <!-- ── Disclosure metric charts ── -->
-    <section id="disc-charts-section">
+    <section id="disc-charts-section" aria-label="Key metrics from disclosure statements">
       <h2>key metrics (from disclosure statements)</h2>
 
       <!-- Line charts: one per key metric, one line per bank -->
@@ -201,16 +212,8 @@
       </p>
     </section>
 
-    <!-- ── Coverage summary ── -->
-    <section id="summary">
-      <h2>coverage</h2>
-      <div class="summary-grid" id="summary-grid">
-        <!-- filled by JS -->
-      </div>
-    </section>
-
     <!-- ── Disclosure table ── -->
-    <section id="table-section">
+    <section id="table-section" aria-label="Disclosure statements">
       <h2>statements</h2>
 
       <div class="filter-bar" id="filter-bar">
@@ -218,13 +221,14 @@
         <!-- filter buttons filled by JS -->
       </div>
 
-      <div class="table-wrap">
+      <div class="table-scroll-wrap">
         <table id="disclosures-table">
+          <caption>General Disclosure Statements by bank and period</caption>
           <thead>
             <tr>
-              <th>bank</th>
-              <th>period end</th>
-              <th>type</th>
+              <th scope="col">bank</th>
+              <th scope="col">period end</th>
+              <th scope="col">type</th>
             </tr>
           </thead>
           <tbody id="table-body">
@@ -237,8 +241,13 @@
   </main>
 
   <footer>
-    Bank General Disclosure Statements sourced from NZ-registered bank public disclosures —
-    <a href="data-sources.html">data sources</a>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
 
 </div><!-- /page-wrap -->
@@ -321,7 +330,7 @@
     const rows = [...filtered].sort((a, b) => b.period_end.localeCompare(a.period_end));
     tbody.innerHTML = rows.map(r => `
       <tr>
-        <td class="bank-cell">${r.bank_name}</td>
+        <td scope="row" class="bank-cell">${r.bank_name}</td>
         <td>${r.period_end}</td>
         <td><span class="period-type">${fmtPeriodType(r.period_type)}</span></td>
       </tr>`).join('');
