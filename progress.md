@@ -289,3 +289,49 @@ Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers"
 - *What slowed things down?* The NZ events toggle required merging two annotation layers (OCR events + NZ events) before passing to the plugin. Initial implementation passed them separately, requiring a merge step.
 - *Single change to prevent that next time?* Design the annotation layer API to accept a unified array from the start rather than retrofitting it.
 - *Is this a pattern?* Yes — when adding multiple overlays that share the same rendering path, define the unified data contract first.
+
+---
+
+## 2026-05-01 — W-0042, W-0020, W-0041, W-0037, W-0043, W-0025–W-0029, W-0054: chart tabs, UX improvements, disclosure charts
+
+**Items completed:**
+
+### W-0042 — Tab categories
+
+- `docs/index.html`: `TABS` const maps 4 tab categories to metric lists (profitability / capital / asset quality / liquidity). `KEY_METRICS` derived as the flat union. Tab bar (`.tab-bar` / `.tab-btn`) rendered above chart grid; active tab persists in `localStorage["activeTab"]`. `renderCharts` filters to `TABS[activeTab]` metrics only. `METRIC_LABELS` extended with 11 new entries covering all newly-visible series.
+
+### W-0020 — Fullscreen charts
+
+- `docs/index.html`: `⛶` button per chart card opens `#chart-modal-overlay` (fixed, full-viewport). `openFullscreen(idx)` clones chart config via `structuredClone`, re-attaches tooltip callback from `chartMeta`, creates a fresh `Chart` instance on `#modal-canvas`. `closeFullscreen()` destroys modal chart. Escape key and overlay background click both close.
+
+### W-0041 — Chart PNG export
+
+- `docs/index.html`: `↓` button per card (and in modal). `downloadChart(idx)` draws chart canvas onto an offscreen canvas with `#0d0d0d` fill, exports via `canvas.toDataURL('image/png')` → programmatic `<a download>` click. Slug derived from metric name.
+
+### W-0037 — Sector average line
+
+- `docs/index.html`: "Sector avg" checkbox added to filter bar. `getStandaloneEntities()` uses `entity_type === 'group'` detection with STANDALONE fallback. Sector avg dataset (dashed grey `#888`) added per chart when ≥2 standalone visible banks have data for a period. Nulls excluded from mean. Persists in `localStorage["showSectorAvg"]`.
+
+### W-0043 — Snapshot table improvements
+
+- `docs/index.html`: (1) Click-to-sort column headers — `sortState` updated on click, `▲`/`▼` CSS suffix added via `.sort-asc`/`.sort-desc` classes; (2) Best/worst cell colouring — `.cell-best` (teal) and `.cell-worst` (red) applied per column; (3) Period selector dropdown above table — `#snapshot-period-sel` populated from `allPeriods`, persists in `localStorage["snapshotPeriod"]`.
+
+### W-0025–W-0029 — Disclosure charts
+
+- `docs/disclosures.html`: Chart.js CDN added. New `#disc-charts-section` inserted before existing content. Six charts rendered from `disclosure_metrics.json`:
+  - W-0025: Line charts for Profit After Tax, Operating Expenses (abs), Total Assets, CET1 Ratio — one line per bank, all periods
+  - W-0026: Grouped bar chart (income statement) for latest full-period per bank: NII, Non-Interest Income, OpEx abs, PAT
+  - W-0027: Operating Expenses over time (line chart, abs values)
+  - W-0028: Capital ratios (CET1 + Total Capital Ratio as solid/dashed lines per bank)
+  - W-0029: Loans & Deposits (Net Loans + Deposits as solid/dashed lines per bank; Rabobank null noted)
+
+### W-0054 — Credit concentration display in Liquidity tab
+
+- Already in `config/metrics.yaml` (added by W-0030). Now visible as the bottom three series in the Liquidity tab (W-0042). `METRIC_LABELS` extended for all three series. Glossary already had no entries for these three — added via the W-0030 progress note.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — all items were client-side only; no Python changes needed.
+- *What slowed things down?* The fullscreen modal required `structuredClone` of the Chart.js config to avoid shared state; tooltip callbacks (functions) are not clonable and needed to be stored separately on `chartMeta` and reattached.
+- *Single change to prevent next time?* When designing chart config storage, separate serialisable config from non-serialisable callbacks from the start.
+- *Is this a pattern?* Yes — any time chart configs need to be duplicated (e.g. for export, fullscreen, or print), treat the callback functions as a separate layer attached after cloning.

@@ -432,9 +432,9 @@ updated: 2026-04-30
 
 ### W-0020
 
-status: ready
+status: done
 created: 2026-04-28
-updated: 2026-04-28
+updated: 2026-05-01
 
 ### Outcome
 
@@ -515,9 +515,9 @@ Challenge: Rabobank balance sheet (page 35 of the 2022 report) is image-based â€
 
 ### W-0025
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -531,9 +531,9 @@ Disclosure data is annual or half-annual, not quarterly. Merging it into `docs/i
 
 ### W-0026
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -547,9 +547,9 @@ Chart.js 4.x supports floating bar datasets which enable waterfall rendering wit
 
 ### W-0027
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -565,9 +565,9 @@ Challenge: Personnel vs non-personnel opex breakdown lives in note tables, not t
 
 ### W-0028
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -581,9 +581,9 @@ Capital ratios express adequacy relative to risk-weighted assets; absolute capit
 
 ### W-0029
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -731,9 +731,9 @@ Without event markers, metric movements (e.g. the sharp NIM expansion through 20
 
 ### W-0037
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -795,9 +795,9 @@ Indexed mode is essential for balance sheet metrics (Total Assets, Net Loans, De
 
 ### W-0041
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -811,9 +811,9 @@ Users sharing charts via screenshots loses resolution and metadata. Native canva
 
 ### W-0042
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -827,9 +827,9 @@ The current single-grid layout works for 4 charts but will become unmanageable a
 
 ### W-0043
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -1085,9 +1085,9 @@ Provisioning series (`DBB.QIC60`, `DBB.QIC70`) confirmed present in the RBNZ XLS
 
 ### W-0054
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
