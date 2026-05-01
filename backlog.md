@@ -429,3 +429,134 @@ updated: 2026-04-30
 `src/processing/extract_disclosures.py` extracts 10 quantitative metrics (Net Interest Income, Total Operating Income, Operating Expenses, Profit After Tax, Total Assets, Net Loans and Advances, Deposits, Equity, CET1 Ratio, Total Capital Ratio) from bank disclosure PDFs using `pdfplumber` text extraction. Normalises values: brackets = negative, comma thousands, NZD thousands scale. Outputs canonical rows (entity | metric | value | period | source). `scripts/process_disclosures.py` writes `data/processed/disclosures.csv` and `docs/data/processed/disclosures.json`. 34 tests in `tests/test_extract_disclosures.py`.
 
 ---
+
+## Phase 5: Labour and Customer Productivity Metrics
+
+### S-0005
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+FTE employee count data sourcing investigated for the six major NZ banks (ANZ, ASB, BNZ, Westpac, Kiwibank, Rabobank). Findings recorded in `learnings.md`. A reference employee table committed to `data/reference/employees.csv` with columns `bank_id | period_end | fte | source | confidence` (confidence: `exact` / `triangulated` / `estimated`). Backlog updated with any follow-on implementation items.
+
+### Context
+
+Per-employee productivity metrics (W-0025) cannot be computed without reliable FTE data. This spike establishes which banks disclose FTE in their General Disclosure Statements and where triangulation is required. Sources to assess:
+1. General Disclosure Statements / annual reports — FTE disclosed as a note or in the operational section.
+2. Stats NZ Business Demography — employee bands (linked via NZBN); provides a floor/ceiling range.
+3. KPMG FIPS annual banking survey — typically reports system-wide and per-bank FTE.
+4. NZBA benchmarks — aggregate ~29,000 FTE (majors ~26,000); useful for sanity checks.
+5. Historical public estimates: ANZ NZ ~9,000; ASB ~6,000; BNZ ~5,000; Westpac NZ ~5,000; Kiwibank ~2,500; Rabobank ~400.
+
+Must result in: `data/reference/employees.csv`, `learnings.md` update, backlog update or explicit no-action.
+
+---
+
+### S-0006
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+Active retail customer count estimation investigated for the six major NZ banks. Findings recorded in `learnings.md`. A reference customer table committed to `data/reference/customers.csv` with columns `bank_id | period_end | active_customers | unique_customers | estimation_method | confidence`. Backlog updated with any follow-on implementation items.
+
+### Context
+
+Per-customer productivity metrics (W-0026) require an active customer denominator. No single authoritative public source exists; estimation is required. Sources to assess in order of reliability:
+1. NZBA Retail Banking Insights — industry-level unique retail customers (~10M as at H2 2024; ~9.97M).
+2. Individual bank General Disclosure Statements — some disclose retail customers, active digital users, or account volumes.
+3. Account-to-customer proxy: total accounts ÷ 2–4 (typical accounts-per-customer ratio for NZ banks).
+4. Deposit proxy: retail deposits ÷ assumed average deposit per customer ($10k–$30k range) — macro sanity check only.
+5. Active adjustment: apply 75–90% of unique customer count to approximate "transacted within 90–180 days" definition.
+6. Published customer figures: Kiwibank >1M; majors each typically 0.8M–2M+ active retail.
+
+Must result in: `data/reference/customers.csv`, `learnings.md` update, backlog update or explicit no-action.
+
+---
+
+### W-0024
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+`data/reference/` directory created with two canonical reference files:
+- `data/reference/employees.csv` — FTE employee counts per bank per period (output of S-0005).
+- `data/reference/customers.csv` — active retail customer estimates per bank per period (output of S-0006).
+
+Both files follow the canonical schema extension: `bank_id | period_end | value | source | confidence`. A `config/reference.yaml` file documents each reference file's schema, provenance, and update cadence. Reference files are committed to git (not gitignored) and updated manually when new bank reports are published.
+
+### Context
+
+Depends on S-0005 and S-0006. Reference files are static inputs to the processing pipeline (W-0025, W-0026); they are not fetched automatically because no machine-readable public API exists for FTE or active-customer data.
+
+---
+
+### W-0025
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+`src/processing/compute_productivity.py` reads the canonical metrics output (`data/processed/metrics.csv`) and the reference files (`data/reference/employees.csv`, `data/reference/customers.csv`) and computes six productivity metrics per bank per period:
+
+- Profit per Employee = Profit After Tax ÷ FTE Employees (NZD/FTE, annualised)
+- Gross Income per Employee = Total Operating Income ÷ FTE Employees (NZD/FTE, annualised)
+- Expenses per Employee = Operating Expenses ÷ FTE Employees (NZD/FTE, annualised)
+- Profit per Customer = Profit After Tax ÷ Active Retail Customers (NZD/customer, annualised)
+- Gross Income per Customer = Total Operating Income ÷ Active Retail Customers (NZD/customer, annualised)
+- Expenses per Customer = Operating Expenses ÷ Active Retail Customers (NZD/customer, annualised)
+
+Output rows follow the canonical schema (`entity | metric | value | period | source`). Where the employee or customer denominator is triangulated or estimated, the output row includes a `confidence` column (`exact` / `triangulated` / `estimated`). Missing denominators produce a `WARNING` log and no row (no imputation). `scripts/compute_productivity.py` writes `data/processed/productivity.csv` and `docs/data/processed/productivity.json`. Tests in `tests/test_compute_productivity.py`.
+
+### Context
+
+Depends on W-0024 (reference files populated), W-0010 (metrics.csv present), and S-0005/S-0006 (denominators validated). Annualisation: half-year values × 2; quarterly values × 4. Half-year is the standard NZ bank disclosure period, so most values will use ×2 annualisation. Log a `WARNING` if annualisation factor cannot be determined from the period string.
+
+---
+
+### W-0026
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+`.github/workflows/compute-productivity.yml` added. The workflow runs after `process-data.yml` succeeds (or can be triggered manually with `workflow_dispatch`). It runs `python scripts/compute_productivity.py` and commits `data/processed/productivity.csv` and `docs/data/processed/productivity.json` idempotently (using `git diff --cached --quiet` guard).
+
+### Context
+
+Depends on W-0025. Follows the same idempotent commit pattern as `process-data.yml` and `fetch-data.yml`.
+
+---
+
+### W-0027
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+Frontend `docs/index.html` gains a new **Productivity** tab alongside the existing metric categories. The tab displays two chart groups:
+
+- **Per-employee charts**: Profit per Employee, Gross Income per Employee, Expenses per Employee — one line chart per metric, all six banks, all available periods.
+- **Per-customer charts**: Profit per Customer, Gross Income per Customer, Expenses per Customer — same layout.
+
+Charts follow the existing dark-mode Chart.js pattern (IBM Plex Mono, teal accent, `#252b33` border). A confidence badge (🔵 Exact / 🟡 Triangulated / 🔴 Estimated) is shown per bank per period in tooltips, sourced from the `confidence` field in `productivity.json`. If `productivity.json` is absent or all denominators for a bank are missing, that bank's series is silently omitted from productivity charts (graceful degradation). A data-sources note is added below the charts explaining triangulation methodology and linking to `docs/methodology.html`.
+
+### Context
+
+Depends on W-0026 (productivity.json published) and W-0023 (shared design system in place). Consistent with W-0021 (methodology page) which should reference the triangulation approach documented in S-0005 and S-0006.
+
+---
