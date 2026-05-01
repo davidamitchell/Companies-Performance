@@ -1,15 +1,15 @@
 # Progress
 
 > Session logs and completion notes.
-Last updated: 2026-04-28 (S-0004 financial disclosures spike and config)
+Last updated: 2026-05-01 (Phase 19 UI layout items W-0079 through W-0088)
 
 ---
 
 ## Current Status
 
-**Phase:** Phase 2 — Automated Data Pipeline (complete)
-**Active work:** Phase 3 — Visualisation and Deployment
-**Next phase:** Phase 4 — Qualitative Data Extraction (deferred)
+**Phase:** Phase 19 — UI Layout and Information Architecture (complete)
+**Active work:** Next — W-0032 (Capital headroom), W-0021 (Transparency pages), W-0047 (Auto-narrative), W-0062 (URL state sharing)
+**Next phase:** Phase 7 Insights / Phase 12 Pipeline Maturity
 
 ---
 
@@ -21,10 +21,33 @@ Last updated: 2026-04-28 (S-0004 financial disclosures spike and config)
 | 2.5 | Discovery / Research Spikes | Done |
 | 3 | Visualisation and Deployment | In progress (W-0013 manual step remaining) |
 | 4 | Qualitative Data Extraction | Deferred |
+| 19 | UI Layout and Information Architecture | Done |
 
 ---
 
 ## Work Log
+
+### 2026-05-01 — Phase 19: UI Layout and Information Architecture (W-0079 through W-0088)
+
+**Items completed:**
+
+- **W-0079**: Sticky control bar — bank selector + controls moved out of page-header into `position: sticky; top: 48px` `.sticky-controls` div. Page header retains only h1, subtitle, status, and freshness.
+- **W-0080**: Summary KPI row — 4-card summary section before chart tabs; sector-average CET1/ROE/CTI/NIM with best/worst bank per metric. `renderKpiRow()` added, called from `render()`.
+- **W-0081**: Labelled fieldsets — Period and Overlays controls grouped into `<fieldset class="ctrl-group">` elements side-by-side in `.controls-row`.
+- **W-0082**: Accessibility — skip link, `aria-label="Site"` on nav, `id="main-content"` on all `<main>`, `aria-label` on all sections. Skip-link CSS added to theme.css.
+- **W-0083**: Consistent nav — `<a href="index.html">Dashboard</a>` added as first nav-links item on all inner pages. `aria-current="page"` on active links.
+- **W-0084**: Disclosures page reorder — Coverage summary now comes before metric charts (new order: coverage → charts → statements).
+- **W-0085**: Subtitles and captions — `class="page-subtitle"` on all pages; `<caption>` on snapshot and disclosures tables; `scope="col"/"row"` on headers and bank cells.
+- **W-0086**: Mobile table scroll — `table-scroll-wrap` class with `overflow-x: auto` and `min-width: 600px`; sticky first column for snapshot table.
+- **W-0087**: Standardised footer — consistent `<nav aria-label="Footer">` + attribution on all four pages. `footer nav` styles added to theme.css.
+- **W-0088**: Persist bank selection — `localStorage["selectedBanks"]` read on init, saved on every change. Period range was already persisted.
+
+**Mini-retro:**
+- Did the process work? Yes — all 10 items implemented in one pass; 192 Python tests still pass.
+- What slowed things down? Nothing material; all changes were pure HTML/CSS/JS.
+- Is this a pattern? Yes — Phase 19 items were individually small; future UI-only phases should be committed as a single batch rather than tracked as 10 separate items.
+
+
 
 ### 2026-04-28 — Frontend enhancements: default metrics, top 6 banks, historical charts (W-0017, W-0018)
 

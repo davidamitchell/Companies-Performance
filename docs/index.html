@@ -439,8 +439,8 @@
   let allRows      = [];
   let allPeriods   = [];
   let allEntities  = [];
-  const _savedBanks = localStorage.getItem('selectedBanks');
-  let selectedEntities = _savedBanks ? new Set(JSON.parse(_savedBanks)) : new Set(TOP_6_BANKS);
+  const savedBanks = localStorage.getItem('selectedBanks');
+  let selectedEntities = savedBanks ? new Set(JSON.parse(savedBanks)) : new Set(TOP_6_BANKS);
   let charts       = [];
   let chartMeta    = [];   // { metric, label, chartConfig } per chart in current tab
   let modalChart   = null;
@@ -757,8 +757,8 @@
       const worst = standalone.reduce((worst, entity) => {
         const v = lookup[entity]?.[period]?.[metric]; return (v != null && (worst == null || v < worst.v)) ? { e: entity, v } : worst;
       }, null);
-      const bestStr  = best  ? `↑ ${best.e} ${best.v.toFixed(1)}${unit}` : '';
-      const worstStr = worst ? `↓ ${worst.e} ${worst.v.toFixed(1)}${unit}` : '';
+      const bestStr  = best  ? `<span aria-label="Best: ${best.e} ${best.v.toFixed(1)}${unit}">↑ ${best.e} ${best.v.toFixed(1)}${unit}</span>` : '';
+      const worstStr = worst ? `<span aria-label="Worst: ${worst.e} ${worst.v.toFixed(1)}${unit}">↓ ${worst.e} ${worst.v.toFixed(1)}${unit}</span>` : '';
       return `<div class="kpi-card">
         <div class="kpi-label">${label}</div>
         <div class="kpi-value">${avg.toFixed(1)}<span style="font-size:var(--text-xs);color:var(--text-muted)">${unit}</span></div>

@@ -1630,7 +1630,7 @@ Focused exclusively on page layout, information hierarchy, and navigation struct
 
 ### W-0079
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1646,7 +1646,7 @@ On a 1080p screen with the current layout, users scroll past the controls immedi
 
 ### W-0080
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1662,7 +1662,7 @@ A 4-card KPI summary row is inserted immediately below the sticky control bar on
 
 ### W-0081
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1678,7 +1678,7 @@ The inline control row on `docs/index.html` is split into two labelled groups: *
 
 ### W-0082
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1694,7 +1694,7 @@ Landmark regions and skip links are the baseline of navigable web layout (WCAG 2
 
 ### W-0083
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1710,7 +1710,7 @@ updated: 2026-05-01
 
 ### W-0084
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1726,7 +1726,7 @@ updated: 2026-05-01
 
 ### W-0085
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1748,7 +1748,7 @@ The snapshot table on `index.html` and the statements table on `disclosures.html
 
 ### W-0086
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1764,7 +1764,7 @@ The snapshot table has 7 or more columns. On a 390px (iPhone) viewport it is cur
 
 ### W-0087
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1794,7 +1794,7 @@ Currently each page has a different footer: `index.html` and `data-sources.html`
 
 ### W-0088
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
