@@ -63,8 +63,20 @@ Recommended sequencing for open items. Reflects: (1) items that unblock other it
 25. W-0047 — Auto-narrative panel
 26. W-0062 — URL state sharing
 
+**UI layout and information architecture (Phase 19 — layout only, not styling):**
+27. W-0079 — Sticky control bar (controls stay visible while scrolling charts)
+28. W-0081 — Group Period and Overlays controls into labelled fieldsets
+29. W-0082 — Landmark regions, skip link, aria-label on all sections
+30. W-0083 — Consistent nav (active state + "Dashboard" home link on all pages)
+31. W-0080 — Summary KPI row (sector averages above the chart grid)
+32. W-0084 — Disclosures page reorder (coverage before charts)
+33. W-0085 — Page subtitles and table captions on all four pages
+34. W-0086 — Snapshot / statements table mobile scroll + sticky bank column
+35. W-0087 — Standardised footer with navigation links on all four pages
+36. W-0088 — Persist bank selection and period-range to localStorage
+
 **Later — polish and depth:**
-27–onwards: drill-downs (W-0038, W-0039), advanced analytics (W-0044, W-0065), export (W-0041, W-0063), pipeline automation (W-0059, W-0061)
+37–onwards: drill-downs (W-0038, W-0039), advanced analytics (W-0044, W-0065), export (W-0041, W-0063), pipeline automation (W-0059, W-0061)
 
 ---
 
@@ -1611,3 +1623,186 @@ Charts follow the existing dark-mode Chart.js pattern (IBM Plex Mono, teal accen
 Depends on W-0077 (productivity.json published) and W-0023 (shared design system in place). Consistent with W-0021 (methodology page) which should reference the triangulation approach documented in S-0012 and S-0013.
 
 ---
+
+## Phase 19: UI Layout and Information Architecture
+
+Focused exclusively on page layout, information hierarchy, and navigation structure — not visual styling (colours, fonts, or spacing are out of scope). Items are grounded in Steve Krug's *Don't Make Me Think* principles (self-evident pages, clear visual hierarchy, convention-based layout, minimal cognitive load) and the data-dashboard layout standard of overview-first / detail-on-demand.
+
+### W-0079
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+The controls on `docs/index.html` are reorganised into a sticky control bar that remains visible as the user scrolls through charts. Currently the bank-selector checkboxes, period-range buttons, and overlay checkboxes are inside the page-header `<div>` and scroll off-screen within the first chart card. The sticky bar replaces the in-header controls; the page-header retains only the `<h1>`, one-sentence description, and the freshness badge. The bar sticks at the top of the viewport below the site `<nav>` (using `position: sticky; top: 3rem`). All existing JS references to the control elements are unchanged; only DOM placement and the sticky CSS change.
+
+### Context
+
+On a 1080p screen with the current layout, users scroll past the controls immediately when they begin reading the first chart. Any change to bank selection or period range requires scrolling back to the top. *Don't Make Me Think*: controls must be visible at the point of use, not only at the top of the page. No data changes; static HTML/CSS only.
+
+---
+
+### W-0080
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+A 4-card KPI summary row is inserted immediately below the sticky control bar on `docs/index.html`, before the chart tabs. The four cards show sector-average values for the most recent quarter for: **CET1 Ratio**, **Return on Equity**, **Cost-to-Income Ratio**, and **Net Interest Margin**. Each card displays: the metric name, the sector average value, and the best and worst standalone bank with their values in subdued text. The summary is computed client-side from the already-loaded `metrics.json`. Cards are rendered once on page load and update when the bank selection changes.
+
+### Context
+
+*Don't Make Me Think* / progressive disclosure: the first thing a user needs is a 5-second answer — "where does the sector stand right now?" The current layout sends users straight into a 19-chart grid with no summary entry point. The 4-card row is the overview layer; the tab charts are the detail layer. This is the standard layout for financial dashboards (Bloomberg, S&P Market Intelligence, APRA). No new data required; computed from existing `metrics.json`.
+
+---
+
+### W-0081
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+The inline control row on `docs/index.html` is split into two labelled groups: **Period** (`Last 4Q | Last 8Q | Last 16Q | All`) and **Overlays** (`☐ OCR rate changes | ☐ NZ events | ☐ Sector avg`). Each group is wrapped in a `<fieldset>` with a visible `<legend>`. The two groups are rendered side-by-side on desktop and stacked on mobile. The current layout places all controls in a single undifferentiated row with no visual grouping cue; a user scanning quickly cannot tell which controls affect the period and which add chart layers.
+
+### Context
+
+*Don't Make Me Think* — eliminate unnecessary reading: when controls are grouped by function with clear labels, users grasp the UI model instantly. "Period" maps to a familiar concept (time-range filter); "Overlays" maps to a familiar concept (additional data layers). Mixing them without labels forces users to read all seven controls before understanding the model. Pure HTML/CSS change; existing JS event listeners are unaffected.
+
+---
+
+### W-0082
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+`docs/index.html` gains a `<nav>` landmark with `aria-label="Site"` and each inner page (`data-sources.html`, `glossary.html`, `disclosures.html`) adds a `<nav aria-label="Site">` that mirrors the same structure. The nav brand link (`NZ Bank Performance`) on all four pages and the active nav link both receive `aria-current="page"` where applicable. A visually-hidden skip link `<a class="skip-link" href="#main-content">Skip to main content</a>` is added as the first child of `<body>` on all four pages. `<main id="main-content">` is added on any page missing the `id`. All `<section>` elements gain an `aria-label` matching their visible heading. No changes to visible layout; keyboard-only and screen-reader users can orient on every page.
+
+### Context
+
+Landmark regions and skip links are the baseline of navigable web layout (WCAG 2.1 SC 2.4.1 and 2.4.6). They are also conventional — every major dashboard (APRA, RBNZ itself, Stats NZ) uses skip links and labelled landmarks. Currently `docs/index.html` has zero `aria-label` attributes, no skip link, and no `aria-current`. This item addresses all four pages in one pass; it requires no JS and no data changes.
+
+---
+
+### W-0083
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+`docs/index.html`'s `<nav>` marks itself as active. The `nav-brand` link receives `aria-current="page"` on the home page (since the brand *is* the home page). On inner pages, the matching `<a>` already has `class="active"`. A **Home** entry is added explicitly to the `nav-links` list on `data-sources.html`, `glossary.html`, and `disclosures.html`, linking back to `index.html` with text "Dashboard". This gives users a labelled route back rather than relying on the brand logo alone. All four pages are updated to use an identical `<nav>` structure: `brand | Dashboard | Data Sources | Glossary | Disclosures`.
+
+### Context
+
+*Don't Make Me Think* — always know where you are and how to get home. Currently the brand link is the only route back to the home page from inner pages, and it is not labelled as "Home" or "Dashboard". Analytical users often land directly on `disclosures.html` or `glossary.html` from a shared URL; without a visible "Dashboard" link they may not realise there is a main comparison view. Static HTML change only; no JS or data changes.
+
+---
+
+### W-0084
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+`disclosures.html` is restructured so the three sections appear in this order: (1) **Coverage summary** — a compact one-row table or badge row showing which banks have which data types (RBNZ quarterly ✓ / Disclosure metrics ✓ / Balance sheet ✗); (2) **Charts** — the existing disclosure metrics charts; (3) **Statements table** — the existing PDF list. The current order is: charts → coverage → statements. Users cannot correctly interpret the charts without first knowing that Rabobank balance sheet data is absent and Westpac is missing entirely. A one-sentence subtitle is also added beneath the `<h1>Disclosures</h1>`: "Extracted metrics and PDF links from NZ bank General Disclosure Statements."
+
+### Context
+
+*Don't Make Me Think* — provide context before content. Showing charts before coverage information means users may spend time trying to understand why Rabobank has no Total Assets data or why Westpac is absent, rather than reading a clear upfront caveat. This is a pure HTML reordering; no JS or data changes are required.
+
+---
+
+### W-0085
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+All four pages gain subtitles directly beneath their `<h1>` heading:
+- `index.html`: existing description paragraph is promoted into a formal subtitle element (`<p class="page-subtitle">`).
+- `data-sources.html`: subtitle "Where the data comes from, how it is fetched, and how it is processed."
+- `glossary.html`: subtitle "Definitions for every metric shown on the dashboard, with calculation notes."
+- `disclosures.html`: subtitle "Extracted metrics and PDF links from NZ bank General Disclosure Statements."
+
+The snapshot table on `index.html` and the statements table on `disclosures.html` gain `<caption>` elements with a short description of the table contents.
+
+### Context
+
+*Don't Make Me Think* — make the page title self-evident. A user arriving via a direct link or search engine result should understand the page in 3 seconds without reading any body text. Bare `<h1>` elements without subtitles force users to read into body content before they know if they are in the right place. Table `<caption>` elements additionally satisfy WCAG 2.1 SC 1.3.1 (Info and Relationships). Pure HTML change.
+
+---
+
+### W-0086
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+The snapshot table on `docs/index.html` is wrapped in a `<div class="table-scroll-wrap">` with `overflow-x: auto`. On viewports narrower than the table's minimum width, a fade-out shadow on the right edge indicates there is more content to scroll (CSS `background: linear-gradient(to right, transparent, var(--bg))`). The leftmost column (bank name) is made sticky (`position: sticky; left: 0`) so the bank identity is always visible during horizontal scroll. All `<th>` elements gain `scope="col"` or `scope="row"` attributes. On `disclosures.html`, the statements table receives the same scroll-wrap and sticky-first-column treatment.
+
+### Context
+
+The snapshot table has 7 or more columns. On a 390px (iPhone) viewport it is currently clipped without any scroll affordance — users cannot see or reach the rightmost columns. Sticky bank name and a scroll-shadow are the industry-standard pattern (used by every financial data table on mobile-responsive dashboards). WCAG 2.1 SC 1.3.1 requires `scope` on table headers. Pure CSS change; no JS or data changes.
+
+---
+
+### W-0087
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+A standardised `<footer>` is applied to all four pages:
+
+```html
+<footer>
+  <nav aria-label="Footer">
+    <a href="index.html">Dashboard</a>
+    <a href="data-sources.html">Data Sources</a>
+    <a href="glossary.html">Glossary</a>
+    <a href="disclosures.html">Disclosures</a>
+  </nav>
+  <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" …>RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
+</footer>
+```
+
+Currently each page has a different footer: `index.html` and `data-sources.html` have RBNZ attribution only; `glossary.html` has RBNZ attribution; `disclosures.html` has a different attribution sentence and no cross-page links. None include footer navigation.
+
+### Context
+
+*Don't Make Me Think* — users who reach the bottom of a page need a way to navigate onward without scrolling back to the top. Footer navigation is a convention on every public-facing site. Consistent footer structure also makes future updates (adding a page, changing attribution) a single-template change. Pure HTML change to four files.
+
+---
+
+### W-0088
+
+status: open
+created: 2026-05-01
+updated: 2026-05-01
+
+### Outcome
+
+The period-range control on `docs/index.html` persists its selection to `localStorage["periodRange"]` (analogous to the existing `localStorage["activeTab"]` and `localStorage["snapshotPeriod"]` persistence). The bank-selector checkbox state persists to `localStorage["selectedBanks"]` (JSON array of entity names). On page load, both are restored before charts are rendered. If no stored value exists, the defaults (Top 6 standalone banks; All periods) apply. Currently, reloading the page or opening a second tab resets both selections to defaults, losing user context.
+
+### Context
+
+*Don't Make Me Think* — the system should remember user state. Analytical users compare charts across multiple visits and expect their filter state to be preserved. `localStorage` persistence is already used for the active tab (W-0042) and snapshot period (W-0043); extending it to bank selection and period range is consistent with the existing pattern. No data changes; pure JS addition to the existing event-listener block.
+
