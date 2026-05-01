@@ -224,3 +224,37 @@ Last updated: 2026-04-28 (S-0004 financial disclosures spike and config)
 - *What slowed things down?* The process_disclosures.py output path bug (writing to `disclosures.json` which overwrites the PDF index) was found only when reading the W-0024 backlog item carefully. The naming should have been caught when W-0015 was initially implemented.
 - *Single change to prevent this next time?* When a script produces a new output file, check whether the path conflicts with existing files in the same directory before choosing the name. Add this as a code-review checklist item.
 - *Is this a pattern?* Yes — naming ambiguity between index files and metrics files. Document in copilot-instructions.md: processed output files should use descriptive names (`_metrics`, `_index`) to avoid collision.
+
+---
+
+## 2026-05-01 (continued) — W-0074, W-0052, W-0053: extraction fix, RWA series, provisioning
+
+**Items completed:**
+
+### W-0074 — ASB "Advances to customers" regex fix
+
+Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers" as the balance sheet label, not "Loans and advances". TDD cycle:
+- Red: 2 tests using `_BALANCE_METRICS` production patterns fail (result=None on ASB label line)
+- Green: `r"advances to customers\b"` added to `_BALANCE_METRICS` patterns for "Net Loans and Advances"
+- Full suite: 152 tests pass, 0 regressions
+- ASB extraction: 125 → 140 rows; total disclosure rows: 344 → 359
+
+### W-0052 — RWA series and derived charts
+
+- `config/metrics.yaml`: `DBB.QIB90` (Total Risk-Weighted Assets) added
+- `glossary.md`: Total Risk-Weighted Assets, RORWA, Risk Density definitions added
+- `docs/index.html`: RORWA (PAT/RWA×100) and Risk Density (RWA/Loans×100) computed in `buildLookup()`; added to `KEY_METRICS` and `METRIC_LABELS`
+- `metrics.json`/`metrics.csv`: 17375 → 19460 rows
+
+### W-0053 — Provisioning series and Provisioning Coverage chart
+
+- `config/metrics.yaml`: `DBB.QIC60` (Individual Provisions), `DBB.QIC70` (Collective Provisions) added
+- `glossary.md`: Individual Provisions, Collective Provisions, Provisioning Coverage, Provision Charge definitions added
+- `docs/index.html`: Provisioning Coverage ((IndProv+CollProv)/NPL×100) computed client-side and added to chart grid
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — the ASB regex fix followed the TDD cycle correctly; the second Red test (using `_BALANCE_METRICS` directly from production code) was a genuine Red before the fix.
+- *What slowed things down?* First TDD attempt for W-0074 used the fixed patterns in the test parameters, making the test pass immediately (not a true Red). Caught and corrected before proceeding.
+- *Single change to prevent this next time?* When testing extraction patterns, import `_BALANCE_METRICS` (or the equivalent production constant) in the test rather than hardcoding patterns in the test parameter. This ensures the test exercises the production code paths and will be Red when the production pattern is wrong.
+- *Is this a pattern?* Yes — when unit-testing configurable behaviour (like regex pattern lists), always import the production config into the test rather than duplicating it.

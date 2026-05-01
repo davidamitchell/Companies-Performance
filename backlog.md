@@ -1053,9 +1053,9 @@ S-0004 confirmed that Rabobank's 2022 disclosure statement balance sheet (page 3
 
 ### W-0052
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -1069,9 +1069,9 @@ RWA (`DBB.QIB90`) is confirmed present in the RBNZ XLSX. Both derived metrics re
 
 ### W-0053
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -1473,7 +1473,7 @@ The `remove-ai-slop` skill identifies patterns that reduce credibility in resear
 
 ### W-0074
 
-status: ready
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
