@@ -189,16 +189,18 @@
     'RORWA',
     'Risk Density',
     'Provisioning Coverage',
+    'Loan-to-Deposit Ratio',
   ];
 
   const METRIC_LABELS = {
-    'Cost to Income Ratio':  'Cost to Income (%)',
-    'Return on Equity':      'Return on Equity (%)',
-    'Return on Assets':      'Return on Assets (%)',
-    'NIM':                   'Net Interest Margin (%)',
-    'RORWA':                 'Return on Risk-Weighted Assets (%)',
-    'Risk Density':          'Risk Density (%)',
-    'Provisioning Coverage': 'Provisioning Coverage (%)',
+    'Cost to Income Ratio':    'Cost to Income (%)',
+    'Return on Equity':        'Return on Equity (%)',
+    'Return on Assets':        'Return on Assets (%)',
+    'NIM':                     'Net Interest Margin (%)',
+    'RORWA':                   'Return on Risk-Weighted Assets (%)',
+    'Risk Density':            'Risk Density (%)',
+    'Provisioning Coverage':   'Provisioning Coverage (%)',
+    'Loan-to-Deposit Ratio':   'Loan-to-Deposit Ratio (%)',
   };
 
   // Default banks shown on load.
@@ -297,6 +299,13 @@
         if (indProv != null && colProv != null && npl != null && npl !== 0) {
           lookup[entity][period]['Provisioning Coverage'] =
             Math.round(((indProv + colProv) / npl) * 10000) / 100; // round to 2dp
+        }
+
+        // Loan-to-Deposit Ratio = (Net Loans and Advances / Deposits) × 100
+        const deposits = metrics['Deposits'];
+        if (loans != null && deposits != null && deposits !== 0) {
+          lookup[entity][period]['Loan-to-Deposit Ratio'] =
+            Math.round((loans / deposits) * 10000) / 100; // round to 2dp
         }
       }
     }

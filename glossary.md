@@ -14,6 +14,9 @@ Metrics measuring capital adequacy, liquidity, and asset quality.
 ### Total Risk-Weighted Assets
 Total assets adjusted for credit, market, and operational risk weights as defined by RBNZ prudential standards. The denominator for CET1 Ratio and RORWA. Expressed in NZDm. RBNZ series `DBB.QIB90`.
 
+### Loan-to-Deposit Ratio
+Net Loans and Advances divided by Deposits. Measures funding structure: how much of the loan book is funded by customer deposits. A ratio above 100% means loans exceed deposits and the bank relies on wholesale funding for the remainder. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
 ### RORWA
 **Return on Risk-Weighted Assets.** Annualised Profit After Tax divided by Total Risk-Weighted Assets. Capital-structure-neutral profitability metric: unlike ROE, it is not affected by leverage decisions. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
 
