@@ -83,7 +83,7 @@ def test_write_csv_has_correct_headers(tmp_path: Path) -> None:
     write_csv(rows, dest)
     with dest.open(encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
-        assert reader.fieldnames == ["entity", "metric", "value", "period", "source"]
+        assert reader.fieldnames == ["entity", "entity_type", "metric", "value", "period", "source"]
 
 
 def test_write_csv_roundtrip(tmp_path: Path) -> None:
@@ -355,3 +355,59 @@ def test_parse_rbnz_xlsx_quarter_periods(tmp_path: Path) -> None:
     rows = parse_rbnz_xlsx(xlsx_path, metrics_config)
     periods = [r["period"] for r in rows]
     assert periods == ["2024-Q1", "2024-Q2", "2024-Q3", "2024-Q4"]
+
+
+# ---------------------------------------------------------------------------
+# entity_type field (W-0033)
+# ---------------------------------------------------------------------------
+
+
+def test_parse_rbnz_xlsx_standalone_entity_has_entity_type(tmp_path: Path) -> None:
+    wb = _make_workbook([(datetime(2024, 3, 31), "ANZ", 13.5)])
+    xlsx_path = _save_and_get_path(wb, tmp_path)
+    metrics_config = {"mappings": {"rbnz-dashboard": {"DBB.QIB12": "CET1 Ratio"}}}
+
+    rows = parse_rbnz_xlsx(xlsx_path, metrics_config)
+
+    assert rows[0]["entity_type"] == "standalone"
+
+
+def test_parse_rbnz_xlsx_group_entity_has_entity_type(tmp_path: Path) -> None:
+    wb = _make_workbook([(datetime(2024, 3, 31), "ANZ Group", 13.5)])
+    xlsx_path = _save_and_get_path(wb, tmp_path)
+    metrics_config = {"mappings": {"rbnz-dashboard": {"DBB.QIB12": "CET1 Ratio"}}}
+
+    rows = parse_rbnz_xlsx(xlsx_path, metrics_config)
+
+    assert rows[0]["entity_type"] == "group"
+
+
+def test_parse_rbnz_xlsx_unknown_entity_defaults_to_standalone(tmp_path: Path) -> None:
+    wb = _make_workbook([(datetime(2024, 3, 31), "UnknownBank", 5.0)])
+    xlsx_path = _save_and_get_path(wb, tmp_path)
+    metrics_config = {"mappings": {"rbnz-dashboard": {"DBB.QIB12": "CET1 Ratio"}}}
+
+    rows = parse_rbnz_xlsx(xlsx_path, metrics_config)
+
+    assert rows[0]["entity_type"] == "standalone"
+
+
+def test_parse_rbnz_xlsx_all_known_group_entities(tmp_path: Path) -> None:
+    groups = [
+        "ANZ Group",
+        "BOC Group",
+        "CBA Group",
+        "CCB Group",
+        "ICBC Group",
+        "Rabo Group",
+        "WBC Group",
+    ]
+    data = [(datetime(2024, 3, 31), g, 10.0) for g in groups]
+    wb = _make_workbook(data)
+    xlsx_path = _save_and_get_path(wb, tmp_path)
+    metrics_config = {"mappings": {"rbnz-dashboard": {"DBB.QIB12": "CET1 Ratio"}}}
+
+    rows = parse_rbnz_xlsx(xlsx_path, metrics_config)
+
+    for row in rows:
+        assert row["entity_type"] == "group", f"Expected group, got standalone for {row['entity']}"

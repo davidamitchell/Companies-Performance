@@ -8,8 +8,36 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
     /* ── Page-specific styles ─────────────────────────────────────────────── */
+
+    /* Disclosure metric charts */
+    .disc-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .disc-chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+    }
+    .disc-chart-card h3 {
+      font-size: var(--text-xs); font-weight: 500; color: var(--text-muted);
+      margin-bottom: 0.6rem; letter-spacing: 0.08em; text-transform: lowercase;
+    }
+    .disc-chart-wrap { position: relative; height: 280px; }
+    .disc-note {
+      font-size: var(--text-xs); color: var(--text-muted);
+      margin-bottom: 1.5rem; letter-spacing: 0.03em;
+      padding: 0.5rem 0.75rem; border-left: 2px solid var(--border);
+    }
+    @media (max-width: 640px) {
+      .disc-chart-grid { grid-template-columns: 1fr; }
+    }
+
     section h2 {
       font-size: var(--text-sm);
       font-weight: 500;
@@ -124,6 +152,54 @@
   </div>
 
   <main>
+
+    <!-- ── Disclosure metric charts ── -->
+    <section id="disc-charts-section">
+      <h2>key metrics (from disclosure statements)</h2>
+
+      <!-- Line charts: one per key metric, one line per bank -->
+      <div class="disc-chart-grid" id="disc-line-grid">
+        <div class="disc-chart-card">
+          <h3>profit after tax (NZDm)</h3>
+          <div class="disc-chart-wrap"><canvas id="disc-chart-pat"></canvas></div>
+        </div>
+        <div class="disc-chart-card">
+          <h3>operating expenses (NZDm)</h3>
+          <div class="disc-chart-wrap"><canvas id="disc-chart-opex"></canvas></div>
+        </div>
+        <div class="disc-chart-card">
+          <h3>total assets (NZDm)</h3>
+          <div class="disc-chart-wrap"><canvas id="disc-chart-assets"></canvas></div>
+        </div>
+        <div class="disc-chart-card">
+          <h3>CET1 ratio (%)</h3>
+          <div class="disc-chart-wrap"><canvas id="disc-chart-cet1"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Grouped bar: income statement waterfall for most recent full-year period -->
+      <div class="disc-chart-card" style="margin-bottom:1rem;">
+        <h3 id="disc-waterfall-title">income statement — latest period (NZDm)</h3>
+        <div class="disc-chart-wrap" style="height:300px;"><canvas id="disc-chart-waterfall"></canvas></div>
+      </div>
+
+      <!-- Capital ratios: CET1 + Total Capital per bank -->
+      <div class="disc-chart-card" style="margin-bottom:1rem;">
+        <h3>capital ratios (%)</h3>
+        <div class="disc-chart-wrap"><canvas id="disc-chart-capital"></canvas></div>
+      </div>
+
+      <!-- Loans and deposits -->
+      <div class="disc-chart-card" style="margin-bottom:1rem;">
+        <h3>loans and deposits (NZDm)</h3>
+        <div class="disc-chart-wrap"><canvas id="disc-chart-loans"></canvas></div>
+      </div>
+
+      <p class="disc-note">
+        Year-end dates differ: ANZ/BNZ = Sep, ASB/Kiwibank = Jun, Rabobank = Dec.
+        Half-year periods shown when available.
+      </p>
+    </section>
 
     <!-- ── Coverage summary ── -->
     <section id="summary">
@@ -274,6 +350,255 @@
   }
 
   init();
+</script>
+
+<script>
+  /* ── Disclosure metric charts ─────────────────────────────────────────── */
+  (function() {
+    const DISC_URL = 'data/processed/disclosure_metrics.json';
+
+    Chart.defaults.color       = '#666';
+    Chart.defaults.borderColor = '#252b33';
+    Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+    Chart.defaults.font.size   = 10;
+
+    const BANK_COLORS = {
+      'ANZ': '#0064A3', 'ASB': '#C8102E', 'BNZ': '#231F20',
+      'Westpac': '#D5001C', 'Kiwibank': '#1B7A3E', 'Rabobank': '#FF6600',
+    };
+    function bankColor(name) {
+      for (const [bankName, color] of Object.entries(BANK_COLORS)) {
+        if (name.includes(bankName)) return color;
+      }
+      return '#636e72';
+    }
+
+    const CHART_OPTS = {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: { size: 10, family: "'IBM Plex Mono', monospace" },
+            boxWidth: 10, padding: 8, color: '#666',
+          },
+        },
+        tooltip: {
+          backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+          titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            font: { size: 10, family: "'IBM Plex Mono', monospace" },
+            color: '#666', maxRotation: 45, autoSkip: true, maxTicksLimit: 16,
+          },
+          grid: { display: false }, border: { color: '#252b33' },
+        },
+        y: {
+          ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+          grid: { color: '#252b33' }, border: { color: '#252b33' },
+        },
+      },
+    };
+
+    function makeLineChart(canvasId, periods, datasetsIn) {
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+      return new Chart(ctx, {
+        type: 'line',
+        data: { labels: periods, datasets: datasetsIn },
+        options: structuredClone(CHART_OPTS),
+      });
+    }
+
+    function buildLineDatasets(rows, metric, banks, periods, transform) {
+      return banks.map(bank => {
+        const bankRows = rows.filter(r => r.entity === bank && r.metric === metric);
+        const dataMap = {};
+        for (const r of bankRows) dataMap[r.period] = r.value;
+        const data = periods.map(p => {
+          const v = dataMap[p];
+          if (v == null) return null;
+          return transform ? transform(v) : v;
+        });
+        return {
+          label: bank,
+          data,
+          borderColor: bankColor(bank),
+          backgroundColor: bankColor(bank) + '22',
+          borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
+          tension: 0.3, spanGaps: false,
+        };
+      }).filter(ds => ds.data.some(v => v != null));
+    }
+
+    async function initDiscCharts() {
+      let rows;
+      try {
+        const resp = await fetch(DISC_URL);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        rows = await resp.json();
+      } catch (err) {
+        console.warn('Disclosure metrics load failed:', err);
+        return;
+      }
+
+      const banks   = [...new Set(rows.map(r => r.entity))].sort();
+      const periods = [...new Set(rows.map(r => r.period))].sort();
+
+      // ── Four key metric line charts ──────────────────────────────────────
+      makeLineChart('disc-chart-pat', periods,
+        buildLineDatasets(rows, 'Profit After Tax', banks, periods));
+      makeLineChart('disc-chart-opex', periods,
+        buildLineDatasets(rows, 'Operating Expenses', banks, periods, v => Math.abs(v)));
+      makeLineChart('disc-chart-assets', periods,
+        buildLineDatasets(rows, 'Total Assets', banks, periods));
+      makeLineChart('disc-chart-cet1', periods,
+        buildLineDatasets(rows, 'CET1 Ratio', banks, periods));
+
+      // ── Grouped bar: income statement for most recent period per bank ────
+      const latestPerBank = {};
+      for (const bank of banks) {
+        const bankPeriods = rows
+          .filter(r => r.entity === bank && r.metric === 'Profit After Tax' && r.value != null)
+          .map(r => r.period)
+          .sort();
+        if (bankPeriods.length) latestPerBank[bank] = bankPeriods[bankPeriods.length - 1];
+      }
+
+      function getVal(bank, metric) {
+        const p = latestPerBank[bank];
+        if (!p) return null;
+        const r = rows.find(r => r.entity === bank && r.metric === metric && r.period === p);
+        return r ? r.value : null;
+      }
+
+      const waterfallGroups = ['Net Interest Income', 'Non-Interest Income', 'Operating Expenses', 'Profit After Tax'];
+      const activeBanks = banks.filter(b => latestPerBank[b]);
+      const latestPeriodLabel = activeBanks.length
+        ? [...new Set(activeBanks.map(b => latestPerBank[b]))].sort().pop()
+        : '';
+
+      if (document.getElementById('disc-waterfall-title')) {
+        document.getElementById('disc-waterfall-title').textContent =
+          `income statement — ${latestPeriodLabel} (NZDm)`;
+      }
+
+      const waterfallDatasets = activeBanks.map(bank => {
+        const nii  = getVal(bank, 'Net Interest Income');
+        const toi  = getVal(bank, 'Total Operating Income');
+        const opex = getVal(bank, 'Operating Expenses');
+        const pat  = getVal(bank, 'Profit After Tax');
+        const nonII = (toi != null && nii != null) ? toi - nii : null;
+        return {
+          label: bank,
+          data: [
+            nii  != null ? nii         : null,
+            nonII != null ? nonII      : null,
+            opex != null ? Math.abs(opex) : null,
+            pat  != null ? pat         : null,
+          ],
+          backgroundColor: bankColor(bank) + 'cc',
+          borderColor:     bankColor(bank),
+          borderWidth: 1,
+        };
+      }).filter(ds => ds.data.some(v => v != null));
+
+      const waterfallCtx = document.getElementById('disc-chart-waterfall');
+      if (waterfallCtx && waterfallDatasets.length) {
+        const wOpts = structuredClone(CHART_OPTS);
+        new Chart(waterfallCtx, {
+          type: 'bar',
+          data: { labels: waterfallGroups, datasets: waterfallDatasets },
+          options: wOpts,
+        });
+      }
+
+      // ── Capital ratios: CET1 + Total Capital per bank ────────────────────
+      const capitalDatasets = [];
+      for (const bank of banks) {
+        const cet1Rows = rows.filter(r => r.entity === bank && r.metric === 'CET1 Ratio');
+        const tcRows   = rows.filter(r => r.entity === bank && r.metric === 'Total Capital Ratio');
+        const cet1Map  = Object.fromEntries(cet1Rows.map(r => [r.period, r.value]));
+        const tcMap    = Object.fromEntries(tcRows.map(r => [r.period, r.value]));
+        const cet1Data = periods.map(p => cet1Map[p] ?? null);
+        const tcData   = periods.map(p => tcMap[p] ?? null);
+        if (cet1Data.some(v => v != null)) {
+          capitalDatasets.push({
+            label: `${bank} CET1`,
+            data: cet1Data,
+            borderColor: bankColor(bank),
+            backgroundColor: 'transparent',
+            borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: false,
+          });
+        }
+        if (tcData.some(v => v != null)) {
+          capitalDatasets.push({
+            label: `${bank} Total Cap`,
+            data: tcData,
+            borderColor: bankColor(bank),
+            backgroundColor: 'transparent',
+            borderWidth: 2, borderDash: [5, 3],
+            pointRadius: 0, tension: 0.3, spanGaps: false,
+          });
+        }
+      }
+      const capCtx = document.getElementById('disc-chart-capital');
+      if (capCtx && capitalDatasets.length) {
+        new Chart(capCtx, {
+          type: 'line',
+          data: { labels: periods, datasets: capitalDatasets },
+          options: structuredClone(CHART_OPTS),
+        });
+      }
+
+      // ── Loans and deposits ───────────────────────────────────────────────
+      const loansDatasets = [];
+      for (const bank of banks) {
+        const loanRows    = rows.filter(r => r.entity === bank && r.metric === 'Net Loans and Advances');
+        const depositRows = rows.filter(r => r.entity === bank && r.metric === 'Deposits');
+        const loanMap    = Object.fromEntries(loanRows.map(r => [r.period, r.value]));
+        const depositMap = Object.fromEntries(depositRows.map(r => [r.period, r.value]));
+        const loanData    = periods.map(p => loanMap[p] ?? null);
+        const depositData = periods.map(p => depositMap[p] ?? null);
+        if (loanData.some(v => v != null)) {
+          loansDatasets.push({
+            label: `${bank} Loans`,
+            data: loanData,
+            borderColor: bankColor(bank),
+            backgroundColor: 'transparent',
+            borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: false,
+          });
+        }
+        if (depositData.some(v => v != null)) {
+          loansDatasets.push({
+            label: `${bank} Deposits`,
+            data: depositData,
+            borderColor: bankColor(bank),
+            backgroundColor: 'transparent',
+            borderWidth: 2, borderDash: [5, 3],
+            pointRadius: 0, tension: 0.3, spanGaps: false,
+          });
+        }
+      }
+      const loansCtx = document.getElementById('disc-chart-loans');
+      if (loansCtx && loansDatasets.length) {
+        new Chart(loansCtx, {
+          type: 'line',
+          data: { labels: periods, datasets: loansDatasets },
+          options: structuredClone(CHART_OPTS),
+        });
+      }
+    }
+
+    initDiscCharts();
+  })();
 </script>
 </body>
 </html>

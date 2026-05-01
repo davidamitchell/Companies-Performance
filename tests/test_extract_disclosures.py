@@ -408,3 +408,31 @@ def test_extract_disclosures_entity_from_config(tmp_path: Path) -> None:
         rows = extract_disclosures(tmp_path, sources)
 
     assert all(r["entity"] == "Kiwibank" for r in rows)
+
+
+# ── W-0074: ASB "Advances to customers" label variant ────────────────────────
+
+from src.processing.extract_disclosures import _BALANCE_METRICS  # noqa: E402
+
+
+def test_net_loans_pattern_matches_asb_advances_to_customers() -> None:
+    """ASB uses 'Advances to customers' on the balance sheet; the Net Loans
+    and Advances patterns must match this label."""
+    _, patterns, strategy = next(
+        (name, p, s) for name, p, s in _BALANCE_METRICS if name == "Net Loans and Advances"
+    )
+    text = "Advances to customers 13 109,010 108,447"
+    result = _extract_metric(text, patterns, strategy, 1.0)
+    assert result == 109010.0, (
+        f"Expected 109010.0 but got {result!r}. "
+        "ASB uses 'Advances to customers' — add this pattern to _BALANCE_METRICS."
+    )
+
+
+def test_net_loans_pattern_matches_asb_advances_thousands_scale() -> None:
+    _, patterns, strategy = next(
+        (name, p, s) for name, p, s in _BALANCE_METRICS if name == "Net Loans and Advances"
+    )
+    text = "Advances to customers 6 8,950,000 8,800,000"
+    result = _extract_metric(text, patterns, strategy, 0.001)
+    assert result == pytest.approx(8950.0)

@@ -2,8 +2,8 @@
 
 Extracts quantitative metrics from bank disclosure PDFs, then writes:
 
-* ``data/processed/disclosures.csv``        — canonical CSV (committed to repo)
-* ``docs/data/processed/disclosures.json``  — JSON for GitHub Pages frontend
+* ``data/processed/disclosures.csv``              — canonical CSV (committed to repo)
+* ``docs/data/processed/disclosure_metrics.json`` — JSON for GitHub Pages frontend
 
 Usage::
 
@@ -29,7 +29,7 @@ logger = get_logger(__name__)
 _REPO_ROOT = Path(__file__).parent.parent
 _RAW_DISCLOSURES_DIR = _REPO_ROOT / "data" / "raw" / "financial_disclosures"
 _CSV_OUTPUT = _REPO_ROOT / "data" / "processed" / "disclosures.csv"
-_JSON_OUTPUT = _REPO_ROOT / "docs" / "data" / "processed" / "disclosures.json"
+_JSON_OUTPUT = _REPO_ROOT / "docs" / "data" / "processed" / "disclosure_metrics.json"
 
 _FIELDNAMES = ["entity", "metric", "value", "period", "source"]
 
@@ -63,13 +63,7 @@ def main() -> int:
         )
         # Not a hard failure: write empty output files so idempotency is maintained
     else:
-        # Log per-bank counts
-        counts: dict[str, int] = {}
-        for row in rows:
-            src = row.get("source", "unknown")
-            counts[src] = counts.get(src, 0) + 1
-        for src, count in sorted(counts.items()):
-            logger.info("  %s: %d rows", src, count)
+        _log_extraction_summary(rows)
 
     _write_csv(rows, _CSV_OUTPUT)
     _write_json(rows, _JSON_OUTPUT)
@@ -81,6 +75,41 @@ def main() -> int:
         _JSON_OUTPUT,
     )
     return 0
+
+
+_ALL_METRICS = [
+    "Net Interest Income",
+    "Total Operating Income",
+    "Operating Expenses",
+    "Profit After Tax",
+    "Total Assets",
+    "Net Loans and Advances",
+    "Deposits",
+    "Equity",
+    "CET1 Ratio",
+    "Total Capital Ratio",
+]
+
+
+def _log_extraction_summary(rows: list[dict]) -> None:
+    """Log extracted vs null counts per bank per period."""
+    from collections import defaultdict
+
+    extracted: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for row in rows:
+        key = (row.get("source", ""), row.get("period", ""))
+        extracted[key].add(row.get("metric", ""))
+
+    for (source, period), found in sorted(extracted.items()):
+        missing = [m for m in _ALL_METRICS if m not in found]
+        logger.info(
+            "%s %s: %d/%d metrics extracted%s",
+            source,
+            period,
+            len(found),
+            len(_ALL_METRICS),
+            f" | null: {missing}" if missing else "",
+        )
 
 
 def _write_csv(rows: list[dict], dest: Path) -> None:

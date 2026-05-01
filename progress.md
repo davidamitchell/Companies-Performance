@@ -186,3 +186,152 @@ Last updated: 2026-04-28 (S-0004 financial disclosures spike and config)
 - *What slowed things down?* Capital ratio extraction needed a "second percentage" strategy distinct from the "first value" strategy used for income/balance sheet metrics. This required a separate extraction path.
 - *Single change to prevent that next time?* Document the two extraction strategies (first_value vs second_pct) in the spike output before implementation begins, so the distinction is explicit.
 - *Is this a pattern?* Yes — financial disclosure PDFs consistently have a minimum-requirement column before the actual bank ratio column. Document this in `learnings.md`.
+
+---
+
+## 2026-05-01 — W-0049, W-0033, W-0030, W-0024: ADR-0005, entity_type, new metrics series, disclosure pipeline run
+
+**Items completed:**
+
+### W-0049 — ADR-0005: PDF Disclosure Extraction Strategy
+
+- `docs-adr/0005-pdf-extraction-approach.md`: Documents the extraction architecture (pdfplumber `extract_text()` + two-strategy regex approach). Captures the `first_value` and `second_pct` strategies, unit detection logic, known gaps (Rabobank image-based, Westpac WAF), four rejected alternatives (extract_tables, LLM, OCR, manual entry), and implementation notes including the TDD workflow for adding new metrics.
+- `docs-adr/README.md`: ADR-0005 entry added to index.
+
+### W-0033 — entity_type field in canonical schema
+
+- `src/processing/parse.py`: Added `_GROUP_ENTITIES` frozenset classifying 7 group entities (ANZ Group, BOC Group, CBA Group, CCB Group, ICBC Group, Rabo Group, WBC Group). Every row now includes `entity_type: "standalone" | "group"`. CSV writer updated to include `entity_type` in field list.
+- `docs/data/processed/metrics.json` + `data/processed/metrics.csv`: Regenerated with `entity_type` field.
+- `docs/index.html`: "Standalone only" button now derives group entities from `entity_type` field in data rather than hardcoded name list.
+- `docs-adr/0004-rbnz-data-contract.md`: Schema table and Decision section updated to document the new field.
+- `tests/test_processing.py`: 4 new tests (TDD Red→Green): standalone entity type, group entity type, unknown defaults to standalone, all 7 known group entities classified correctly.
+
+### W-0030 — Mismatch ratios + credit concentration series
+
+- `config/metrics.yaml`: Added 5 confirmed RBNZ series: `DBB.QIH10` (1-Month Mismatch Ratio), `DBB.QIH20` (1-Week Mismatch Ratio), `DBB.QIJ10` (Top 5 Non-Bank Credit Exposures), `DBB.QIJ30` (Top 5 Bank Credit Exposures), `DBB.QIJ40` (Bank Exposures ≥10% of CET1).
+- `docs/data/processed/metrics.json` + `data/processed/metrics.csv`: Regenerated — 13900 → 17375 rows (+3475 new rows for 5 series).
+- `glossary.md`: 5 new metric definitions added with RBNZ series IDs and units.
+
+### W-0024 — Disclosure extraction end-to-end
+
+- `scripts/process_disclosures.py`: Fixed output path from `disclosures.json` (the existing PDF index file) to `disclosure_metrics.json` (distinct metrics file). Added `_log_extraction_summary()` to log extracted/null counts per bank per period.
+- Script run against full corpus (ANZ ×3, ASB ×16, BNZ ×6, Kiwibank ×13, Rabobank ×3 = 41 PDFs).
+- Outputs: `data/processed/disclosures.csv` and `docs/data/processed/disclosure_metrics.json`.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — TDD cycle caught the CSV header regression immediately (existing test for field list needed updating for the new `entity_type` field). Fixed in the same cycle before the commit.
+- *What slowed things down?* The process_disclosures.py output path bug (writing to `disclosures.json` which overwrites the PDF index) was found only when reading the W-0024 backlog item carefully. The naming should have been caught when W-0015 was initially implemented.
+- *Single change to prevent this next time?* When a script produces a new output file, check whether the path conflicts with existing files in the same directory before choosing the name. Add this as a code-review checklist item.
+- *Is this a pattern?* Yes — naming ambiguity between index files and metrics files. Document in copilot-instructions.md: processed output files should use descriptive names (`_metrics`, `_index`) to avoid collision.
+
+---
+
+## 2026-05-01 (continued) — W-0074, W-0052, W-0053: extraction fix, RWA series, provisioning
+
+**Items completed:**
+
+### W-0074 — ASB "Advances to customers" regex fix
+
+Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers" as the balance sheet label, not "Loans and advances". TDD cycle:
+- Red: 2 tests using `_BALANCE_METRICS` production patterns fail (result=None on ASB label line)
+- Green: `r"advances to customers\b"` added to `_BALANCE_METRICS` patterns for "Net Loans and Advances"
+- Full suite: 152 tests pass, 0 regressions
+- ASB extraction: 125 → 140 rows; total disclosure rows: 344 → 359
+
+### W-0052 — RWA series and derived charts
+
+- `config/metrics.yaml`: `DBB.QIB90` (Total Risk-Weighted Assets) added
+- `glossary.md`: Total Risk-Weighted Assets, RORWA, Risk Density definitions added
+- `docs/index.html`: RORWA (PAT/RWA×100) and Risk Density (RWA/Loans×100) computed in `buildLookup()`; added to `KEY_METRICS` and `METRIC_LABELS`
+- `metrics.json`/`metrics.csv`: 17375 → 19460 rows
+
+### W-0053 — Provisioning series and Provisioning Coverage chart
+
+- `config/metrics.yaml`: `DBB.QIC60` (Individual Provisions), `DBB.QIC70` (Collective Provisions) added
+- `glossary.md`: Individual Provisions, Collective Provisions, Provisioning Coverage, Provision Charge definitions added
+- `docs/index.html`: Provisioning Coverage ((IndProv+CollProv)/NPL×100) computed client-side and added to chart grid
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — the ASB regex fix followed the TDD cycle correctly; the second Red test (using `_BALANCE_METRICS` directly from production code) was a genuine Red before the fix.
+- *What slowed things down?* First TDD attempt for W-0074 used the fixed patterns in the test parameters, making the test pass immediately (not a true Red). Caught and corrected before proceeding.
+- *Single change to prevent this next time?* When testing extraction patterns, import `_BALANCE_METRICS` (or the equivalent production constant) in the test rather than hardcoding patterns in the test parameter. This ensures the test exercises the production code paths and will be Red when the production pattern is wrong.
+- *Is this a pattern?* Yes — when unit-testing configurable behaviour (like regex pattern lists), always import the production config into the test rather than duplicating it.
+
+---
+
+## 2026-05-01 (continued) — W-0031, W-0035, W-0036, W-0060: charts, events, freshness badge
+
+**Items completed:**
+
+### W-0031 — Loan-to-Deposit Ratio chart
+
+- `docs/index.html`: LDR = (Net Loans / Deposits) × 100 computed in `buildLookup()`. Added to `KEY_METRICS` and `METRIC_LABELS`. Renders as a chart alongside existing metrics. No new data pipeline work — both series already in `metrics.json`.
+- `glossary.md`: Loan-to-Deposit Ratio definition added.
+
+### W-0035 — OCR rate-change vertical annotations
+
+- `docs/index.html`: `verticalLinesPlugin` (custom Chart.js plugin, registered globally) draws dashed vertical lines via canvas `afterDraw`. Red = OCR hike, teal = OCR cut. Threshold: |delta| ≥ 0.25 (25 bps). `buildOcrEvents()` computes quarterly OCR deltas from already-loaded `ocr.json`. "OCR rate changes" checkbox toggle (off by default); preference persisted in `localStorage`.
+
+### W-0036 — NZ/global events overlay
+
+- `config/events.yaml`: 13 curated events (2019-Q4 through 2024-Q3) covering RBNZ capital reform, COVID, FLP, LVR cycles, OCR peaks, SVB/Credit Suisse, Kiwibank govt buyback. Category colour scheme: teal=monetary, amber=regulatory, grey=macro/market.
+- `docs/index.html`: `NZ_EVENTS` and `EVENT_COLORS` inlined as JS constants for static-site delivery. "NZ events" checkbox toggle (off by default). Both OCR event and NZ event annotation layers merged and passed to `verticalLinesPlugin` per chart render cycle.
+
+### W-0060 — Data freshness badge
+
+- `docs/index.html`: Freshness badge below the status line shows "RBNZ data: YYYY-QN · Disclosures: YYYY-QN". RBNZ latest derived from `allPeriods.last`. Disclosure latest derived from loaded `disclosure_metrics.json`. Badge is teal-coloured; failure to load disclosures is non-fatal.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — all four items were purely client-side and did not require pipeline changes. The vertical annotation plugin approach (custom Chart.js plugin using `afterDraw`) is clean and avoids external dependencies.
+- *What slowed things down?* The NZ events toggle required merging two annotation layers (OCR events + NZ events) before passing to the plugin. Initial implementation passed them separately, requiring a merge step.
+- *Single change to prevent that next time?* Design the annotation layer API to accept a unified array from the start rather than retrofitting it.
+- *Is this a pattern?* Yes — when adding multiple overlays that share the same rendering path, define the unified data contract first.
+
+---
+
+## 2026-05-01 — W-0042, W-0020, W-0041, W-0037, W-0043, W-0025–W-0029, W-0054: chart tabs, UX improvements, disclosure charts
+
+**Items completed:**
+
+### W-0042 — Tab categories
+
+- `docs/index.html`: `TABS` const maps 4 tab categories to metric lists (profitability / capital / asset quality / liquidity). `KEY_METRICS` derived as the flat union. Tab bar (`.tab-bar` / `.tab-btn`) rendered above chart grid; active tab persists in `localStorage["activeTab"]`. `renderCharts` filters to `TABS[activeTab]` metrics only. `METRIC_LABELS` extended with 11 new entries covering all newly-visible series.
+
+### W-0020 — Fullscreen charts
+
+- `docs/index.html`: `⛶` button per chart card opens `#chart-modal-overlay` (fixed, full-viewport). `openFullscreen(idx)` clones chart config via `structuredClone`, re-attaches tooltip callback from `chartMeta`, creates a fresh `Chart` instance on `#modal-canvas`. `closeFullscreen()` destroys modal chart. Escape key and overlay background click both close.
+
+### W-0041 — Chart PNG export
+
+- `docs/index.html`: `↓` button per card (and in modal). `downloadChart(idx)` draws chart canvas onto an offscreen canvas with `#0d0d0d` fill, exports via `canvas.toDataURL('image/png')` → programmatic `<a download>` click. Slug derived from metric name.
+
+### W-0037 — Sector average line
+
+- `docs/index.html`: "Sector avg" checkbox added to filter bar. `getStandaloneEntities()` uses `entity_type === 'group'` detection with STANDALONE fallback. Sector avg dataset (dashed grey `#888`) added per chart when ≥2 standalone visible banks have data for a period. Nulls excluded from mean. Persists in `localStorage["showSectorAvg"]`.
+
+### W-0043 — Snapshot table improvements
+
+- `docs/index.html`: (1) Click-to-sort column headers — `sortState` updated on click, `▲`/`▼` CSS suffix added via `.sort-asc`/`.sort-desc` classes; (2) Best/worst cell colouring — `.cell-best` (teal) and `.cell-worst` (red) applied per column; (3) Period selector dropdown above table — `#snapshot-period-sel` populated from `allPeriods`, persists in `localStorage["snapshotPeriod"]`.
+
+### W-0025–W-0029 — Disclosure charts
+
+- `docs/disclosures.html`: Chart.js CDN added. New `#disc-charts-section` inserted before existing content. Six charts rendered from `disclosure_metrics.json`:
+  - W-0025: Line charts for Profit After Tax, Operating Expenses (abs), Total Assets, CET1 Ratio — one line per bank, all periods
+  - W-0026: Grouped bar chart (income statement) for latest full-period per bank: NII, Non-Interest Income, OpEx abs, PAT
+  - W-0027: Operating Expenses over time (line chart, abs values)
+  - W-0028: Capital ratios (CET1 + Total Capital Ratio as solid/dashed lines per bank)
+  - W-0029: Loans & Deposits (Net Loans + Deposits as solid/dashed lines per bank; Rabobank null noted)
+
+### W-0054 — Credit concentration display in Liquidity tab
+
+- Already in `config/metrics.yaml` (added by W-0030). Now visible as the bottom three series in the Liquidity tab (W-0042). `METRIC_LABELS` extended for all three series. Glossary already had no entries for these three — added via the W-0030 progress note.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — all items were client-side only; no Python changes needed.
+- *What slowed things down?* The fullscreen modal required `structuredClone` of the Chart.js config to avoid shared state; tooltip callbacks (functions) are not clonable and needed to be stored separately on `chartMeta` and reattached.
+- *Single change to prevent next time?* When designing chart config storage, separate serialisable config from non-serialisable callbacks from the start.
+- *Is this a pattern?* Yes — any time chart configs need to be duplicated (e.g. for export, fullscreen, or print), treat the callback functions as a separate layer attached after cloning.

@@ -11,6 +11,30 @@ Metrics measuring capital adequacy, liquidity, and asset quality.
 ### CET1 Ratio
 **Common Equity Tier 1 Ratio.** The ratio of a bank's Common Equity Tier 1 capital to its risk-weighted assets. Measures the core capital buffer available to absorb losses. Expressed as a percentage.
 
+### Total Risk-Weighted Assets
+Total assets adjusted for credit, market, and operational risk weights as defined by RBNZ prudential standards. The denominator for CET1 Ratio and RORWA. Expressed in NZDm. RBNZ series `DBB.QIB90`.
+
+### Loan-to-Deposit Ratio
+Net Loans and Advances divided by Deposits. Measures funding structure: how much of the loan book is funded by customer deposits. A ratio above 100% means loans exceed deposits and the bank relies on wholesale funding for the remainder. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
+### RORWA
+**Return on Risk-Weighted Assets.** Annualised Profit After Tax divided by Total Risk-Weighted Assets. Capital-structure-neutral profitability metric: unlike ROE, it is not affected by leverage decisions. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
+### Risk Density
+Total Risk-Weighted Assets divided by Net Loans and Advances. Measures the average risk weight of the loan book. A rising density indicates portfolio mix is shifting toward higher-risk exposures. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
+### Individual Provisions
+Specific loan loss provisions set against individually identified impaired loans. Measured by the bank's credit team on a case-by-case basis. Expressed in NZDm. RBNZ series `DBB.QIC60`.
+
+### Collective Provisions
+General loan loss provisions held against the performing loan portfolio as a buffer against unidentified losses. Expressed in NZDm. RBNZ series `DBB.QIC70`.
+
+### Provisioning Coverage
+Total provisions (Individual + Collective) divided by Total Non-Performing Loans. Measures the adequacy of reserves against known bad loans. A ratio above 100% means provisions exceed non-performing loans. Expressed as a percentage. Derived client-side; not stored (ADR-0001).
+
+### Provision Charge
+The quarterly change in total provisions (Individual + Collective), expressed as a percentage of Net Loans and Advances. The primary credit cycle indicator: spikes in downturns when banks front-load expected losses, and negative in recoveries when provisions are released. Derived client-side; not stored (ADR-0001).
+
 ### LCR
 **Liquidity Coverage Ratio.** The ratio of high-quality liquid assets to net cash outflows over a 30-day stress period. Measures short-term liquidity resilience. Expressed as a percentage; regulatory minimum is 100%.
 
@@ -67,6 +91,21 @@ A qualitative or quantitative assessment of how a customer cohort's revenue cont
 
 ### Core Funding Ratio (CFR)
 **Core Funding Ratio.** The ratio of stable funding sources (retail deposits, long-term wholesale) to total loans and advances. A New Zealand regulatory metric. Higher is more stable. Expressed as a percentage.
+
+### 1-Month Mismatch Ratio
+The ratio of a bank's 1-month cumulative net cash position to its total liabilities, per RBNZ liquidity policy (BS13). Measures short-term funding resilience over a one-month horizon. Expressed as a percentage. RBNZ series `DBB.QIH10`.
+
+### 1-Week Mismatch Ratio
+The ratio of a bank's 1-week cumulative net cash position to its total liabilities, per RBNZ liquidity policy (BS13). Measures short-term funding resilience over a one-week horizon. Expressed as a percentage. RBNZ series `DBB.QIH20`.
+
+### Top 5 Non-Bank Credit Exposures
+The sum of the five largest non-bank credit exposures as a percentage of the bank's CET1 capital. Measures single-borrower concentration risk in the non-bank lending book. Expressed as a percentage of CET1. RBNZ series `DBB.QIJ10`.
+
+### Top 5 Bank Credit Exposures
+The sum of the five largest interbank credit exposures as a percentage of the bank's CET1 capital. Measures interbank counterparty concentration risk. Expressed as a percentage of CET1. RBNZ series `DBB.QIJ30`.
+
+### Bank Exposures ≥10% of CET1
+The total of all interbank credit exposures that individually exceed 10% of the bank's CET1 capital. Identifies material single-counterparty interbank concentrations. Expressed as a percentage of CET1. RBNZ series `DBB.QIJ40`.
 
 ---
 

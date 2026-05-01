@@ -17,10 +17,13 @@ mappings:
     DBB.QIB10: "Total Capital Ratio"
     DBB.QIB12: "CET1 Ratio"
     DBB.QIB14: "Tier 1 Capital Ratio"
+    DBB.QIB90: "Total Risk-Weighted Assets"
 
     # --- Asset quality (total loans) ---
     DBB.QIC10: "NPL Ratio"
     DBB.QIC50: "Total Non-Performing Loans"
+    DBB.QIC60: "Individual Provisions"
+    DBB.QIC70: "Collective Provisions"
 
     # --- Profitability ---
     DBB.QIE10: "Return on Assets"
@@ -42,3 +45,10 @@ mappings:
 
     # --- Liquidity ---
     DBB.QIH30: "Core Funding Ratio (CFR)"
+    DBB.QIH10: "1-Month Mismatch Ratio"
+    DBB.QIH20: "1-Week Mismatch Ratio"
+
+    # --- Credit concentration ---
+    DBB.QIJ10: "Top 5 Non-Bank Credit Exposures"
+    DBB.QIJ30: "Top 5 Bank Credit Exposures"
+    DBB.QIJ40: "Bank Exposures ≥10% of CET1"

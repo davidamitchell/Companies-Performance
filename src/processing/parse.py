@@ -41,6 +41,20 @@ _COL_DATA_START = 2
 
 _SOURCE_ID = "rbnz-dashboard"
 
+# Classification of RBNZ-registered entities. Group entities have a different
+# regulatory reporting boundary than their standalone subsidiary.
+_GROUP_ENTITIES: frozenset[str] = frozenset(
+    {
+        "ANZ Group",
+        "BOC Group",
+        "CBA Group",
+        "CCB Group",
+        "ICBC Group",
+        "Rabo Group",
+        "WBC Group",
+    }
+)
+
 
 def parse_rbnz_xlsx(
     xlsx_path: Path,
@@ -155,6 +169,7 @@ def parse_rbnz_xlsx(
                     "value": value,
                     "period": period,
                     "source": _SOURCE_ID,
+                    "entity_type": "group" if entity in _GROUP_ENTITIES else "standalone",
                 }
             )
 
@@ -204,7 +219,7 @@ def write_csv(rows: list[dict[str, Any]], dest: Path) -> None:
         Destination file path.  Parent directories are created if absent.
     """
     dest.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["entity", "metric", "value", "period", "source"]
+    fieldnames = ["entity", "entity_type", "metric", "value", "period", "source"]
     with dest.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()

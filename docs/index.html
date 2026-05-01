@@ -9,6 +9,35 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/theme.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script>
+    /* ── OCR vertical-line annotation plugin ────────────────────────────────── */
+    const verticalLinesPlugin = {
+      id: 'verticalLines',
+      afterDraw(chart, args, pluginOptions) {
+        if (!pluginOptions.lines || pluginOptions.lines.length === 0) return;
+        const { ctx, scales, chartArea } = chart;
+        const xScale = scales.x;
+        for (const { period, delta, color } of pluginOptions.lines) {
+          const idx = chart.data.labels.indexOf(period);
+          if (idx === -1) continue;
+          const x = xScale.getPixelForValue(idx);
+          // color: explicit (NZ events) → delta sign (OCR events) → default teal
+          const strokeColor = color || (delta > 0 ? '#ff6b6b' : '#00C3A5');
+          ctx.save();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 3]);
+          ctx.globalAlpha = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(x, chartArea.top);
+          ctx.lineTo(x, chartArea.bottom);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    };
+    Chart.register(verticalLinesPlugin);
+  </script>
   <style>
     /* ── Page-specific overrides ────────────────────────────────────────────── */
 
@@ -70,6 +99,80 @@
     .trend-up   { color: var(--teal); font-size: var(--text-xs); margin-left: 0.15rem; }
     .trend-down { color: var(--dusk); font-size: var(--text-xs); margin-left: 0.15rem; }
 
+    /* Tab bar */
+    .tab-bar { display: flex; gap: 0.35rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab-btn {
+      background: transparent; border: 1px solid var(--border);
+      padding: 0.2rem 0.65rem; font-size: var(--text-xs); cursor: pointer;
+      color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em; transition: border-color 150ms, color 150ms;
+    }
+    .tab-btn:hover { border-color: var(--teal); color: var(--text); }
+    .tab-btn.active { border-color: var(--teal); color: var(--teal); }
+
+    /* Chart card header with action buttons */
+    .chart-card h3 { margin-bottom: 0; }
+    .chart-card-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+    .chart-card-hd h3 {
+      font-size: var(--text-xs); font-weight: 500; color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: lowercase; flex: 1;
+    }
+    .chart-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
+    .chart-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); cursor: pointer; font-size: 11px;
+      padding: 0.1rem 0.35rem; font-family: 'IBM Plex Mono', monospace;
+      line-height: 1.4; transition: border-color 150ms, color 150ms;
+    }
+    .chart-btn:hover { border-color: var(--teal); color: var(--text); }
+
+    /* Fullscreen modal overlay */
+    #chart-modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+    }
+    #chart-modal-inner {
+      background: #0d0d0d; border: 1px solid #252b33;
+      width: 92vw; max-width: 1400px; height: 85vh;
+      display: flex; flex-direction: column; padding: 1rem;
+    }
+    #chart-modal-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.75rem; flex-shrink: 0;
+    }
+    #chart-modal-title {
+      font-size: var(--text-xs); color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: lowercase;
+    }
+    #chart-modal-body { flex: 1; position: relative; min-height: 0; overflow: hidden; }
+    #modal-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+    /* Snapshot controls */
+    .snapshot-controls {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;
+      font-size: var(--text-xs); color: var(--text-muted);
+    }
+    .snapshot-period-sel {
+      background: #0d0d0d; border: 1px solid var(--border);
+      color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--text-xs); padding: 0.15rem 0.5rem; cursor: pointer;
+      letter-spacing: 0.04em; outline: none;
+    }
+    .snapshot-period-sel:hover, .snapshot-period-sel:focus { border-color: var(--teal); }
+
+    /* Sort indicators */
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: var(--teal); }
+    th.sort-asc::after  { content: ' ▲'; color: var(--teal); font-size: 9px; }
+    th.sort-desc::after { content: ' ▼'; color: var(--teal); font-size: 9px; }
+
+    /* Best / worst cell highlighting */
+    .cell-best  { color: #00C3A5; }
+    .cell-worst { color: #e05a5a; }
+
     /* Override shared section-heading for dashboard sections */
     .section-title {
       font-size: var(--text-xs); font-weight: 500; margin-bottom: 1rem;
@@ -120,13 +223,14 @@
     <h1>NZ Bank Performance</h1>
     <p>Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
+    <div id="freshness" style="font-size:var(--text-xs);color:var(--teal);margin-top:0.25rem;"></div>
 
     <div class="bank-selector">
       <div class="bank-selector-label">
         banks shown:
         <button class="quick-btn" id="btn-top6">Top 6</button>
         <button class="quick-btn" id="btn-all">All</button>
-        <button class="quick-btn" id="btn-standalone">Standalone</button>
+        <button class="quick-btn" id="btn-standalone" style="border-color:#00C3A5;color:#00C3A5;">Standalone only</button>
       </div>
       <div class="bank-checks" id="bank-checks"></div>
     </div>
@@ -136,6 +240,18 @@
       <button class="range-btn" data-range="8">Last 8Q</button>
       <button class="range-btn" data-range="16">Last 16Q</button>
       <button class="range-btn active" data-range="all">All</button>
+      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
+        <input type="checkbox" id="chk-ocr-events" style="cursor:pointer;">
+        OCR rate changes
+      </label>
+      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
+        <input type="checkbox" id="chk-nz-events" style="cursor:pointer;">
+        NZ events
+      </label>
+      <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;margin-left:0.75rem;">
+        <input type="checkbox" id="chk-sector-avg" style="cursor:pointer;">
+        Sector avg
+      </label>
     </div>
   </div>
 
@@ -145,6 +261,7 @@
         historical performance
         <span id="period-range"></span>
       </div>
+      <div class="tab-bar" id="tab-bar"></div>
       <div class="chart-grid" id="chart-grid"></div>
     </section>
 
@@ -152,6 +269,10 @@
       <div class="section-title">
         latest quarter snapshot
         <span id="latest-period-label"></span>
+      </div>
+      <div class="snapshot-controls">
+        <span>period:</span>
+        <select class="snapshot-period-sel" id="snapshot-period-sel"></select>
       </div>
       <div class="snapshot-wrap">
         <table id="snapshot-table">
@@ -168,6 +289,21 @@
 
 </div>
 
+<div id="chart-modal-overlay">
+  <div id="chart-modal-inner">
+    <div id="chart-modal-hd">
+      <span id="chart-modal-title"></span>
+      <div style="display:flex;gap:0.4rem;">
+        <button class="chart-btn" id="chart-modal-dl" title="Download PNG">↓</button>
+        <button class="chart-btn" id="chart-modal-close" title="Close">×</button>
+      </div>
+    </div>
+    <div id="chart-modal-body">
+      <canvas id="modal-canvas"></canvas>
+    </div>
+  </div>
+</div>
+
 <script>
   /* ── Chart.js dark-mode defaults ───────────────────────────────────────── */
   Chart.defaults.color          = '#666';
@@ -179,72 +315,93 @@
   const DATA_URL = 'data/processed/metrics.json';
   const OCR_URL  = 'data/processed/ocr.json';
 
-  // Key metrics to chart and show in snapshot.
-  // 'Cost to Income Ratio' is derived client-side (not stored in data).
-  const KEY_METRICS = [
-    'Cost to Income Ratio',
-    'Return on Equity',
-    'Return on Assets',
-    'NIM',
-  ];
+  const TABS = {
+    profitability:   ['NIM', 'Return on Equity', 'Return on Assets', 'Cost to Income Ratio', 'RORWA'],
+    capital:         ['CET1 Ratio', 'Tier 1 Capital Ratio', 'Total Capital Ratio', 'Loan-to-Deposit Ratio', 'Risk Density'],
+    'asset quality': ['NPL Ratio', 'Total Non-Performing Loans', 'Provisioning Coverage'],
+    liquidity:       ['Core Funding Ratio (CFR)', '1-Month Mismatch Ratio', '1-Week Mismatch Ratio',
+                      'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1'],
+  };
+
+  const KEY_METRICS = Object.values(TABS).flat();
 
   const METRIC_LABELS = {
-    'Cost to Income Ratio': 'Cost to Income (%)',
-    'Return on Equity':     'Return on Equity (%)',
-    'Return on Assets':     'Return on Assets (%)',
-    'NIM':                  'Net Interest Margin (%)',
+    'Cost to Income Ratio':            'Cost to Income (%)',
+    'Return on Equity':                'Return on Equity (%)',
+    'Return on Assets':                'Return on Assets (%)',
+    'NIM':                             'Net Interest Margin (%)',
+    'RORWA':                           'Return on Risk-Weighted Assets (%)',
+    'Risk Density':                    'Risk Density (%)',
+    'Provisioning Coverage':           'Provisioning Coverage (%)',
+    'Loan-to-Deposit Ratio':           'Loan-to-Deposit Ratio (%)',
+    'CET1 Ratio':                      'CET1 Ratio (%)',
+    'Tier 1 Capital Ratio':            'Tier 1 Capital Ratio (%)',
+    'Total Capital Ratio':             'Total Capital Ratio (%)',
+    'NPL Ratio':                       'NPL Ratio (%)',
+    'Total Non-Performing Loans':      'Non-Performing Loans (NZDm)',
+    'Core Funding Ratio (CFR)':        'Core Funding Ratio (%)',
+    '1-Month Mismatch Ratio':          '1-Month Mismatch Ratio (%)',
+    '1-Week Mismatch Ratio':           '1-Week Mismatch Ratio (%)',
+    'Top 5 Non-Bank Credit Exposures': 'Top 5 Non-Bank Exposures (% CET1)',
+    'Top 5 Bank Credit Exposures':     'Top 5 Bank Exposures (% CET1)',
+    'Bank Exposures ≥10% of CET1':     'Bank Exposures ≥10% CET1 (count)',
   };
 
-  // Default banks shown on load.
   const TOP_6_BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];
+  const STANDALONE  = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
+                        'Heartland','ICBC','CCB','BOC','BOB','BOI'];
 
-  // All standalone (non-group) entities.
-  const STANDALONE = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
-                      'Heartland','ICBC','CCB','BOC','BOB','BOI'];
-
-  // Brand colours (approx).
   const BANK_COLORS = {
-    'ANZ':      '#0064A3',
-    'ASB':      '#C8102E',
-    'BNZ':      '#231F20',
-    'Westpac':  '#D5001C',
-    'Kiwibank': '#1B7A3E',
-    'Rabobank': '#FF6600',
-    'TSB':      '#5B3FA6',
-    'SBS':      '#005BAA',
-    'Co-op':    '#2ECC71',
-    'Heartland':'#F39C12',
-    'ICBC':     '#E74C3C',
-    'CCB':      '#8E44AD',
-    'BOC':      '#16A085',
-    'BOB':      '#D35400',
-    'BOI':      '#2C3E50',
-    'ANZ Group':'#7FB3D3',
-    'WBC Group':'#E8929A',
-    'CBA Group':'#95A5A6',
-    'BOC Group':'#76D7C4',
-    'CCB Group':'#C39BD3',
-    'Rabo Group':'#FAD7A0',
+    'ANZ':       '#0064A3', 'ASB':      '#C8102E', 'BNZ':       '#231F20',
+    'Westpac':   '#D5001C', 'Kiwibank': '#1B7A3E', 'Rabobank':  '#FF6600',
+    'TSB':       '#5B3FA6', 'SBS':      '#005BAA', 'Co-op':     '#2ECC71',
+    'Heartland': '#F39C12', 'ICBC':     '#E74C3C', 'CCB':       '#8E44AD',
+    'BOC':       '#16A085', 'BOB':      '#D35400', 'BOI':       '#2C3E50',
+    'ANZ Group': '#7FB3D3', 'WBC Group':'#E8929A', 'CBA Group': '#95A5A6',
+    'BOC Group': '#76D7C4', 'CCB Group':'#C39BD3', 'Rabo Group':'#FAD7A0',
     'ICBC Group':'#F1948A',
   };
-  function bankColor(name) {
-    return BANK_COLORS[name] || '#636e72';
-  }
+  function bankColor(name) { return BANK_COLORS[name] || '#636e72'; }
 
   /* ── State ─────────────────────────────────────────────────────────────── */
-  let allRows  = [];
-  let allPeriods = [];
-  let allEntities = [];
+  let allRows      = [];
+  let allPeriods   = [];
+  let allEntities  = [];
   let selectedEntities = new Set(TOP_6_BANKS);
-  let charts = [];        // Chart.js instances
-  let ocrRows = [];       // OCR canonical rows [{entity,metric,value,period,source}]
-  let rangePreset = localStorage.getItem('rangePreset') || 'all';
+  let charts       = [];
+  let chartMeta    = [];   // { metric, label, chartConfig } per chart in current tab
+  let modalChart   = null;
+  let modalChartIdx = -1;
+  let ocrRows      = [];
+  let rangePreset  = localStorage.getItem('rangePreset')     || 'all';
+  let showOcrEvents   = localStorage.getItem('showOcrEvents')   === 'true';
+  let showNzEvents    = localStorage.getItem('showNzEvents')    === 'true';
+  let showSectorAvg   = localStorage.getItem('showSectorAvg')   === 'true';
+  let activeTab       = localStorage.getItem('activeTab')       || 'profitability';
+  let snapshotPeriod  = localStorage.getItem('snapshotPeriod')  || '';
+  let sortState       = { col: -1, dir: 1 };
+  let lastLookup      = {};
+  let lastVisible     = [];
 
-  /* ── Derived data: Cost to Income Ratio ───────────────────────────────── */
-  /**
-   * Build a nested map: entity → period → metric → value
-   * and add a computed 'Cost to Income Ratio' entry where possible.
-   */
+  // NZ/global events inlined for static-site delivery.
+  const NZ_EVENTS = [
+    { period: '2019-Q4', label: 'RBNZ capital reform', category: 'regulatory' },
+    { period: '2020-Q1', label: 'COVID-19 lockdown',   category: 'macro'      },
+    { period: '2020-Q1', label: 'OCR → 0.25%',         category: 'monetary'   },
+    { period: '2020-Q3', label: 'OCR → 0.10% (floor)', category: 'monetary'   },
+    { period: '2020-Q4', label: 'FLP launched',         category: 'monetary'   },
+    { period: '2021-Q1', label: 'LVR removed',          category: 'regulatory' },
+    { period: '2021-Q3', label: 'OCR hikes begin',      category: 'monetary'   },
+    { period: '2021-Q4', label: 'LVR reinstated',       category: 'regulatory' },
+    { period: '2022-Q2', label: 'Kiwibank buyback',     category: 'market'     },
+    { period: '2023-Q1', label: 'SVB/Credit Suisse',    category: 'market'     },
+    { period: '2023-Q3', label: 'OCR peaks 5.50%',      category: 'monetary'   },
+    { period: '2023-Q3', label: 'Capital reform starts',category: 'regulatory' },
+    { period: '2024-Q3', label: 'OCR easing begins',    category: 'monetary'   },
+  ];
+  const EVENT_COLORS = { monetary: '#00C3A5', regulatory: '#f0a500', macro: '#888', market: '#888' };
+
+  /* ── Derived data: Cost to Income Ratio and other computed metrics ─────── */
   function buildLookup(rows) {
     const lookup = {};
     for (const r of rows) {
@@ -252,7 +409,6 @@
       if (!lookup[r.entity][r.period]) lookup[r.entity][r.period] = {};
       lookup[r.entity][r.period][r.metric] = r.value;
     }
-    // Compute CIR for each entity+period
     for (const [entity, periods] of Object.entries(lookup)) {
       for (const [period, metrics] of Object.entries(periods)) {
         const opex = metrics['Operating Expenses'];
@@ -260,13 +416,35 @@
         const trad = metrics['Trading and Hedging Gains'];
         const fees = metrics['Fees and Commission Income'];
         const oth  = metrics['Other Income'];
-        // All components must be non-null and income > 0
         if (opex != null && nii != null) {
           const income = nii + (trad ?? 0) + (fees ?? 0) + (oth ?? 0);
           if (income > 0) {
             lookup[entity][period]['Cost to Income Ratio'] =
-              Math.round((opex / income) * 1000) / 10; // round to 1dp
+              Math.round((opex / income) * 1000) / 10;
           }
+        }
+        const pat = metrics['Profit After Tax'];
+        const rwa = metrics['Total Risk-Weighted Assets'];
+        if (pat != null && rwa != null && rwa !== 0) {
+          lookup[entity][period]['RORWA'] =
+            Math.round((pat / rwa) * 10000) / 100;
+        }
+        const loans = metrics['Net Loans and Advances'];
+        if (rwa != null && loans != null && loans !== 0) {
+          lookup[entity][period]['Risk Density'] =
+            Math.round((rwa / loans) * 10000) / 100;
+        }
+        const indProv = metrics['Individual Provisions'];
+        const colProv = metrics['Collective Provisions'];
+        const npl     = metrics['Total Non-Performing Loans'];
+        if (indProv != null && colProv != null && npl != null && npl !== 0) {
+          lookup[entity][period]['Provisioning Coverage'] =
+            Math.round(((indProv + colProv) / npl) * 10000) / 100;
+        }
+        const deposits = metrics['Deposits'];
+        if (loans != null && deposits != null && deposits !== 0) {
+          lookup[entity][period]['Loan-to-Deposit Ratio'] =
+            Math.round((loans / deposits) * 10000) / 100;
         }
       }
     }
@@ -280,33 +458,46 @@
       const resp = await fetch(DATA_URL);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       allRows = await resp.json();
-
       allPeriods  = [...new Set(allRows.map(r => r.period))].sort();
       allEntities = [...new Set(allRows.map(r => r.entity))].sort();
-
       statusEl.textContent =
         `${allRows.length.toLocaleString()} metric rows — ` +
         `${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
-
       buildBankSelector();
+      buildTabBar();
+      buildSnapshotPeriodSelector();
       applyRangePreset(rangePreset, false);
       render();
     } catch (err) {
-      statusEl.textContent =
-        'No data yet — trigger the fetch-data then process-data workflows.';
+      statusEl.textContent = 'No data yet — trigger the fetch-data then process-data workflows.';
       statusEl.style.color = '#666';
       console.warn('Data load failed:', err);
     }
-
-    // Load OCR data independently — failure is non-fatal
     try {
       const ocrResp = await fetch(OCR_URL);
       if (ocrResp.ok) {
         ocrRows = await ocrResp.json();
-        render(); // re-render with OCR overlay
+        render();
       }
     } catch (err) {
-      console.warn('OCR data load failed (NIM chart will render without OCR overlay):', err);
+      console.warn('OCR data load failed:', err);
+    }
+    const freshEl = document.getElementById('freshness');
+    const rbnzLatest = allPeriods.length ? allPeriods[allPeriods.length - 1] : null;
+    let discLatest = null;
+    try {
+      const discResp = await fetch('data/processed/disclosure_metrics.json');
+      if (discResp.ok) {
+        const discRows = await discResp.json();
+        const discPeriods = discRows.map(r => r.period).sort();
+        discLatest = discPeriods.length ? discPeriods[discPeriods.length - 1] : null;
+      }
+    } catch (_) { /* non-fatal */ }
+    if (freshEl) {
+      const parts = [];
+      if (rbnzLatest) parts.push(`RBNZ data: ${rbnzLatest}`);
+      if (discLatest)  parts.push(`Disclosures: ${discLatest}`);
+      freshEl.textContent = parts.join(' · ');
     }
   }
 
@@ -320,13 +511,8 @@
       label.style.setProperty('--bank-color', bankColor(entity));
       label.innerHTML = `<input type="checkbox" value="${escHtml(entity)}"${selectedEntities.has(entity) ? ' checked' : ''}>${escHtml(entity)}`;
       label.addEventListener('change', e => {
-        if (e.target.checked) {
-          selectedEntities.add(entity);
-          label.classList.add('checked');
-        } else {
-          selectedEntities.delete(entity);
-          label.classList.remove('checked');
-        }
+        if (e.target.checked) { selectedEntities.add(entity); label.classList.add('checked'); }
+        else { selectedEntities.delete(entity); label.classList.remove('checked'); }
         render();
       });
       container.appendChild(label);
@@ -337,8 +523,7 @@
     selectedEntities = new Set(entities);
     document.querySelectorAll('.bank-check-label').forEach(label => {
       const cb = label.querySelector('input');
-      const entity = cb.value;
-      const sel = selectedEntities.has(entity);
+      const sel = selectedEntities.has(cb.value);
       cb.checked = sel;
       label.classList.toggle('checked', sel);
     });
@@ -347,31 +532,50 @@
 
   document.getElementById('btn-top6').addEventListener('click', () => applySelection(TOP_6_BANKS));
   document.getElementById('btn-all').addEventListener('click', () => applySelection(allEntities));
-  document.getElementById('btn-standalone').addEventListener('click', () =>
-    applySelection(allEntities.filter(e => STANDALONE.includes(e))));
+  document.getElementById('btn-standalone').addEventListener('click', () => {
+    applySelection(getStandaloneEntities(allEntities));
+  });
+
+  /** Return entities that are not group-level, using entity_type field or STANDALONE fallback. */
+  function getStandaloneEntities(entities) {
+    const groupEntities = new Set(allRows.filter(r => r.entity_type === 'group').map(r => r.entity));
+    return groupEntities.size > 0
+      ? entities.filter(e => !groupEntities.has(e))
+      : entities.filter(e => STANDALONE.includes(e));
+  }
+
+  /* ── Tab bar ──────────────────────────────────────────────────────────── */
+  function buildTabBar() {
+    const bar = document.getElementById('tab-bar');
+    bar.innerHTML = '';
+    for (const tabName of Object.keys(TABS)) {
+      const btn = document.createElement('button');
+      btn.className = 'tab-btn' + (tabName === activeTab ? ' active' : '');
+      btn.textContent = tabName;
+      btn.addEventListener('click', () => {
+        activeTab = tabName;
+        localStorage.setItem('activeTab', activeTab);
+        bar.querySelectorAll('.tab-btn').forEach(b =>
+          b.classList.toggle('active', b.textContent === activeTab));
+        renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+      });
+      bar.appendChild(btn);
+    }
+  }
 
   /* ── Range filter ─────────────────────────────────────────────────────── */
-  /**
-   * Apply a period range preset.
-   * @param {string|number} preset - 'all', 4, 8, or 16 (quarters)
-   * @param {boolean} [doRender=true] - Whether to trigger a re-render
-   */
   function applyRangePreset(preset, doRender = true) {
     rangePreset = String(preset);
     localStorage.setItem('rangePreset', rangePreset);
-    // Update button styles
     document.querySelectorAll('.range-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.range === rangePreset);
     });
     if (doRender) render();
   }
 
-  /** Return the filtered period array based on the active range preset. */
   function getVisiblePeriods() {
     const n = parseInt(rangePreset, 10);
-    if (!isNaN(n) && n > 0 && allPeriods.length > n) {
-      return allPeriods.slice(-n);
-    }
+    if (!isNaN(n) && n > 0 && allPeriods.length > n) return allPeriods.slice(-n);
     return allPeriods;
   }
 
@@ -379,54 +583,150 @@
     btn.addEventListener('click', () => applyRangePreset(btn.dataset.range));
   });
 
+  /* ── OCR & NZ events toggles ──────────────────────────────────────────── */
+  (function initOcrToggle() {
+    const chk = document.getElementById('chk-ocr-events');
+    chk.checked = showOcrEvents;
+    chk.addEventListener('change', () => {
+      showOcrEvents = chk.checked;
+      localStorage.setItem('showOcrEvents', showOcrEvents);
+      render();
+    });
+  })();
+
+  (function initNzEventsToggle() {
+    const chk = document.getElementById('chk-nz-events');
+    chk.checked = showNzEvents;
+    chk.addEventListener('change', () => {
+      showNzEvents = chk.checked;
+      localStorage.setItem('showNzEvents', showNzEvents);
+      render();
+    });
+  })();
+
+  (function initSectorAvgToggle() {
+    const chk = document.getElementById('chk-sector-avg');
+    chk.checked = showSectorAvg;
+    chk.addEventListener('change', () => {
+      showSectorAvg = chk.checked;
+      localStorage.setItem('showSectorAvg', showSectorAvg);
+      render();
+    });
+  })();
+
+  /* ── Snapshot period selector ─────────────────────────────────────────── */
+  function buildSnapshotPeriodSelector() {
+    const sel = document.getElementById('snapshot-period-sel');
+    sel.innerHTML = '';
+    for (let i = allPeriods.length - 1; i >= 0; i--) {
+      const opt = document.createElement('option');
+      opt.value = allPeriods[i];
+      opt.textContent = allPeriods[i];
+      sel.appendChild(opt);
+    }
+    if (snapshotPeriod && allPeriods.includes(snapshotPeriod)) {
+      sel.value = snapshotPeriod;
+    } else {
+      sel.value = allPeriods[allPeriods.length - 1] || '';
+      snapshotPeriod = sel.value;
+    }
+    sel.addEventListener('change', () => {
+      snapshotPeriod = sel.value;
+      localStorage.setItem('snapshotPeriod', snapshotPeriod);
+      renderSnapshot(lastLookup, lastVisible);
+    });
+  }
+
+  function getSnapshotPeriod() {
+    if (snapshotPeriod && allPeriods.includes(snapshotPeriod)) return snapshotPeriod;
+    return allPeriods[allPeriods.length - 1] || '';
+  }
+
   /* ── Render ───────────────────────────────────────────────────────────── */
   function render() {
+    sortState = { col: -1, dir: 1 };
     const lookup = buildLookup(allRows);
     const visible = allEntities.filter(e => selectedEntities.has(e));
+    lastLookup = lookup;
+    lastVisible = visible;
     const visiblePeriods = getVisiblePeriods();
-
     renderCharts(lookup, visible, visiblePeriods);
-    renderSnapshot(lookup, visible, visiblePeriods);
-
-    const latestPeriod = visiblePeriods[visiblePeriods.length - 1] || '';
-    document.getElementById('latest-period-label').textContent = latestPeriod;
+    renderSnapshot(lookup, visible);
     document.getElementById('period-range').textContent =
-      visiblePeriods.length ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}` : '';
+      visiblePeriods.length
+        ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}`
+        : '';
   }
 
   /* ── Charts ───────────────────────────────────────────────────────────── */
-  /**
-   * Build an OCR period→value lookup from the loaded ocrRows.
-   * @returns {Object} period → OCR value (%)
-   */
   function buildOcrLookup() {
     const ocr = {};
-    for (const r of ocrRows) {
-      ocr[r.period] = r.value;
-    }
+    for (const r of ocrRows) ocr[r.period] = r.value;
     return ocr;
   }
 
+  function buildOcrEvents(visiblePeriods) {
+    const ocrLookup = buildOcrLookup();
+    const visibleSet = new Set(visiblePeriods);
+    const events = [];
+    for (let i = 1; i < allPeriods.length; i++) {
+      const prev = allPeriods[i - 1];
+      const curr = allPeriods[i];
+      const prevVal = ocrLookup[prev];
+      const currVal = ocrLookup[curr];
+      if (prevVal == null || currVal == null) continue;
+      const delta = currVal - prevVal;
+      if (Math.abs(delta) >= 0.25 && visibleSet.has(curr))
+        events.push({ period: curr, delta: Math.round(delta * 100) / 100 });
+    }
+    return events;
+  }
+
   function renderCharts(lookup, visible, visiblePeriods) {
-    // Destroy existing charts
     charts.forEach(c => c.destroy());
     charts = [];
+    chartMeta = [];
 
     const grid = document.getElementById('chart-grid');
     grid.innerHTML = '';
 
-    const ocrLookup = buildOcrLookup();
-    const isNimChart = (metric) => metric === 'NIM';
+    const tabMetrics    = TABS[activeTab] || [];
+    const ocrLookup     = buildOcrLookup();
+    const ocrEvents     = showOcrEvents ? buildOcrEvents(visiblePeriods) : [];
+    const nzEventLines  = showNzEvents
+      ? NZ_EVENTS
+          .filter(e => visiblePeriods.includes(e.period))
+          .map(e => ({ period: e.period, delta: null, color: EVENT_COLORS[e.category] || '#888', label: e.label }))
+      : [];
 
-    for (let i = 0; i < KEY_METRICS.length; i++) {
-      const metric = KEY_METRICS[i];
+    // Sector avg: use entity_type field to identify standalone banks, fall back to constant
+    const standaloneVisible = getStandaloneEntities(visible);
+
+    for (let i = 0; i < tabMetrics.length; i++) {
+      const metric = tabMetrics[i];
       const label  = METRIC_LABELS[metric] || metric;
-      const addOcr = isNimChart(metric) && ocrRows.length > 0;
+      const addOcr = metric === 'NIM' && ocrRows.length > 0;
 
       const card = document.createElement('div');
       card.className = 'chart-card';
-      card.innerHTML = `<h3>${escHtml(label)}</h3><div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>`;
+      card.innerHTML = `
+        <div class="chart-card-hd">
+          <h3>${escHtml(label)}</h3>
+          <div class="chart-actions">
+            <button class="chart-btn" data-action="download" data-idx="${i}" title="Download PNG">↓</button>
+            <button class="chart-btn" data-action="fullscreen" data-idx="${i}" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>`;
       grid.appendChild(card);
+
+      card.addEventListener('click', e => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const idx = parseInt(btn.dataset.idx, 10);
+        if (btn.dataset.action === 'download') downloadChart(idx);
+        else if (btn.dataset.action === 'fullscreen') openFullscreen(idx);
+      });
 
       const datasets = visible.map(entity => {
         const data = visiblePeriods.map(p => {
@@ -434,85 +734,79 @@
           return (v != null) ? v : null;
         });
         return {
-          label: entity,
-          data,
-          borderColor: bankColor(entity),
-          backgroundColor: bankColor(entity) + '22',
-          borderWidth: 2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.3,
-          spanGaps: false,
-          yAxisID: 'y',
+          label: entity, data,
+          borderColor: bankColor(entity), backgroundColor: bankColor(entity) + '22',
+          borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
+          tension: 0.3, spanGaps: false, yAxisID: 'y',
         };
       }).filter(ds => ds.data.some(v => v != null));
 
-      // Add OCR overlay on NIM chart only
-      if (addOcr) {
-        const ocrData = visiblePeriods.map(p => {
-          const v = ocrLookup[p];
-          return (v != null) ? v : null;
+      // Sector average line
+      if (showSectorAvg && standaloneVisible.length >= 2) {
+        const avgData = visiblePeriods.map(p => {
+          const vals = standaloneVisible
+            .map(e => lookup[e]?.[p]?.[metric])
+            .filter(v => v != null);
+          return vals.length >= 2 ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
         });
-        if (ocrData.some(v => v != null)) {
+        if (avgData.some(v => v != null)) {
           datasets.push({
-            label: 'OCR (%)',
-            data: ocrData,
-            borderColor: '#00C3A5',
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            borderDash: [5, 3],
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            tension: 0.3,
-            spanGaps: true,
-            yAxisID: 'yOCR',
+            label: 'Sector avg', data: avgData,
+            borderColor: '#888', backgroundColor: 'transparent',
+            borderWidth: 1.5, borderDash: [5, 3],
+            pointRadius: 0, tension: 0.3, spanGaps: false, yAxisID: 'y',
           });
         }
       }
 
-      const ctx = document.getElementById(`chart-${i}`).getContext('2d');
+      // OCR overlay on NIM chart
+      if (addOcr) {
+        const ocrData = visiblePeriods.map(p => ocrLookup[p] ?? null);
+        if (ocrData.some(v => v != null)) {
+          datasets.push({
+            label: 'OCR (%)', data: ocrData,
+            borderColor: '#00C3A5', backgroundColor: 'transparent',
+            borderWidth: 2, borderDash: [5, 3],
+            pointRadius: 0, pointHoverRadius: 4,
+            tension: 0.3, spanGaps: true, yAxisID: 'yOCR',
+          });
+        }
+      }
 
       const scalesConfig = {
         x: {
           ticks: {
             font: { size: 10, family: "'IBM Plex Mono', monospace" },
-            color: '#666',
-            maxRotation: 45,
-            autoSkip: true,
-            maxTicksLimit: 16,
+            color: '#666', maxRotation: 45, autoSkip: true, maxTicksLimit: 16,
           },
-          grid: { display: false },
-          border: { color: '#252b33' },
+          grid: { display: false }, border: { color: '#252b33' },
         },
         y: {
           ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
-          grid: { color: '#252b33' },
-          border: { color: '#252b33' },
+          grid: { color: '#252b33' }, border: { color: '#252b33' },
         },
       };
 
       if (addOcr) {
         scalesConfig.yOCR = {
-          type: 'linear',
-          position: 'right',
+          type: 'linear', position: 'right',
           title: {
-            display: true,
-            text: 'OCR (%)',
-            color: '#00C3A5',
+            display: true, text: 'OCR (%)', color: '#00C3A5',
             font: { size: 9, family: "'IBM Plex Mono', monospace" },
           },
           ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#00C3A5' },
-          grid: { drawOnChartArea: false },
-          border: { color: '#252b33' },
+          grid: { drawOnChartArea: false }, border: { color: '#252b33' },
         };
       }
 
-      const chart = new Chart(ctx, {
+      const tooltipCallback = ctx =>
+        ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`;
+
+      const chartConfig = {
         type: 'line',
-        data: { labels: visiblePeriods, datasets },
+        data: { labels: [...visiblePeriods], datasets },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
           plugins: {
             legend: {
@@ -523,45 +817,148 @@
               },
             },
             tooltip: {
-              backgroundColor: '#161b22',
-              borderColor: '#252b33',
-              borderWidth: 1,
-              titleColor: '#e6e6e6',
-              bodyColor: '#e6e6e6',
-              callbacks: {
-                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`,
-              },
+              backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+              titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+              callbacks: { label: tooltipCallback },
             },
+            verticalLines: { lines: [...ocrEvents, ...nzEventLines] },
           },
           scales: scalesConfig,
         },
-      });
+      };
+
+      const ctx = document.getElementById(`chart-${i}`).getContext('2d');
+      const chart = new Chart(ctx, chartConfig);
       charts.push(chart);
+      chartMeta.push({ metric, label, chartConfig, tooltipCallback });
     }
   }
 
-  /* ── Snapshot table ───────────────────────────────────────────────────── */
-  function renderSnapshot(lookup, visible, visiblePeriods) {
-    const latestPeriod = visiblePeriods[visiblePeriods.length - 1];
-    const prevPeriod   = visiblePeriods[visiblePeriods.length - 2];
+  /* ── Chart download ───────────────────────────────────────────────────── */
+  function downloadChart(idx) {
+    const isModal = (idx === -1);
+    const chart   = isModal ? modalChart : charts[idx];
+    if (!chart) return;
+    const meta    = isModal ? chartMeta[modalChartIdx] : chartMeta[idx];
+    const canvas  = chart.canvas;
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = canvas.width;
+    offscreen.height = canvas.height;
+    const offCtx = offscreen.getContext('2d');
+    offCtx.fillStyle = '#0d0d0d';
+    offCtx.fillRect(0, 0, offscreen.width, offscreen.height);
+    offCtx.drawImage(canvas, 0, 0);
+    const slug = (meta ? meta.metric : 'chart').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const date = new Date().toISOString().slice(0, 10);
+    const link = document.createElement('a');
+    link.download = `${slug}-${date}.png`;
+    link.href = offscreen.toDataURL('image/png');
+    link.click();
+  }
 
-    // Header
+  /* ── Fullscreen modal ─────────────────────────────────────────────────── */
+  function openFullscreen(idx) {
+    if (idx < 0 || idx >= chartMeta.length) return;
+    modalChartIdx = idx;
+    const meta = chartMeta[idx];
+    document.getElementById('chart-modal-title').textContent = meta.label;
+    const overlay = document.getElementById('chart-modal-overlay');
+    overlay.style.display = 'flex';
+    if (modalChart) { modalChart.destroy(); modalChart = null; }
+    const canvas = document.getElementById('modal-canvas');
+    // structuredClone copies all serialisable config; tooltip callback is stored
+    // separately on chartMeta and reattached below (functions can't be cloned).
+    const modalConfig = structuredClone(meta.chartConfig);
+    modalConfig.options.plugins.tooltip.callbacks = { label: meta.tooltipCallback };
+    modalChart = new Chart(canvas, modalConfig);
+  }
+
+  function closeFullscreen() {
+    if (modalChart) { modalChart.destroy(); modalChart = null; }
+    document.getElementById('chart-modal-overlay').style.display = 'none';
+    modalChartIdx = -1;
+  }
+
+  document.getElementById('chart-modal-close').addEventListener('click', closeFullscreen);
+  document.getElementById('chart-modal-dl').addEventListener('click', () => downloadChart(-1));
+  document.getElementById('chart-modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('chart-modal-overlay')) closeFullscreen();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
+
+  /* ── Snapshot table ───────────────────────────────────────────────────── */
+  function renderSnapshot(lookup, visible) {
+    const selPeriod = getSnapshotPeriod();
+    document.getElementById('latest-period-label').textContent = selPeriod;
+
+    const sel = document.getElementById('snapshot-period-sel');
+    if (sel && sel.value !== selPeriod) sel.value = selPeriod;
+
+    const periodIdx  = allPeriods.indexOf(selPeriod);
+    const prevPeriod = periodIdx > 0 ? allPeriods[periodIdx - 1] : null;
+
+    // Header with sortable columns
     const head = document.getElementById('snapshot-head');
     head.innerHTML = '<th>Bank</th>' +
-      KEY_METRICS.map(m => `<th>${escHtml(METRIC_LABELS[m] || m)}</th>`).join('');
+      KEY_METRICS.map((m, colIdx) => {
+        let cls = 'sortable';
+        if (sortState.col === colIdx) cls += sortState.dir === 1 ? ' sort-asc' : ' sort-desc';
+        return `<th class="${cls}" data-col="${colIdx}">${escHtml(METRIC_LABELS[m] || m)}</th>`;
+      }).join('');
 
-    // Rows
+    head.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const colIdx = parseInt(th.dataset.col, 10);
+        if (sortState.col === colIdx) sortState.dir = -sortState.dir;
+        else { sortState.col = colIdx; sortState.dir = 1; }
+        renderSnapshot(lastLookup, lastVisible);
+      });
+    });
+
+    // Build rows
+    let rows = visible.map(entity => {
+      const latest = lookup[entity]?.[selPeriod]  || {};
+      const prev   = prevPeriod ? (lookup[entity]?.[prevPeriod] || {}) : {};
+      return { entity, latest, prev };
+    });
+
+    // Apply sort
+    if (sortState.col >= 0 && sortState.col < KEY_METRICS.length) {
+      const metric = KEY_METRICS[sortState.col];
+      rows.sort((a, b) => {
+        const av = a.latest[metric];
+        const bv = b.latest[metric];
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return (av - bv) * sortState.dir;
+      });
+    }
+
+    // Best / worst per column
+    const colBest  = {};
+    const colWorst = {};
+    for (let colIdx = 0; colIdx < KEY_METRICS.length; colIdx++) {
+      const metric = KEY_METRICS[colIdx];
+      const vals = visible
+        .map(e => lookup[e]?.[selPeriod]?.[metric])
+        .filter(v => v != null);
+      if (vals.length >= 2) {
+        colBest[colIdx]  = Math.max(...vals);
+        colWorst[colIdx] = Math.min(...vals);
+      }
+    }
+
+    // Render body
     const body = document.getElementById('snapshot-body');
     body.innerHTML = '';
-    for (const entity of visible) {
-      const latest = lookup[entity]?.[latestPeriod] || {};
-      const prev   = lookup[entity]?.[prevPeriod]   || {};
+    for (const { entity, latest, prev } of rows) {
       const tr = document.createElement('tr');
       let cells = `<td><div class="entity-cell">
         <span class="swatch" style="background:${bankColor(entity)}"></span>
         ${escHtml(entity)}
       </div></td>`;
-      for (const metric of KEY_METRICS) {
+      KEY_METRICS.forEach((metric, colIdx) => {
         const val  = latest[metric];
         const pval = prev[metric];
         if (val == null) {
@@ -572,9 +969,12 @@
             if (val > pval)      trend = '<span class="trend-up">▲</span>';
             else if (val < pval) trend = '<span class="trend-down">▼</span>';
           }
-          cells += `<td>${val.toFixed(1)}${trend}</td>`;
+          let cls = '';
+          if (colBest[colIdx]  != null && val === colBest[colIdx])  cls = 'cell-best';
+          if (colWorst[colIdx] != null && val === colWorst[colIdx]) cls = 'cell-worst';
+          cells += `<td class="${cls}">${val.toFixed(1)}${trend}</td>`;
         }
-      }
+      });
       tr.innerHTML = cells;
       body.appendChild(tr);
     }

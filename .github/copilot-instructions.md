@@ -76,6 +76,7 @@ Every metric name used in code, config, or data files must appear verbatim in `g
 4. Tests live in `tests/`; run with `make test` or `pytest tests/`.
 5. Do not commit generated data files (`data/raw/*.xlsx`) — these are in `.gitignore`.
 6. Processed data files (`data/processed/`) are committed by the pipeline workflow.
+7. When a script produces output files in `docs/data/processed/`, verify the output path does not overwrite an existing file that serves a different purpose.
 
 ---
 
@@ -98,3 +99,13 @@ Ask:
 Record actionable findings as backlog items (`backlog.md`) or ADRs (`docs-adr/`). Discard observations that produced no action. Do not improve things that aren't broken.
 
 This is not a review of the application's correctness — it is a review of the process that built it.
+
+---
+
+## Output File Naming
+
+Processed output files in `docs/data/processed/` must use descriptive suffixes to avoid naming collisions:
+- `_metrics.json` — canonical rows in the `entity | metric | value | period | source` schema
+- `_index.json` — lookup or reference lists (e.g. the list of available PDFs with their metadata)
+
+Do not use bare names like `disclosures.json` when both a metrics file and an index file exist for the same source. Use `disclosure_metrics.json` and `disclosures.json` (or similar) to make the purpose unambiguous. When creating a new output file, check whether the chosen path already exists and serves a different purpose.

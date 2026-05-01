@@ -62,7 +62,7 @@ _BALANCE_METRICS: list[tuple[str, list[str], str]] = [
     ("Total Assets", [r"total assets\b"], "first_value"),
     (
         "Net Loans and Advances",
-        [r"(?:net )?loans and advances\b"],
+        [r"(?:net )?loans and advances\b", r"advances to customers\b"],
         "first_value",
     ),
     ("Deposits", [r"^deposits\b"], "first_value"),
