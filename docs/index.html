@@ -257,7 +257,7 @@
     /* Chart nav link */
     .chart-nav { text-align: right; margin-top: 0.35rem; }
     .chart-nav-link { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.05em; }
-    .chart-nav-link:hover { color: var(--teal); }
+    .chart-nav-link:hover, .chart-nav-link:focus { color: var(--teal); outline: none; }
 
     /* NZ events legend */
     .nz-legend {
@@ -991,6 +991,16 @@
       .map(e => ({ period: e.period, delta: null, color: '#00C3A5', label: e.label }));
   }
 
+  /** Returns OCR rate-change events for the visible period window.
+   *  Prefers quarter-over-quarter delta detection from ocrRows when available;
+   *  falls back to hardcoded NZ_EVENTS monetary markers otherwise. */
+  function getOcrEvents(visiblePeriods) {
+    if (!showOcrEvents) return [];
+    return ocrRows.length > 0
+      ? buildOcrEvents(visiblePeriods)
+      : buildOcrFallbackEvents(visiblePeriods);
+  }
+
   function renderCharts(lookup, visible, visiblePeriods) {
     charts.forEach(c => c.destroy());
     charts = [];
@@ -1001,9 +1011,7 @@
 
     const tabMetrics    = TABS[activeTab] || [];
     const ocrLookup     = buildOcrLookup();
-    const ocrEvents = showOcrEvents
-      ? (ocrRows.length > 0 ? buildOcrEvents(visiblePeriods) : buildOcrFallbackEvents(visiblePeriods))
-      : [];
+    const ocrEvents     = getOcrEvents(visiblePeriods);
     const nzEventLines  = showNzEvents
       ? NZ_EVENTS
           .filter(e => visiblePeriods.includes(e.period))
@@ -1030,7 +1038,7 @@
           </div>
         </div>
         <div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>
-        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link" tabindex="-1">snapshot ↓</a></div>`;
+        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a></div>`;
       grid.appendChild(card);
 
       card.addEventListener('click', e => {
@@ -1227,17 +1235,20 @@
     document.getElementById('pop-glossary-link').href = `glossary.html#${metricSlug}`;
     const pop = document.getElementById('metric-popover');
     pop.style.display = 'block';
+    // Positioning strategy: popover appears below the trigger button. If there is
+    // insufficient vertical space below, it flips above. Constrained to viewport
+    // with POPOVER_SCREEN_MARGIN px margins on all sides.
     const POPOVER_MAX_WIDTH      = 340;
     const POPOVER_SCREEN_MARGIN  = 8;
     const POPOVER_TRIGGER_OFFSET = 6;
-    const POPOVER_EST_HEIGHT     = 200;
-    const rect = triggerEl.getBoundingClientRect();
-    const popW = Math.min(POPOVER_MAX_WIDTH, window.innerWidth * 0.9);
+    const rect    = triggerEl.getBoundingClientRect();
+    const popW    = Math.min(POPOVER_MAX_WIDTH, window.innerWidth * 0.9);
+    const popH    = pop.offsetHeight; // actual rendered height after display:block
     let left = rect.left;
     if (left + popW > window.innerWidth - POPOVER_SCREEN_MARGIN) left = window.innerWidth - popW - POPOVER_SCREEN_MARGIN;
     if (left < POPOVER_SCREEN_MARGIN) left = POPOVER_SCREEN_MARGIN;
     let top = rect.bottom + POPOVER_TRIGGER_OFFSET;
-    if (top + POPOVER_EST_HEIGHT > window.innerHeight) top = rect.top - POPOVER_EST_HEIGHT - POPOVER_TRIGGER_OFFSET;
+    if (top + popH > window.innerHeight - POPOVER_SCREEN_MARGIN) top = rect.top - popH - POPOVER_TRIGGER_OFFSET;
     if (top < POPOVER_SCREEN_MARGIN) top = POPOVER_SCREEN_MARGIN;
     pop.style.left = left + 'px';
     pop.style.top  = top + 'px';
@@ -1255,11 +1266,14 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFullscreen(); closeMetricPopover(); } });
 
   document.getElementById('pop-close').addEventListener('click', closeMetricPopover);
+  function shouldClosePopoverOnClick(e, pop) {
+    return pop.style.display === 'block'
+      && !pop.contains(e.target)
+      && !e.target.closest('.chart-info-btn');
+  }
   document.addEventListener('click', e => {
     const pop = document.getElementById('metric-popover');
-    if (pop.style.display === 'block' && !pop.contains(e.target) && !e.target.closest('.chart-info-btn')) {
-      closeMetricPopover();
-    }
+    if (shouldClosePopoverOnClick(e, pop)) closeMetricPopover();
   });
 
   /* ── Snapshot table ───────────────────────────────────────────────────── */
