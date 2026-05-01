@@ -751,13 +751,13 @@
       const vals = standalone.map(e => lookup[e]?.[period]?.[metric]).filter(v => v != null);
       if (!vals.length) return '';
       const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-      const best  = standalone.reduce((best, e) => {
-        const v = lookup[e]?.[period]?.[metric]; return (v != null && (best == null || v > best.v)) ? { e, v } : best;
+      const best  = standalone.reduce((best, entity) => {
+        const v = lookup[entity]?.[period]?.[metric]; return (v != null && (best == null || v > best.v)) ? { e: entity, v } : best;
       }, null);
-      const worst = standalone.reduce((worst, e) => {
-        const v = lookup[e]?.[period]?.[metric]; return (v != null && (worst == null || v < worst.v)) ? { e, v } : worst;
+      const worst = standalone.reduce((worst, entity) => {
+        const v = lookup[entity]?.[period]?.[metric]; return (v != null && (worst == null || v < worst.v)) ? { e: entity, v } : worst;
       }, null);
-      const bestStr  = best  ? `↑ ${best.e}  ${best.v.toFixed(1)}${unit}` : '';
+      const bestStr  = best  ? `↑ ${best.e} ${best.v.toFixed(1)}${unit}` : '';
       const worstStr = worst ? `↓ ${worst.e} ${worst.v.toFixed(1)}${unit}` : '';
       return `<div class="kpi-card">
         <div class="kpi-label">${label}</div>
