@@ -258,3 +258,34 @@ Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers"
 - *What slowed things down?* First TDD attempt for W-0074 used the fixed patterns in the test parameters, making the test pass immediately (not a true Red). Caught and corrected before proceeding.
 - *Single change to prevent this next time?* When testing extraction patterns, import `_BALANCE_METRICS` (or the equivalent production constant) in the test rather than hardcoding patterns in the test parameter. This ensures the test exercises the production code paths and will be Red when the production pattern is wrong.
 - *Is this a pattern?* Yes — when unit-testing configurable behaviour (like regex pattern lists), always import the production config into the test rather than duplicating it.
+
+---
+
+## 2026-05-01 (continued) — W-0031, W-0035, W-0036, W-0060: charts, events, freshness badge
+
+**Items completed:**
+
+### W-0031 — Loan-to-Deposit Ratio chart
+
+- `docs/index.html`: LDR = (Net Loans / Deposits) × 100 computed in `buildLookup()`. Added to `KEY_METRICS` and `METRIC_LABELS`. Renders as a chart alongside existing metrics. No new data pipeline work — both series already in `metrics.json`.
+- `glossary.md`: Loan-to-Deposit Ratio definition added.
+
+### W-0035 — OCR rate-change vertical annotations
+
+- `docs/index.html`: `verticalLinesPlugin` (custom Chart.js plugin, registered globally) draws dashed vertical lines via canvas `afterDraw`. Red = OCR hike, teal = OCR cut. Threshold: |delta| ≥ 0.25 (25 bps). `buildOcrEvents()` computes quarterly OCR deltas from already-loaded `ocr.json`. "OCR rate changes" checkbox toggle (off by default); preference persisted in `localStorage`.
+
+### W-0036 — NZ/global events overlay
+
+- `config/events.yaml`: 13 curated events (2019-Q4 through 2024-Q3) covering RBNZ capital reform, COVID, FLP, LVR cycles, OCR peaks, SVB/Credit Suisse, Kiwibank govt buyback. Category colour scheme: teal=monetary, amber=regulatory, grey=macro/market.
+- `docs/index.html`: `NZ_EVENTS` and `EVENT_COLORS` inlined as JS constants for static-site delivery. "NZ events" checkbox toggle (off by default). Both OCR event and NZ event annotation layers merged and passed to `verticalLinesPlugin` per chart render cycle.
+
+### W-0060 — Data freshness badge
+
+- `docs/index.html`: Freshness badge below the status line shows "RBNZ data: YYYY-QN · Disclosures: YYYY-QN". RBNZ latest derived from `allPeriods.last`. Disclosure latest derived from loaded `disclosure_metrics.json`. Badge is teal-coloured; failure to load disclosures is non-fatal.
+
+**Mini-retro:**
+
+- *Did the process work?* Yes — all four items were purely client-side and did not require pipeline changes. The vertical annotation plugin approach (custom Chart.js plugin using `afterDraw`) is clean and avoids external dependencies.
+- *What slowed things down?* The NZ events toggle required merging two annotation layers (OCR events + NZ events) before passing to the plugin. Initial implementation passed them separately, requiring a merge step.
+- *Single change to prevent that next time?* Design the annotation layer API to accept a unified array from the start rather than retrofitting it.
+- *Is this a pattern?* Yes — when adding multiple overlays that share the same rendering path, define the unified data contract first.

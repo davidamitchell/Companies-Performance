@@ -149,6 +149,7 @@
     <h1>NZ Bank Performance</h1>
     <p>Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
+    <div id="freshness" style="font-size:var(--text-xs);color:var(--teal);margin-top:0.25rem;"></div>
 
     <div class="bank-selector">
       <div class="bank-selector-label">
@@ -405,6 +406,25 @@
       }
     } catch (err) {
       console.warn('OCR data load failed (NIM chart will render without OCR overlay):', err);
+    }
+
+    // Load disclosure metrics for freshness badge — failure is non-fatal
+    const freshEl = document.getElementById('freshness');
+    const rbnzLatest = allPeriods.length ? allPeriods[allPeriods.length - 1] : null;
+    let discLatest = null;
+    try {
+      const discResp = await fetch('data/processed/disclosure_metrics.json');
+      if (discResp.ok) {
+        const discRows = await discResp.json();
+        const discPeriods = discRows.map(r => r.period).sort();
+        discLatest = discPeriods.length ? discPeriods[discPeriods.length - 1] : null;
+      }
+    } catch (_) { /* non-fatal */ }
+    if (freshEl) {
+      const parts = [];
+      if (rbnzLatest) parts.push(`RBNZ data: ${rbnzLatest}`);
+      if (discLatest)  parts.push(`Disclosures: ${discLatest}`);
+      freshEl.textContent = parts.join(' · ');
     }
   }
 

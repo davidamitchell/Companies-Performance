@@ -615,9 +615,9 @@ Series IDs confirmed by direct XLSX inspection. The mismatch ratios are in the L
 
 ### W-0031
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -681,9 +681,9 @@ Series IDs confirmed: `DBB.QIA10` (S&P), `DBB.QIA20` (Fitch), `DBB.QIA30` (Moody
 
 ### W-0035
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -697,9 +697,9 @@ OCR movements are the single most important macroeconomic driver of bank NIM —
 
 ### W-0036
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
@@ -1185,9 +1185,9 @@ Currently PDFs are committed to the repo individually. Automating downloads mean
 
 ### W-0060
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-01
 
 ### Outcome
 
