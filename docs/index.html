@@ -203,11 +203,8 @@
       .chart-grid { grid-template-columns: 1fr; }
     }
 
-    /* ── Sticky controls bar ─────────────────────────────────────────────── */
+    /* ── Controls bar ────────────────────────────────────────────────────── */
     .sticky-controls {
-      position: sticky;
-      top: 48px;
-      z-index: 50;
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       padding: 0.65rem 0;
@@ -1396,7 +1393,7 @@
           label: lbl, data,
           borderColor: bankColor(entity), backgroundColor: bankColor(entity) + '22',
           borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
-          tension: 0.3, spanGaps: false, yAxisID: 'y',
+          tension: 0, spanGaps: false, yAxisID: 'y',
         };
       }).filter(ds => ds.data.some(v => v != null));
 
@@ -1413,7 +1410,7 @@
             label: 'Sector avg', data: avgData,
             borderColor: '#888', backgroundColor: 'transparent',
             borderWidth: 1.5, borderDash: [5, 3],
-            pointRadius: 0, tension: 0.3, spanGaps: false, yAxisID: 'y',
+            pointRadius: 0, tension: 0, spanGaps: false, yAxisID: 'y',
           });
         }
       }
@@ -1443,7 +1440,7 @@
             borderColor: '#00C3A5', backgroundColor: 'transparent',
             borderWidth: 2, borderDash: [5, 3],
             pointRadius: 0, pointHoverRadius: 4,
-            tension: 0.3, spanGaps: true, yAxisID: 'yOCR',
+            tension: 0, spanGaps: true, yAxisID: 'yOCR',
           });
         }
       }
