@@ -646,7 +646,7 @@ def test_main_batch_with_force() -> None:
     bank = _make_bank()
     received_force: list[bool] = []
 
-    def _fake_download_bank(b: dict, *, force: bool = False) -> tuple[int, int]:
+    def _fake_download_bank(bank: dict, *, force: bool = False) -> tuple[int, int]:
         received_force.append(force)
         return 1, 0
 

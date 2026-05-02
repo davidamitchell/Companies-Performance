@@ -713,6 +713,10 @@
     'Total Capital Ratio', 'Core Funding Ratio (CFR)', 'RORWA', 'Provisioning Coverage',
     'Non-Interest Income Share', 'Capital Headroom', 'Pre-Provision Profit',
   ]);
+  // Trend flag thresholds: slope must exceed this fraction of the metric's std-dev to be
+  // considered a real trend (not noise). Fallback applies when std-dev is zero.
+  const TREND_THRESHOLD_SIGMA_FACTOR = 0.05;
+  const TREND_THRESHOLD_FALLBACK     = 0.1;
 
   /* ── State ─────────────────────────────────────────────────────────────── */
   let allRows      = [];
@@ -1375,7 +1379,7 @@
             const meanVal = nonNull.reduce((a, b) => a + b, 0) / nonNull.length;
             const variance = nonNull.reduce((a, b) => a + (b - meanVal) ** 2, 0) / nonNull.length;
             const stdDev = Math.sqrt(variance);
-            const threshold = stdDev > 0 ? 0.05 * stdDev : 0.1;
+            const threshold = stdDev > 0 ? TREND_THRESHOLD_SIGMA_FACTOR * stdDev : TREND_THRESHOLD_FALLBACK;
             const higherBetter = HIGHER_IS_BETTER.has(metric);
             const improving    = higherBetter ? slope > threshold  : slope < -threshold;
             const deteriorating = higherBetter ? slope < -threshold : slope > threshold;
@@ -1801,8 +1805,9 @@
   }
 
   /* ── Trailing slope helper ────────────────────────────────────────────── */
+  const TRAILING_PERIODS_FOR_SLOPE = 4; // quarters used for trend direction
   function trailingSlope(data) {
-    const vals = data.slice(-4).filter(v => v != null);
+    const vals = data.slice(-TRAILING_PERIODS_FOR_SLOPE).filter(v => v != null);
     if (vals.length < 2) return null;
     return (vals[vals.length - 1] - vals[0]) / (vals.length - 1);
   }
