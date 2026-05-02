@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Lineage — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <style>
+    section h2 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: var(--text-xs); }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-muted); font-weight: 500; background: var(--surface); }
+    td { color: var(--text); }
+    .schema-field {
+      display: grid;
+      grid-template-columns: 140px 80px 1fr;
+      gap: 0.5rem 1rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: var(--text-xs);
+    }
+    .schema-field:last-child { border-bottom: none; }
+    .field-name { color: var(--teal); font-weight: 500; }
+    .field-type { color: var(--text-muted); }
+    .field-desc { color: var(--text-muted); line-height: 1.5; }
+    .pipeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .pipeline-step:last-child { border-bottom: none; }
+    .step-num { color: var(--teal); font-weight: 600; font-size: var(--text-sm); min-width: 24px; }
+    .step-body { flex: 1; }
+    .step-title { color: var(--text); font-weight: 500; font-size: var(--text-sm); margin-bottom: 0.25rem; }
+    .step-desc { color: var(--text-muted); font-size: var(--text-xs); line-height: 1.6; }
+    .code-ref { font-family: 'IBM Plex Mono', monospace; color: var(--teal); font-size: var(--text-xs); }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" aria-label="Site">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html" aria-current="page" class="active">Lineage</a>
+      <a href="coverage.html">Coverage</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <h1>Data Lineage</h1>
+    <p class="page-subtitle">Data model, pipeline stages, and source-to-output file mappings.</p>
+  </div>
+
+  <main>
+
+    <section id="data-model" style="margin-bottom:2rem;">
+      <h2>data model</h2>
+      <p style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:1rem;">
+        All processed data conforms to a canonical five-field schema. Every metric row across all sources
+        uses the same structure, enabling uniform querying and presentation.
+      </p>
+      <div style="background:var(--surface);border:1px solid var(--border);padding:1rem 1.25rem;">
+        <div class="schema-field">
+          <span class="field-name">entity</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">Institution name (e.g. "ANZ", "Kiwibank"). Standalone bank or group entity as published by RBNZ.</span>
+        </div>
+        <div class="schema-field">
+          <span class="field-name">metric</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">Canonical metric name as defined in <a href="glossary.html" style="color:var(--teal);">glossary.md</a>. Must match exactly — no synonyms or abbreviations.</span>
+        </div>
+        <div class="schema-field">
+          <span class="field-name">value</span>
+          <span class="field-type">number | null</span>
+          <span class="field-desc">Numeric value as published in the source. Not rounded, normalised, or imputed. Null when the source has no data for this entity/metric/period combination.</span>
+        </div>
+        <div class="schema-field">
+          <span class="field-name">period</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">Quarter identifier in YYYY-QN format (e.g. "2024-Q3"). Derived from quarter-end date in the source file.</span>
+        </div>
+        <div class="schema-field">
+          <span class="field-name">source</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">Data source identifier (e.g. "RBNZ", "ANZ-GDS"). Links the row back to its originating file for audit purposes.</span>
+        </div>
+      </div>
+      <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.75rem;">
+        Additionally, processed rows include an <span class="code-ref">entity_type</span> field
+        (<code style="color:var(--teal);">"standalone"</code> or <code style="color:var(--teal);">"group"</code>)
+        used by the frontend to distinguish bank-level from group-level data.
+      </p>
+    </section>
+
+    <section id="pipeline-stages" style="margin-bottom:2rem;">
+      <h2>pipeline stages</h2>
+      <p style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:1rem;">
+        The pipeline has three stages with strict separation of concerns.
+      </p>
+      <div>
+        <div class="pipeline-step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <div class="step-title">Fetch (Ingestion)</div>
+            <div class="step-desc">
+              Downloads raw source files from public URLs. No transformation is performed.
+              Output is committed to <span class="code-ref">data/raw/</span>.<br>
+              Script: <span class="code-ref">scripts/fetch_data.py</span><br>
+              Workflow: <span class="code-ref">.github/workflows/fetch-data.yml</span> — runs monthly on the 1st and on manual dispatch.
+            </div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <div class="step-title">Process (Transformation)</div>
+            <div class="step-desc">
+              Parses raw XLSX, maps series IDs to canonical metric names via <span class="code-ref">config/metrics.yaml</span>,
+              normalises period strings, and writes canonical CSV rows to <span class="code-ref">data/processed/</span>.
+              Also produces <span class="code-ref">docs/data/processed/metrics.json</span> for frontend consumption.<br>
+              Module: <span class="code-ref">src/processing/</span><br>
+              Workflow: <span class="code-ref">.github/workflows/process-data.yml</span>
+            </div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <div class="step-title">Publish (Presentation)</div>
+            <div class="step-desc">
+              The <span class="code-ref">docs/</span> directory is published via GitHub Pages. No build step — all files are static HTML, CSS, and JS.
+              The frontend fetches <span class="code-ref">data/processed/metrics.json</span> at runtime and computes derived metrics client-side.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="source-files" style="margin-bottom:2rem;">
+      <h2>source files</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Input file</th>
+            <th>Source</th>
+            <th>Output file(s)</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="code-ref">data/raw/Bank-Financial-Strength-Dashboard-Data.xlsx</span></td>
+            <td>RBNZ Bank Dashboard</td>
+            <td>
+              <span class="code-ref">data/processed/metrics.csv</span><br>
+              <span class="code-ref">docs/data/processed/metrics.json</span>
+            </td>
+            <td>Primary source. ~27 series mapped via config/metrics.yaml. Both standalone and group entities included.</td>
+          </tr>
+          <tr>
+            <td>Bank General Disclosure Statement PDFs</td>
+            <td>Individual bank websites</td>
+            <td>
+              <span class="code-ref">data/processed/disclosure_metrics.csv</span><br>
+              <span class="code-ref">docs/data/processed/disclosure_metrics.json</span><br>
+              <span class="code-ref">docs/data/processed/disclosures.json</span>
+            </td>
+            <td>Supplementary source for additional metrics not in RBNZ dashboard. Extracted by the disclosure pipeline.</td>
+          </tr>
+          <tr>
+            <td><span class="code-ref">data/raw/ocr.json</span></td>
+            <td>RBNZ OCR data</td>
+            <td><span class="code-ref">docs/data/processed/ocr.json</span></td>
+            <td>Used for OCR overlay on the NIM chart. Quarterly OCR values.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="disclosure-pipeline" style="margin-bottom:2rem;">
+      <h2>disclosure pipeline</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;">
+        In addition to the RBNZ XLSX pipeline, this repository includes a supplementary disclosure pipeline
+        that extracts financial metrics from bank General Disclosure Statements (GDS) — quarterly PDF reports
+        published by each bank on their own website.
+      </p>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
+        The disclosure pipeline follows the same canonical schema and separation-of-concerns as the main pipeline:
+        PDFs are fetched to <span class="code-ref">data/raw/disclosures/</span>, parsed in
+        <span class="code-ref">src/processing/</span>, and output to
+        <span class="code-ref">docs/data/processed/disclosure_metrics.json</span>.
+        A metadata index of available disclosure PDFs is written to
+        <span class="code-ref">docs/data/processed/disclosures.json</span> and used by the
+        <a href="disclosures.html" style="color:var(--teal);">Disclosures</a> page.
+      </p>
+    </section>
+
+    <section id="configuration" style="margin-bottom:2rem;">
+      <h2>configuration files</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="code-ref">config/metrics.yaml</span></td>
+            <td>Maps RBNZ series IDs (e.g. DBB.QIB12) to canonical metric names. Only mapped series are included in processed output.</td>
+          </tr>
+          <tr>
+            <td><span class="code-ref">config/capital_requirements.yaml</span></td>
+            <td>RBNZ 2019 capital reform phase-in schedule. CET1 minimums by bank type (D-SIB vs non-D-SIB) and year 2023–2028. Used to compute Capital Headroom.</td>
+          </tr>
+          <tr>
+            <td><span class="code-ref">glossary.md</span></td>
+            <td>Canonical metric name registry. Every metric name in code, config, or data must appear verbatim here.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <footer>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
+  </footer>
+
+</div>
+</body>
+</html>

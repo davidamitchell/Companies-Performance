@@ -460,9 +460,9 @@ Charts are currently small within the responsive grid. Full-screen mode allows d
 
 ### W-0021
 
-status: ready
+status: done
 created: 2026-04-28
-updated: 2026-04-28
+updated: 2026-05-02
 
 ### Outcome
 
@@ -643,9 +643,9 @@ Net Loans and Advances (DBB.QIG30) and Deposits (DBB.QIG55) are already mapped i
 
 ### W-0032
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -791,9 +791,9 @@ Metric drill-down is the complement to bank drill-down (W-0038). It answers "how
 
 ### W-0040
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -857,9 +857,9 @@ The snapshot table currently renders in entity-name order with no sorting. For a
 
 ### W-0044
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -873,9 +873,9 @@ The lag relationship between OCR changes and bank NIM is the central empirical q
 
 ### W-0045
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -889,9 +889,9 @@ The range band is a low-effort, high-insight addition for understanding sector-w
 
 ### W-0046
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -905,9 +905,9 @@ Rankings make sector-relative performance immediately readable — "ANZ ranks 1s
 
 ### W-0047
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -921,9 +921,9 @@ Template-based narrative generation is more auditable and lower-risk than LLM co
 
 ### W-0048
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -955,9 +955,9 @@ The extraction approach was spike-driven (S-0004) and implementation decisions a
 
 ### W-0050
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -971,9 +971,9 @@ Data gaps are unavoidable but must be transparent. Users citing figures from thi
 
 ### W-0051
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1115,9 +1115,9 @@ Credit concentration series confirmed in RBNZ XLSX (QIJ section). These metrics 
 
 ### W-0055
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1131,9 +1131,9 @@ Pre-Provision Profit isolates underlying operating performance from the credit c
 
 ### W-0056
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1147,9 +1147,9 @@ NZ retail banks are heavily NII-dependent (typically 80–90% of operating incom
 
 ### W-0057
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1163,9 +1163,9 @@ The impairment charge as % of loans is the cleanest indicator of where the credi
 
 ### W-0058
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1181,9 +1181,9 @@ Cost-to-Income Ratio captures efficiency relative to revenue; opex intensity cap
 
 ### W-0059
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1213,9 +1213,9 @@ Users need to know whether they are looking at current data. The RBNZ publishes 
 
 ### W-0061
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1231,9 +1231,9 @@ The RBNZ updates the dashboard quarterly (approximately March, June, September, 
 
 ### W-0062
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1247,9 +1247,9 @@ Shareable URLs are a basic requirement for a research tool used collaboratively.
 
 ### W-0063
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1263,9 +1263,9 @@ Power users (analysts, researchers) need raw data access to run their own calcul
 
 ### W-0064
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1281,9 +1281,9 @@ The snapshot table on `docs/index.html` is compact by design. A dedicated snapsh
 
 ### W-0065
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1419,9 +1419,9 @@ Challenge: The project has no `package.json` or Node tooling. Adding Jest introd
 
 ### W-0070
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1435,9 +1435,9 @@ The `adr` skill defines a richer format than the MADR format currently in use. T
 
 ### W-0071
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 

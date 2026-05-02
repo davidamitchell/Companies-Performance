@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metric Detail — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    .metric-def-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
+    }
+    .metric-def-card h2 { font-size: var(--text-lg); font-weight: 600; color: var(--text); margin-bottom: 0.75rem; }
+    .metric-def-card p  { font-size: var(--text-sm); line-height: 1.6; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .metric-source { font-size: var(--text-xs); color: var(--teal); margin-top: 0.5rem; }
+    .metric-good   { font-size: var(--text-xs); color: var(--text-muted); font-style: italic; margin-top: 0.3rem; }
+
+    .chart-wrap-full { height: 320px; position: relative; margin-bottom: 2rem; }
+
+    section h2 {
+      font-size: var(--text-sm); font-weight: 500; text-transform: lowercase;
+      letter-spacing: 0.1em; color: var(--text-muted);
+      margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+    }
+
+    .ranking-table { width: 100%; border-collapse: collapse; }
+    .ranking-table th, .ranking-table td { padding: 0.5rem 0.75rem; font-size: var(--text-sm); border-bottom: 1px solid var(--border); }
+    .ranking-table th { color: var(--text-muted); font-weight: 500; letter-spacing: 0.05em; text-align: left; }
+    .ranking-table td { color: var(--text); }
+    .rank-1 { color: var(--teal); font-weight: 600; }
+    .trend-up { color: var(--teal); } .trend-down { color: #e05252; }
+
+    #status { font-size: var(--text-xs); color: var(--teal); margin-top: 0.4rem; letter-spacing: 0.04em; }
+    .back-link { display:inline-flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);text-decoration:none;margin-bottom:1.25rem; }
+    .back-link:hover { color: var(--teal); }
+  </style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="coverage.html">Coverage</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <main id="main-content">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    <div class="page-header">
+      <h1 id="metric-title">Metric Detail</h1>
+      <div id="status">Loading…</div>
+    </div>
+
+    <div class="metric-def-card" id="metric-def-card" style="display:none">
+      <h2 id="metric-def-name"></h2>
+      <p id="metric-def-text"></p>
+      <p id="metric-def-note"></p>
+      <div class="metric-source" id="metric-def-source"></div>
+      <div class="metric-good"   id="metric-def-good"></div>
+    </div>
+
+    <section aria-label="Full history chart">
+      <h2>full history — all banks</h2>
+      <div class="chart-wrap-full"><canvas id="history-chart"></canvas></div>
+    </section>
+
+    <section aria-label="Cross-bank ranking">
+      <h2>latest quarter ranking</h2>
+      <div class="table-scroll-wrap">
+        <table class="ranking-table" id="ranking-table">
+          <caption>Cross-bank ranking for the most recent available quarter</caption>
+          <thead><tr><th>Rank</th><th>Bank</th><th>Value</th><th>Trend (4Q)</th></tr></thead>
+          <tbody id="ranking-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="coverage.html">Coverage</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
+  </footer>
+</div>
+
+<script>
+  Chart.defaults.color='#666'; Chart.defaults.borderColor='#252b33'; Chart.defaults.font.family="'IBM Plex Mono', monospace"; Chart.defaults.font.size=10;
+
+  const DATA_URL = 'data/processed/metrics.json';
+  const METRIC_SLUGS = {
+    'nim':'NIM','return-on-equity':'Return on Equity','return-on-assets':'Return on Assets',
+    'cost-to-income-ratio':'Cost to Income Ratio','rorwa':'RORWA','cet1-ratio':'CET1 Ratio',
+    'tier-1-capital-ratio':'Tier 1 Capital Ratio','total-capital-ratio':'Total Capital Ratio',
+    'loan-to-deposit-ratio':'Loan-to-Deposit Ratio','risk-density':'Risk Density',
+    'npl-ratio':'NPL Ratio','total-non-performing-loans':'Total Non-Performing Loans',
+    'provisioning-coverage':'Provisioning Coverage','core-funding-ratio':'Core Funding Ratio (CFR)',
+    '1-month-mismatch-ratio':'1-Month Mismatch Ratio','1-week-mismatch-ratio':'1-Week Mismatch Ratio',
+    'top-5-non-bank-credit-exposures':'Top 5 Non-Bank Credit Exposures',
+    'top-5-bank-credit-exposures':'Top 5 Bank Credit Exposures',
+    'bank-exposures-10pct-cet1':'Bank Exposures ≥10% of CET1',
+    'capital-headroom':'Capital Headroom','pre-provision-profit':'Pre-Provision Profit',
+    'non-interest-income-share':'Non-Interest Income Share','opex-intensity':'Opex Intensity',
+    'credit-impairment-rate':'Credit Impairment Rate',
+  };
+  const METRIC_INFO = {
+    'NIM':{definition:'Net Interest Margin. Difference between interest income and interest paid, as a percentage of average earning assets.',source:'RBNZ series DBB.QIE15',note:'Core profitability metric. Rises when asset repricing outpaces liability repricing.',good:'NZ majors typically 1.5%–2.5%. Higher is generally better.'},
+    'Return on Equity':{definition:'Annualised profit after tax divided by average equity.',source:'RBNZ series DBB.QIE13',note:'Profitability relative to shareholder capital.',good:'NZ major banks target ~12%–15%.'},
+    'Return on Assets':{definition:'Annualised profit after tax divided by average total assets.',source:'RBNZ series DBB.QIE10',note:'Capital-structure-neutral profitability.',good:'NZ major banks typically 0.8%–1.2%.'},
+    'Cost to Income Ratio':{definition:'Operating expenses divided by total operating income.',source:'Derived: Opex ÷ (NII + Non-Interest Income). RBNZ series DBB.QIE60, QIE40, QIE50, QIE55, QIE57.',note:'Efficiency ratio. Lower means more efficient.',good:'Below 45% is efficient. Above 55% signals cost pressure.'},
+    'RORWA':{definition:'Return on Risk-Weighted Assets. Profit after tax divided by total risk-weighted assets.',source:'Derived: PAT ÷ RWA. RBNZ series DBB.QIE90, QIB90.',note:'Unlike ROE, not affected by leverage decisions.',good:'NZ major banks typically 1.0%–1.5%.'},
+    'CET1 Ratio':{definition:'Common Equity Tier 1 capital divided by risk-weighted assets.',source:'RBNZ series DBB.QIB12',note:'Core capital buffer. RBNZ capital reform raises minimums through 2028.',good:'Higher is more resilient. RBNZ minimum ~4.5%; majors target 11%–13%.'},
+    'Tier 1 Capital Ratio':{definition:'Tier 1 capital (CET1 + AT1) divided by risk-weighted assets.',source:'RBNZ series DBB.QIB14',note:'Broader than CET1; AT1 absorbs losses on a going-concern basis.',good:'NZ major banks typically 11%–14%.'},
+    'Total Capital Ratio':{definition:'Total regulatory capital (Tier 1 + Tier 2) divided by risk-weighted assets.',source:'RBNZ series DBB.QIB10',note:'Broadest capital measure. Tier 2 includes subordinated debt.',good:'NZ major banks typically 13%–16%.'},
+    'Loan-to-Deposit Ratio':{definition:'Net Loans and Advances divided by Deposits.',source:'Derived: Net Loans ÷ Deposits. RBNZ series DBB.QIG30, QIG55.',note:'Funding structure. Above 100% means loans exceed deposits.',good:'Closer to 100% means more stable retail-funded balance sheet.'},
+    'Risk Density':{definition:'Total Risk-Weighted Assets divided by Net Loans and Advances.',source:'Derived: RWA ÷ Net Loans. RBNZ series DBB.QIB90, QIG30.',note:'Average risk weight of the loan book.',good:'IRB banks typically 30%–40%; standardised approach ~50%–70%.'},
+    'NPL Ratio':{definition:'Non-performing loans (90+ days past due or impaired) as a percentage of gross loans.',source:'RBNZ series DBB.QIC10',note:'Asset quality indicator. Rising signals credit cycle deterioration.',good:'Below 1.0% is low-stress. Above 2% indicates material credit stress.'},
+    'Total Non-Performing Loans':{definition:'Sum of impaired loans and loans 90+ days past due, in NZDm.',source:'RBNZ series DBB.QIC50',note:'Absolute value of NPLs. Use alongside NPL Ratio for context.',good:'Monitor trends relative to loan book size.'},
+    'Provisioning Coverage':{definition:'Total provisions (Individual + Collective) divided by Total Non-Performing Loans.',source:'Derived from RBNZ series DBB.QIC60, QIC70, QIC50.',note:'Above 100% means provisions exceed NPLs.',good:'Above 100% is well-provisioned. NZ major banks typically 80%–150%.'},
+    'Core Funding Ratio (CFR)':{definition:'Ratio of stable funding to total loans and advances.',source:'RBNZ series DBB.QIH30',note:'RBNZ minimum is 75%. Measures funding stability.',good:'Higher is more stable. Banks typically hold 80%–90%.'},
+    '1-Month Mismatch Ratio':{definition:'1-month cumulative net cash position as a ratio of total liabilities.',source:'RBNZ series DBB.QIH10',note:'Negative means net cash outflow under a stress scenario.',good:'Less negative is better.'},
+    '1-Week Mismatch Ratio':{definition:'1-week cumulative net cash position as a ratio of total liabilities.',source:'RBNZ series DBB.QIH20',note:'Immediate liquidity resilience.',good:'Less negative is better.'},
+    'Top 5 Non-Bank Credit Exposures':{definition:'Sum of five largest non-bank credit exposures as a percentage of CET1.',source:'RBNZ series DBB.QIJ10',note:'Single-borrower concentration risk.',good:'Lower is better.'},
+    'Top 5 Bank Credit Exposures':{definition:'Sum of five largest interbank credit exposures as a percentage of CET1.',source:'RBNZ series DBB.QIJ30',note:'Interbank counterparty concentration.',good:'Lower is better.'},
+    'Bank Exposures ≥10% of CET1':{definition:'Total interbank exposures exceeding 10% of CET1, as a percentage of CET1.',source:'RBNZ series DBB.QIJ40',note:'Material single-counterparty interbank positions.',good:'Lower indicates fewer concentrated positions.'},
+    'Capital Headroom':{definition:'CET1 Ratio minus the applicable RBNZ minimum CET1 requirement.',source:'Derived: CET1 Ratio − RBNZ minimum. RBNZ series DBB.QIB12.',note:'Buffer above regulatory minimum. D-SIBs face an additional surcharge.',good:'Higher headroom provides more flexibility.'},
+    'Pre-Provision Profit':{definition:'NII + Non-Interest Income minus Operating Expenses, before credit impairment and tax.',source:'Derived from RBNZ series DBB.QIE15, QIE40, QIE50, QIE55, QIE57, QIE60.',note:'Core earnings power before credit cycle effects.',good:'Rising PPP indicates improving underlying profitability.'},
+    'Non-Interest Income Share':{definition:'Non-interest income as a percentage of total operating income.',source:'Derived from RBNZ series DBB.QIE40, QIE50, QIE55, QIE57.',note:'Income diversification. Higher means less reliance on interest margin.',good:'NZ major banks typically 15%–25%.'},
+    'Opex Intensity':{definition:'Operating expenses annualised as a proportion of total assets, in basis points.',source:'Derived: (Opex × 4) ÷ Total Assets × 10000. RBNZ series DBB.QIE60, QIG10.',note:'Asset-based efficiency metric.',good:'Lower is more efficient. NZ major banks typically 50–90 bps.'},
+    'Credit Impairment Rate':{definition:'Change in Total Non-Performing Loans divided by Net Loans, as a percentage.',source:'Derived: ΔNPL ÷ Net Loans × 100. RBNZ series DBB.QIC50, QIG30.',note:'Proxy for the impairment charge rate.',good:'Close to zero or negative is better.'},
+  };
+  const HIGHER_IS_BETTER = new Set(['NIM','Return on Equity','Return on Assets','CET1 Ratio','Tier 1 Capital Ratio','Total Capital Ratio','Core Funding Ratio (CFR)','RORWA','Provisioning Coverage','Non-Interest Income Share','Capital Headroom','Pre-Provision Profit']);
+  const BANK_COLORS = {'ANZ':'#0064A3','ASB':'#C8102E','BNZ':'#231F20','Westpac':'#D5001C','Kiwibank':'#1B7A3E','Rabobank':'#FF6600','TSB':'#5B3FA6','SBS':'#005BAA','Co-op':'#2ECC71','Heartland':'#F39C12','ICBC':'#E74C3C','CCB':'#8E44AD','BOC':'#16A085','BOB':'#D35400','BOI':'#2C3E50'};
+  function bankColor(n){return BANK_COLORS[n]||'#636e72';}
+
+  const slug       = new URLSearchParams(location.search).get('m') || '';
+  const metricName = METRIC_SLUGS[slug] || slug;
+  document.title   = `${metricName} — NZ Bank Performance`;
+  document.getElementById('metric-title').textContent = metricName;
+
+  function buildLookup(rows){
+    const lk={};
+    for(const r of rows){if(!lk[r.entity])lk[r.entity]={};if(!lk[r.entity][r.period])lk[r.entity][r.period]={};lk[r.entity][r.period][r.metric]=r.value;}
+    for(const [entity,periods] of Object.entries(lk)){for(const [period,m] of Object.entries(periods)){
+      const opex=m['Operating Expenses'],nii=m['Net Interest Income'],trad=m['Trading and Hedging Gains'],fees=m['Fees and Commission Income'],oth=m['Other Income'];
+      if(opex!=null&&nii!=null){const inc=nii+(trad??0)+(fees??0)+(oth??0);if(inc>0)lk[entity][period]['Cost to Income Ratio']=Math.round((opex/inc)*1000)/10;}
+      const pat=m['Profit After Tax'],rwa=m['Total Risk-Weighted Assets'];
+      if(pat!=null&&rwa!=null&&rwa!==0)lk[entity][period]['RORWA']=Math.round((pat/rwa)*10000)/100;
+      const loans=m['Net Loans and Advances'];
+      if(rwa!=null&&loans!=null&&loans!==0)lk[entity][period]['Risk Density']=Math.round((rwa/loans)*10000)/100;
+      const ip=m['Individual Provisions'],cp=m['Collective Provisions'],npl=m['Total Non-Performing Loans'];
+      if(ip!=null&&cp!=null&&npl!=null&&npl!==0)lk[entity][period]['Provisioning Coverage']=Math.round(((ip+cp)/npl)*10000)/100;
+      const dep=m['Deposits'];
+      if(loans!=null&&dep!=null&&dep!==0)lk[entity][period]['Loan-to-Deposit Ratio']=Math.round((loans/dep)*10000)/100;
+      if(nii!=null&&opex!=null)lk[entity][period]['Pre-Provision Profit']=Math.round(nii+(trad??0)+(fees??0)+(oth??0)-opex);
+      const nonII=(trad??0)+(fees??0)+(oth??0);if(nii!=null){const tot=nii+nonII;if(tot>0)lk[entity][period]['Non-Interest Income Share']=Math.round((nonII/tot)*1000)/10;}
+      const ta=m['Total Assets'];if(opex!=null&&ta!=null&&ta!==0)lk[entity][period]['Opex Intensity']=Math.round((opex*4/ta)*10000*10)/10;
+      const cet1=m['CET1 Ratio'];if(cet1!=null){const D={ANZ:1.5,ASB:1.0,BNZ:1.0,Westpac:1.5};const y=parseInt((period||'').split('-')[0],10)||0;const base=y>=2026?6.5:y>=2025?6.0:y>=2024?5.5:y>=2023?5.0:4.5;lk[entity][period]['Capital Headroom']=Math.round((cet1-base-(D[entity]??0))*100)/100;}
+    }}
+    return lk;
+  }
+  function buildProvisioningMetrics(lk,periods){
+    for(const entity of Object.keys(lk)){for(let i=1;i<periods.length;i++){const c=periods[i],p=periods[i-1];const cn=lk[entity]?.[c]?.['Total Non-Performing Loans'],pn=lk[entity]?.[p]?.['Total Non-Performing Loans'],ln=lk[entity]?.[c]?.['Net Loans and Advances'];if(cn!=null&&pn!=null&&ln!=null&&ln!==0)lk[entity][c]['Credit Impairment Rate']=Math.round(((cn-pn)/ln)*100000)/1000;}}
+  }
+
+  async function init(){
+    const statusEl=document.getElementById('status');
+    try {
+      const resp=await fetch(DATA_URL);
+      if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const rows=await resp.json();
+      const periods=[...new Set(rows.map(r=>r.period))].sort();
+      const entities=[...new Set(rows.map(r=>r.entity))].sort();
+      const lk=buildLookup(rows);
+      buildProvisioningMetrics(lk,periods);
+
+      // Populate definition card
+      const info=METRIC_INFO[metricName];
+      if(info){
+        document.getElementById('metric-def-card').style.display='';
+        document.getElementById('metric-def-name').textContent=metricName;
+        document.getElementById('metric-def-text').textContent=info.definition;
+        document.getElementById('metric-def-note').textContent=info.note||'';
+        document.getElementById('metric-def-source').textContent='Source: '+info.source;
+        document.getElementById('metric-def-good').textContent=info.good||'';
+      }
+
+      // History chart
+      const latestP=periods[periods.length-1];
+      const datasets=entities.map(entity=>{
+        const data=periods.map(p=>lk[entity]?.[p]?.[metricName]??null);
+        if(!data.some(v=>v!=null)) return null;
+        return {label:entity,data,borderColor:bankColor(entity),backgroundColor:bankColor(entity)+'22',borderWidth:2,pointRadius:0,tension:0.3,spanGaps:false};
+      }).filter(Boolean);
+      new Chart(document.getElementById('history-chart').getContext('2d'),{
+        type:'line',
+        data:{labels:[...periods],datasets},
+        options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+          plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8,color:'#666'}},
+            tooltip:{backgroundColor:'#161b22',borderColor:'#252b33',borderWidth:1,titleColor:'#e6e6e6',bodyColor:'#e6e6e6',callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)??'—'}`}}},
+          scales:{x:{ticks:{font:{size:10},color:'#666',maxRotation:45,autoSkip:true,maxTicksLimit:16},grid:{display:false},border:{color:'#252b33'}},y:{ticks:{font:{size:10},color:'#666'},grid:{color:'#252b33'},border:{color:'#252b33'}}}}
+      });
+
+      // Ranking table
+      const pairs=entities.map(e=>({entity:e,val:lk[e]?.[latestP]?.[metricName]})).filter(x=>x.val!=null);
+      const hib=HIGHER_IS_BETTER.has(metricName);
+      pairs.sort((a,b)=>hib?(b.val-a.val):(a.val-b.val));
+      const tbody=document.getElementById('ranking-body');
+      const prevP=periods[periods.length-2]||null;
+      tbody.innerHTML=pairs.map(({entity,val},i)=>{
+        const prev=prevP?lk[entity]?.[prevP]?.[metricName]:null;
+        let trend='';
+        if(prev!=null){if(val>prev)trend='<span class="trend-up">▲</span>';else if(val<prev)trend='<span class="trend-down">▼</span>';}
+        const cls=i===0?'rank-1':'';
+        return `<tr><td class="${cls}">${i+1}</td><td style="color:${bankColor(entity)}">${entity}</td><td>${val.toFixed(1)}</td><td>${trend||'→'}</td></tr>`;
+      }).join('');
+
+      statusEl.textContent=`${metricName} · ${latestP} · ${pairs.length} banks with data`;
+    } catch(err){statusEl.textContent='Data not available.';statusEl.style.color='#666';console.warn(err);}
+  }
+  init();
+</script>
+</body>
+</html>

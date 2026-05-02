@@ -380,3 +380,53 @@ Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers"
 - Root cause of the file naming non-conformance: ADR-0002 specified the standard but the initial scaffold implementation was never checked against it. Fix: Slice Completion Checklist now includes an ADR compliance gate, and the file naming standard is explicitly enforced by the instructions.
 - Root cause of the missing CHANGELOG: W-0068 was in the backlog but not yet executed. The new copilot instructions make CHANGELOG maintenance a hard gate for every schema-changing item.
 - Root cause of the instructions gap: the reference repo (`Latest-developments-`) had evolved since this repo was scaffolded and the divergence was not tracked. Fix: ADR mandate now includes a rule to review the reference repo when making instruction changes.
+
+## 2026-05-02 — Backlog execution: W-0032, W-0040, W-0047, W-0055–W-0063, W-0070–W-0071, W-0021
+
+**What changed:**
+
+- **W-0061**: Added monthly schedule trigger (`0 6 1 * *`) to `fetch-data.yml` alongside `workflow_dispatch`. Updated comment to reflect both triggers.
+- **W-0070**: Added YAML front matter (`title`, `status`, `date`, `authors`, `tags`, `supersedes`, `superseded_by`) to ADR-0001 through ADR-0004. Added coded consequence bullet IDs (POS-001, NEG-001, NEU-001) to all four ADRs.
+- **W-0071**: Added `## Code Review Standard` section to `.github/copilot-instructions.md` with six-point checklist: correctness, data accuracy, test coverage, security, idempotency, ADR compliance.
+- **W-0032**: Created `config/capital_requirements.yaml` with the RBNZ 2019 capital reform phase-in schedule (2023–2028, D-SIB and non-D-SIB). Added Capital Headroom derived metric to `buildLookup()` in `docs/index.html`, using the phase-in schedule and D-SIB surcharges (ANZ/Westpac +1.5%, ASB/BNZ +1.0%). Added to capital tab, METRIC_LABELS, and METRIC_INFO.
+- **W-0055**: Added Pre-Provision Profit (PPP = NII + Trading + Fees + Other − Opex) to `buildLookup()`. Added to profitability tab, METRIC_LABELS, METRIC_INFO.
+- **W-0056**: Added Non-Interest Income Share (%) to `buildLookup()`. Added to profitability tab, METRIC_LABELS, METRIC_INFO.
+- **W-0057**: Added `buildProvisioningMetrics()` function for Credit Impairment Rate (ΔNPL ÷ Net Loans × 100). Called from `render()`. Added to asset quality tab, METRIC_LABELS, METRIC_INFO.
+- **W-0058**: Added Opex Intensity (bps) to `buildLookup()` (quarterly opex × 4 ÷ total assets × 10000). Added to profitability tab, METRIC_LABELS, METRIC_INFO.
+- **W-0062**: Added `syncUrlHash()` and `loadFromHash()` for hash-based URL state encoding (banks, range, tab, mode). Added "📋 Copy link" button with Copied! feedback.
+- **W-0063**: Added `downloadCsv()` function and "↓ CSV" button. Exports filtered data in canonical schema format.
+- **W-0040**: Added Indexed (base=100) chart mode toggle. Rebases all non-OCR datasets to 100 at first non-null value. Stored in `localStorage["chartMode"]`. Shows informational note when active.
+- **W-0047**: Added auto-narrative panel (`#narrative-section`) between KPI row and charts. Generates 4–5 plain-English bullets: NIM trend, ROE leader, CET1 direction, C/I trend, NPL trend. Collapsible with localStorage state.
+- **W-0021**: Created `docs/methodology.html` (KPI formulas, RBNZ series table, derived metrics, capital reform schedule, data currency) and `docs/lineage.html` (data model, pipeline stages, source files, disclosure pipeline). Added Methodology and Lineage nav/footer links to all existing pages.
+
+**Tests:** 192 passed (no regressions).
+
+**Mini-retro:**
+- Batch execution of 13 items in one session was feasible because all items were well-specified with concrete formulas and clear scope. The main risk was JS syntax consistency in the large index.html file — mitigated by using a sub-agent with full context.
+- Root cause of complexity: index.html is a monolithic file. Future work should assess whether splitting into modules would reduce the cognitive load per change.
+
+## 2026-05-02 — Batch 2: W-0045, W-0046, W-0048, W-0051, W-0059
+
+Five items implemented in a single session.
+
+- **W-0045**: Added "Band (min/max)" checkbox to Overlays fieldset. When enabled with ≥2 standalone banks visible, renders a semi-transparent teal shaded band (`#00C3A508` fill) between the min and max values across standalone banks for each period. Uses two hidden `_band_min`/`_band_max` datasets with a `fill: '-1'` Chart.js band fill. Legend entries starting with `_band_` are filtered from display.
+- **W-0046**: Added `#ranking-section` below the snapshot table. `renderRankingTable()` shows rows = banks, columns = KEY_METRICS with data in the selected period. Rank view colours top quartile teal (`.rank-best`) and bottom quartile red (`.rank-worst`). A "Value view" / "Rank view" toggle button persists state in `localStorage["rankingViewMode"]`. `HIGHER_IS_BETTER` set drives ranking direction for 12 metrics; lower-is-better for the remaining 11.
+- **W-0048**: Added "Trend flags" checkbox to Overlays fieldset. When enabled, appends ` ▲` / ` ▼` / ` →` to each bank's chart legend label based on the trailing slope of the last 4 data points. Stable threshold: `|slope| < 0.05 × stdDev` (or 0.1 if stdDev = 0). Direction is interpreted via `HIGHER_IS_BETTER`. `trailingSlope()` helper added.
+- **W-0051**: Replaced the terse `#capital-reform` section in `docs/methodology.html` with a richer version: narrative introduction, restructured CET1 requirements table (Period / Non-D-SIB / D-SIB base / surcharges), conservation buffer explanation, and Capital Headroom linkage.
+- **W-0059**: Added `--batch` flag to `scripts/download_disclosures.py` (existing batch behaviour is now explicitly invoked via this flag). Created `.github/workflows/download-disclosures.yml` with `workflow_dispatch` inputs for `bank` and `force`. Added 6 tests for the `--batch` flag covering: acceptance, all-banks processing, bank filter, force pass-through, partial failure exit code, and non-abort behaviour on single failure.
+
+**Tests:** 198 passed (no regressions). Lint clean.
+
+## 2026-05-02 — Batch 3: W-0044, W-0050, W-0064, W-0065
+
+### W-0044 — NIM Pass-Through Analysis Panel
+Added `quarterOffset()`, `linearRegression()`, and `renderNimPassThrough()` to `docs/index.html`. The scatter chart (OCR change vs NIM change 2Q later, per bank) appends to the profitability tab chart grid when OCR data is loaded. Shows per-bank trend lines via linear regression. Falls back to a placeholder card when OCR data is absent.
+
+### W-0050 — Coverage Page
+Created `docs/coverage.html` with two sections: (1) RBNZ quarterly coverage table — rows = RBNZ-stored KEY_METRICS, columns = Top 6 banks, cells = present/total periods colour-coded teal/amber/red; (2) Disclosure coverage table — rows = banks, columns = key disclosure metrics, shows ✓/— with WAF and image-based notes. Coverage nav link added to all existing pages (index, glossary, disclosures, methodology, lineage, data-sources).
+
+### W-0064 — Snapshot Page
+Created `docs/snapshot.html` — 3-column bar-chart grid (one chart per KEY_METRIC, all standalone banks side-by-side) with a quarter selector dropdown. Duplicates the derived-metrics logic from index.html for client-side computation. "Full snapshot →" link added to snapshot section title in `docs/index.html`.
+
+### W-0065 — Anomaly Flags
+Added `computeAnomalies()` which computes trailing 8Q mean and stddev per bank/metric and flags values > 2σ. Anomaly ⚠ icons (amber, with tooltip showing σ distance and trailing average) applied to snapshot table and ranking table value view. CSS `.anomaly-flag` added.

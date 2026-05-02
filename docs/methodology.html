@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodology — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <style>
+    section h2 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: var(--text-xs); }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-muted); font-weight: 500; background: var(--surface); }
+    td { color: var(--text); }
+    .formula-block {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--text-xs);
+      background: var(--surface);
+      border-left: 2px solid var(--teal);
+      padding: 0.6rem 0.9rem;
+      margin: 0.75rem 0;
+      line-height: 1.6;
+      color: var(--text);
+      overflow-x: auto;
+    }
+    .metric-section { margin-bottom: 1.5rem; }
+    .metric-name { font-size: var(--text-sm); font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+    .metric-desc { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.6; margin-bottom: 0.4rem; }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" aria-label="Site">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html" aria-current="page" class="active">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <h1>Methodology</h1>
+    <p class="page-subtitle">How KPIs are calculated, data sources, and the RBNZ capital reform schedule.</p>
+  </div>
+
+  <main>
+
+    <section id="introduction" style="margin-bottom:2rem;">
+      <h2>introduction</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;">
+        All metrics on this dashboard are sourced from the 
+        <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener" style="color:var(--teal);">RBNZ Bank Financial Strength Dashboard</a>,
+        published quarterly by the Reserve Bank of New Zealand. The RBNZ publishes an XLSX file containing per-institution
+        time series for capital, profitability, asset quality, and liquidity metrics. This dashboard fetches that file,
+        normalises it to a canonical schema, and presents it as interactive charts and tables.
+      </p>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
+        Several derived metrics (e.g. Cost-to-Income, RORWA, Capital Headroom) are computed client-side from the raw
+        RBNZ series. The formulas for all derived metrics are documented below.
+      </p>
+    </section>
+
+    <section id="rbnz-mappings" style="margin-bottom:2rem;">
+      <h2>RBNZ series mappings</h2>
+      <p style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:1rem;">
+        The following series are mapped from the RBNZ XLSX. Series IDs are stable identifiers used to extract
+        each column regardless of series name changes across RBNZ publication updates.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Series ID</th>
+            <th>Unit</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Net Interest Income</td><td>DBB.QIE15</td><td>NZDm</td><td>Quarterly flow</td></tr>
+          <tr><td>Net Interest Margin (NIM)</td><td>DBB.QIE14</td><td>%</td><td>Annualised</td></tr>
+          <tr><td>Return on Equity</td><td>DBB.QIE13</td><td>%</td><td>Annualised</td></tr>
+          <tr><td>Return on Assets</td><td>DBB.QIE10</td><td>%</td><td>Annualised</td></tr>
+          <tr><td>Profit After Tax</td><td>DBB.QIE90</td><td>NZDm</td><td>Quarterly flow</td></tr>
+          <tr><td>Operating Expenses</td><td>DBB.QIE60</td><td>NZDm</td><td>Quarterly flow</td></tr>
+          <tr><td>Trading and Hedging Gains</td><td>DBB.QIE40</td><td>NZDm</td><td>Quarterly flow</td></tr>
+          <tr><td>Fees and Commission Income</td><td>DBB.QIE50</td><td>NZDm</td><td>Quarterly flow</td></tr>
+          <tr><td>Other Income</td><td>DBB.QIE55</td><td>NZDm</td><td>Quarterly flow</td></tr>
+          <tr><td>CET1 Ratio</td><td>DBB.QIB12</td><td>%</td><td>Point-in-time</td></tr>
+          <tr><td>Tier 1 Capital Ratio</td><td>DBB.QIB14</td><td>%</td><td>Point-in-time</td></tr>
+          <tr><td>Total Capital Ratio</td><td>DBB.QIB10</td><td>%</td><td>Point-in-time</td></tr>
+          <tr><td>Total Risk-Weighted Assets</td><td>DBB.QIB90</td><td>NZDm</td><td>Point-in-time</td></tr>
+          <tr><td>Net Loans and Advances</td><td>DBB.QIG30</td><td>NZDm</td><td>Point-in-time</td></tr>
+          <tr><td>Total Assets</td><td>DBB.QIG10</td><td>NZDm</td><td>Point-in-time</td></tr>
+          <tr><td>Deposits</td><td>DBB.QIG55</td><td>NZDm</td><td>Point-in-time</td></tr>
+          <tr><td>NPL Ratio</td><td>DBB.QIC10</td><td>%</td><td>Point-in-time</td></tr>
+          <tr><td>Total Non-Performing Loans</td><td>DBB.QIC50</td><td>NZDm</td><td>Point-in-time</td></tr>
+          <tr><td>Individual Provisions</td><td>DBB.QIC60</td><td>NZDm</td><td>Point-in-time</td></tr>
+          <tr><td>Collective Provisions</td><td>DBB.QIC70</td><td>NZDm</td><td>Point-in-time</td></tr>
+          <tr><td>Core Funding Ratio (CFR)</td><td>DBB.QIH30</td><td>%</td><td>Point-in-time</td></tr>
+          <tr><td>1-Month Mismatch Ratio</td><td>DBB.QIH10</td><td>%</td><td>Point-in-time</td></tr>
+          <tr><td>1-Week Mismatch Ratio</td><td>DBB.QIH20</td><td>%</td><td>Point-in-time</td></tr>
+          <tr><td>Top 5 Non-Bank Credit Exposures</td><td>DBB.QIJ10</td><td>% CET1</td><td>Point-in-time</td></tr>
+          <tr><td>Top 5 Bank Credit Exposures</td><td>DBB.QIJ30</td><td>% CET1</td><td>Point-in-time</td></tr>
+          <tr><td>Bank Exposures ≥10% of CET1</td><td>DBB.QIJ40</td><td>% CET1</td><td>Point-in-time</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="derived-metrics" style="margin-bottom:2rem;">
+      <h2>derived metrics</h2>
+      <p style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:1rem;">
+        The following metrics are computed client-side from the raw RBNZ series. Null inputs produce null output.
+      </p>
+
+      <div class="metric-section">
+        <div class="metric-name">Cost-to-Income Ratio (%)</div>
+        <div class="formula-block">Operating Expenses ÷ (NII + Trading + Fees + Other Income) × 100</div>
+        <div class="metric-desc">Only computed when Operating Expenses and Net Interest Income are both non-null. Trading, Fees, and Other Income default to zero when null. Total income must be &gt; 0.</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Return on Risk-Weighted Assets — RORWA (%)</div>
+        <div class="formula-block">Profit After Tax ÷ Total Risk-Weighted Assets × 100</div>
+        <div class="metric-desc">Annualised equivalent when Profit After Tax is a quarterly figure.</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Risk Density (%)</div>
+        <div class="formula-block">Total Risk-Weighted Assets ÷ Net Loans and Advances × 100</div>
+        <div class="metric-desc">Measures average risk weight of the loan book. IRB banks show lower density than standardised approach banks.</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Provisioning Coverage (%)</div>
+        <div class="formula-block">(Individual Provisions + Collective Provisions) ÷ Total Non-Performing Loans × 100</div>
+        <div class="metric-desc">Above 100% means provisions exceed NPLs.</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Loan-to-Deposit Ratio (%)</div>
+        <div class="formula-block">Net Loans and Advances ÷ Deposits × 100</div>
+        <div class="metric-desc">Above 100% means loans exceed deposits — bank relies on wholesale funding.</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Pre-Provision Profit — PPP (NZDm)</div>
+        <div class="formula-block">NII + Trading + Fees + Other Income − Operating Expenses</div>
+        <div class="metric-desc">Profit before credit impairment charges and tax. Measures core earnings power independent of credit cycle.</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Non-Interest Income Share (%)</div>
+        <div class="formula-block">(Trading + Fees + Other Income) ÷ (NII + Trading + Fees + Other Income) × 100</div>
+        <div class="metric-desc">Income diversification metric. NZ banks are predominantly NII-driven (typically 75%–85% NII).</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Opex Intensity (bps)</div>
+        <div class="formula-block">(Operating Expenses × 4) ÷ Total Assets × 10,000</div>
+        <div class="metric-desc">Quarterly opex annualised (×4) as a proportion of total assets. Expressed in basis points.</div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Capital Headroom (%)</div>
+        <div class="formula-block">CET1 Ratio − Applicable RBNZ CET1 Minimum</div>
+        <div class="metric-desc">
+          The applicable minimum is determined by bank type and year per the RBNZ 2019 capital reform phase-in schedule.
+          D-SIBs (ANZ, ASB, BNZ, Westpac) have an additional CET1 surcharge: ANZ and Westpac +1.5%, ASB and BNZ +1.0%.
+          See Capital Reform Schedule below.
+        </div>
+      </div>
+
+      <div class="metric-section">
+        <div class="metric-name">Credit Impairment Rate (% loans)</div>
+        <div class="formula-block">(NPL[t] − NPL[t−1]) ÷ Net Loans[t] × 100</div>
+        <div class="metric-desc">Quarter-over-quarter change in total non-performing loans as a percentage of net loans. Proxy for the impairment charge rate. Not a direct measure of provisioning.</div>
+      </div>
+    </section>
+
+    <section id="capital-reform" aria-label="RBNZ capital reform schedule" style="margin-bottom:2rem;">
+      <h2>RBNZ capital reform phase-in (2019–2028)</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;">
+        In December 2019, the RBNZ announced the most significant capital reform in NZ banking history. Higher minimum CET1 requirements phase in from July 2023 over five years. D-SIBs (ANZ, ASB, BNZ, Westpac) face an additional surcharge.
+      </p>
+
+      <h3 style="font-size:var(--text-xs);color:var(--text-muted);font-weight:500;letter-spacing:0.08em;margin:1rem 0 0.5rem;">CET1 minimum requirements</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Non-D-SIB minimum</th>
+            <th>D-SIB base minimum</th>
+            <th>D-SIB surcharge (ANZ/Westpac)</th>
+            <th>D-SIB surcharge (ASB/BNZ)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Pre-July 2023</td><td>4.5%</td><td>4.5%</td><td>+1.5%</td><td>+1.0%</td></tr>
+          <tr><td>2023</td><td>5.0%</td><td>5.0%</td><td>+1.5%</td><td>+1.0%</td></tr>
+          <tr><td>2024</td><td>5.5%</td><td>5.5%</td><td>+1.5%</td><td>+1.0%</td></tr>
+          <tr><td>2025</td><td>6.0%</td><td>6.0%</td><td>+1.5%</td><td>+1.0%</td></tr>
+          <tr><td>2026 onwards</td><td>6.5%</td><td>6.5%</td><td>+1.5%</td><td>+1.0%</td></tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.6;">
+        A 2.5% capital conservation buffer applies above the minimum CET1 requirement. Breaching the buffer triggers restrictions on dividend payments and AT1 distributions.
+      </p>
+      <p style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.6;">
+        The Capital Headroom metric on the dashboard shows each bank's CET1 Ratio minus the applicable minimum (including D-SIB surcharge where applicable), giving a buffer above the regulatory floor.
+      </p>
+      <p style="font-size:var(--text-xs);color:var(--text-muted);">
+        Source: <a href="https://www.rbnz.govt.nz/regulation-and-supervision/banks/capital" target="_blank" rel="noopener" style="color:var(--teal);">RBNZ Capital page</a>
+      </p>
+    </section>
+
+    <section id="data-currency" style="margin-bottom:2rem;">
+      <h2>data currency</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;">
+        The RBNZ publishes the Bank Financial Strength Dashboard quarterly, typically 4–6 weeks after the quarter-end date.
+        For example, September quarter data (Q3) is usually published in November. This dashboard's automated fetch
+        workflow runs on the 1st of each month to pick up new releases promptly.
+      </p>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
+        The "freshness" indicator on the dashboard homepage shows the latest period available in each data source.
+        If the indicator is more than one quarter old, the fetch workflow may need to be triggered manually.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -143,6 +143,9 @@
       <a href="data-sources.html">Data Sources</a>
       <a href="glossary.html">Glossary</a>
       <a href="disclosures.html" aria-current="page" class="active">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
     </div>
   </div>
 </nav>
@@ -246,6 +249,9 @@
       <a href="data-sources.html">Data Sources</a>
       <a href="glossary.html">Glossary</a>
       <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
     </nav>
     <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
@@ -442,7 +448,7 @@
           borderColor: bankColor(bank),
           backgroundColor: bankColor(bank) + '22',
           borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
-          tension: 0.3, spanGaps: false,
+          tension: 0, spanGaps: false,
         };
       }).filter(ds => ds.data.some(v => v != null));
     }
@@ -544,7 +550,7 @@
             data: cet1Data,
             borderColor: bankColor(bank),
             backgroundColor: 'transparent',
-            borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: false,
+            borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false,
           });
         }
         if (tcData.some(v => v != null)) {
@@ -554,7 +560,7 @@
             borderColor: bankColor(bank),
             backgroundColor: 'transparent',
             borderWidth: 2, borderDash: [5, 3],
-            pointRadius: 0, tension: 0.3, spanGaps: false,
+            pointRadius: 0, tension: 0, spanGaps: false,
           });
         }
       }
@@ -582,7 +588,7 @@
             data: loanData,
             borderColor: bankColor(bank),
             backgroundColor: 'transparent',
-            borderWidth: 2, pointRadius: 0, tension: 0.3, spanGaps: false,
+            borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false,
           });
         }
         if (depositData.some(v => v != null)) {
@@ -592,7 +598,7 @@
             borderColor: bankColor(bank),
             backgroundColor: 'transparent',
             borderWidth: 2, borderDash: [5, 3],
-            pointRadius: 0, tension: 0.3, spanGaps: false,
+            pointRadius: 0, tension: 0, spanGaps: false,
           });
         }
       }

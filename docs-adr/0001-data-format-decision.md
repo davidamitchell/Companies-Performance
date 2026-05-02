@@ -1,3 +1,13 @@
+---
+title: "ADR-0001: Data Format Decision — CSV for Persistence"
+status: accepted
+date: 2026-04-27
+authors: [davidamitchell]
+tags: [data-format, csv, json, persistence]
+supersedes: null
+superseded_by: null
+---
+
 # ADR-0001: Data Format Decision — CSV for Persistence
 
 Date: 2026-04-27
@@ -27,16 +37,16 @@ The static frontend consumes a JSON representation (`data/processed/metrics.json
 ## Consequences
 
 ### Positive
-- CSV diffs are human-readable in GitHub PR reviews
-- openpyxl → pandas → CSV is a well-understood pipeline
-- Works with Excel, Google Sheets, and Python stdlib `csv` module without extra dependencies
-- Consistent with the canonical schema defined in the operational framework
+- POS-001: CSV diffs are human-readable in GitHub PR reviews
+- POS-002: openpyxl → pandas → CSV is a well-understood pipeline
+- POS-003: Works with Excel, Google Sheets, and Python stdlib `csv` module without extra dependencies
+- POS-004: Consistent with the canonical schema defined in the operational framework
 
 ### Negative / Trade-offs
-- CSV cannot represent nested structures; hierarchical data requires flattening
-- Type information is lost (all values are strings); consumers must coerce types
-- Multiple files needed if data grows beyond a single flat table
+- NEG-001: CSV cannot represent nested structures; hierarchical data requires flattening
+- NEG-002: Type information is lost (all values are strings); consumers must coerce types
+- NEG-003: Multiple files needed if data grows beyond a single flat table
 
 ### Neutral
-- JSON is used for the frontend consumption file; the processing step generates it from CSV
-- Future phases may introduce Parquet if file sizes become problematic (document via new ADR)
+- NEU-001: JSON is used for the frontend consumption file; the processing step generates it from CSV
+- NEU-002: Future phases may introduce Parquet if file sizes become problematic (document via new ADR)

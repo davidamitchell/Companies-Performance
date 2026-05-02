@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Detail — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    .bank-header-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    .bank-name-block { flex: 0 0 auto; }
+    .bank-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+    .bank-type-badge {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+    .bank-kpi-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      flex: 1 1 auto;
+    }
+    .bank-kpi {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      min-width: 120px;
+    }
+    .bank-kpi-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+    .bank-kpi-val {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .bank-kpi-trend { font-size: var(--text-sm); margin-left: 0.2rem; }
+    .trend-up   { color: var(--teal); }
+    .trend-down { color: #e05252; }
+
+    .peer-group-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .sparkline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .sparkline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.9rem 1rem;
+    }
+    .sparkline-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.4rem;
+    }
+    .sparkline-wrap { height: 80px; position: relative; }
+
+    .disclosure-table { width: 100%; border-collapse: collapse; }
+    .disclosure-table th,
+    .disclosure-table td {
+      padding: 0.5rem 0.75rem;
+      font-size: var(--text-sm);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .disclosure-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+    .disclosure-table td { color: var(--text); }
+
+    #status { font-size: var(--text-xs); color: var(--teal); margin-top: 0.4rem; letter-spacing: 0.04em; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: var(--text-xs); color: var(--text-muted);
+      text-decoration: none; margin-bottom: 1.25rem;
+    }
+    .back-link:hover { color: var(--teal); }
+
+    section h2 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="coverage.html">Coverage</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <main id="main-content">
+
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+
+    <div class="page-header">
+      <h1 id="bank-title">Bank Detail</h1>
+      <p class="page-subtitle" id="bank-subtitle"></p>
+      <div id="status">Loading…</div>
+    </div>
+
+    <div class="bank-header-card" id="bank-header-card" style="display:none">
+      <div class="bank-name-block">
+        <div class="bank-name" id="bank-name-display"></div>
+        <div class="bank-type-badge" id="bank-type-badge"></div>
+      </div>
+      <div class="bank-kpi-strip" id="bank-kpi-strip"></div>
+    </div>
+
+    <section aria-label="Peer group">
+      <div class="peer-group-bar">
+        <span>Compare with:</span>
+        <button class="quick-btn" id="pg-standalone">All standalone</button>
+        <button class="quick-btn" id="pg-big4">Big 4</button>
+        <button class="quick-btn" id="pg-none">This bank only</button>
+      </div>
+    </section>
+
+    <section aria-label="Quarterly performance sparklines">
+      <h2>quarterly metrics — full history</h2>
+      <div class="sparkline-grid" id="sparkline-grid"></div>
+    </section>
+
+    <section id="disclosure-section" aria-label="Disclosure metrics" style="display:none">
+      <h2>annual disclosure data</h2>
+      <div class="table-scroll-wrap">
+        <table class="disclosure-table" id="disclosure-table">
+          <caption>Annual disclosure metrics extracted from General Disclosure Statements</caption>
+          <thead>
+            <tr>
+              <th scope="col">Period</th>
+              <th scope="col">Metric</th>
+              <th scope="col">Value</th>
+              <th scope="col">Source</th>
+            </tr>
+          </thead>
+          <tbody id="disclosure-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="coverage.html">Coverage</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
+  </footer>
+
+</div>
+
+<script>
+  Chart.defaults.color       = '#666';
+  Chart.defaults.borderColor = '#252b33';
+  Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+  Chart.defaults.font.size   = 10;
+
+  const DATA_URL        = 'data/processed/metrics.json';
+  const DISCLOSURE_URL  = 'data/processed/disclosure_metrics.json';
+
+  const bankName = new URLSearchParams(location.search).get('bank') || 'ANZ';
+  document.title = `${bankName} — NZ Bank Performance`;
+  document.getElementById('bank-title').textContent = bankName;
+
+  const TOP_6_BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];
+  const STANDALONE  = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
+                        'Heartland','ICBC','CCB','BOC','BOB','BOI'];
+  const BIG_4       = ['ANZ', 'ASB', 'BNZ', 'Westpac'];
+
+  const BANK_COLORS = {
+    'ANZ':'#0064A3','ASB':'#C8102E','BNZ':'#231F20','Westpac':'#D5001C',
+    'Kiwibank':'#1B7A3E','Rabobank':'#FF6600','TSB':'#5B3FA6','SBS':'#005BAA',
+    'Co-op':'#2ECC71','Heartland':'#F39C12','ICBC':'#E74C3C','CCB':'#8E44AD',
+    'BOC':'#16A085','BOB':'#D35400','BOI':'#2C3E50',
+  };
+  function bankColor(name) { return BANK_COLORS[name] || '#636e72'; }
+
+  const KPI_METRICS = [
+    { metric: 'CET1 Ratio',           label: 'CET1 Ratio',          unit: '%' },
+    { metric: 'Return on Equity',     label: 'Return on Equity',     unit: '%' },
+    { metric: 'Cost to Income Ratio', label: 'Cost to Income',       unit: '%' },
+    { metric: 'NIM',                  label: 'Net Interest Margin',  unit: '%' },
+  ];
+
+  const METRIC_LABELS = {
+    'Cost to Income Ratio':'Cost to Income (%)','Return on Equity':'Return on Equity (%)',
+    'Return on Assets':'Return on Assets (%)','NIM':'Net Interest Margin (%)',
+    'RORWA':'Return on RWA (%)','Risk Density':'Risk Density (%)','Provisioning Coverage':'Provisioning Coverage (%)',
+    'Loan-to-Deposit Ratio':'Loan-to-Deposit Ratio (%)','CET1 Ratio':'CET1 Ratio (%)',
+    'Tier 1 Capital Ratio':'Tier 1 Capital Ratio (%)','Total Capital Ratio':'Total Capital Ratio (%)',
+    'NPL Ratio':'NPL Ratio (%)','Total Non-Performing Loans':'Non-Performing Loans (NZDm)',
+    'Core Funding Ratio (CFR)':'Core Funding Ratio (%)','1-Month Mismatch Ratio':'1-Month Mismatch Ratio (%)',
+    '1-Week Mismatch Ratio':'1-Week Mismatch Ratio (%)','Top 5 Non-Bank Credit Exposures':'Top 5 Non-Bank Exposures (% CET1)',
+    'Top 5 Bank Credit Exposures':'Top 5 Bank Exposures (% CET1)','Bank Exposures ≥10% of CET1':'Bank Exposures ≥10% CET1',
+    'Pre-Provision Profit':'Pre-Provision Profit (NZDm)','Non-Interest Income Share':'Non-Interest Income Share (%)',
+    'Opex Intensity':'Opex Intensity (bps)','Capital Headroom':'Capital Headroom (%)','Credit Impairment Rate':'Credit Impairment Rate (% loans)',
+  };
+
+  /* ── Peer group state ──────────────────────────────────────────────────── */
+  let peerGroup = localStorage.getItem('peerGroup') || 'standalone';
+  function getPeerEntities(allEntities) {
+    if (peerGroup === 'big4')  return BIG_4.filter(e => allEntities.includes(e));
+    if (peerGroup === 'none')  return [];
+    return allEntities.filter(e => STANDALONE.includes(e));
+  }
+  function setPeerGroup(pg) {
+    peerGroup = pg;
+    localStorage.setItem('peerGroup', pg);
+    ['pg-standalone','pg-big4','pg-none'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', el.id === `pg-${pg}`);
+    });
+  }
+
+  document.getElementById('pg-standalone').addEventListener('click', () => { setPeerGroup('standalone'); renderSparklines(); });
+  document.getElementById('pg-big4').addEventListener('click',       () => { setPeerGroup('big4');       renderSparklines(); });
+  document.getElementById('pg-none').addEventListener('click',       () => { setPeerGroup('none');       renderSparklines(); });
+  setPeerGroup(peerGroup); // apply initial active state
+
+  /* ── Derived metrics (mirrors index.html buildLookup) ──────────────────── */
+  function buildLookup(rows) {
+    const lookup = {};
+    for (const r of rows) {
+      if (!lookup[r.entity]) lookup[r.entity] = {};
+      if (!lookup[r.entity][r.period]) lookup[r.entity][r.period] = {};
+      lookup[r.entity][r.period][r.metric] = r.value;
+    }
+    for (const [entity, periods] of Object.entries(lookup)) {
+      for (const [period, metrics] of Object.entries(periods)) {
+        const opex=metrics['Operating Expenses'], nii=metrics['Net Interest Income'],
+              trad=metrics['Trading and Hedging Gains'], fees=metrics['Fees and Commission Income'],
+              oth=metrics['Other Income'];
+        if (opex!=null&&nii!=null){ const income=nii+(trad??0)+(fees??0)+(oth??0); if(income>0) lookup[entity][period]['Cost to Income Ratio']=Math.round((opex/income)*1000)/10; }
+        const pat=metrics['Profit After Tax'], rwa=metrics['Total Risk-Weighted Assets'];
+        if (pat!=null&&rwa!=null&&rwa!==0) lookup[entity][period]['RORWA']=Math.round((pat/rwa)*10000)/100;
+        const loans=metrics['Net Loans and Advances'];
+        if (rwa!=null&&loans!=null&&loans!==0) lookup[entity][period]['Risk Density']=Math.round((rwa/loans)*10000)/100;
+        const indProv=metrics['Individual Provisions'], colProv=metrics['Collective Provisions'], npl=metrics['Total Non-Performing Loans'];
+        if (indProv!=null&&colProv!=null&&npl!=null&&npl!==0) lookup[entity][period]['Provisioning Coverage']=Math.round(((indProv+colProv)/npl)*10000)/100;
+        const deposits=metrics['Deposits'];
+        if (loans!=null&&deposits!=null&&deposits!==0) lookup[entity][period]['Loan-to-Deposit Ratio']=Math.round((loans/deposits)*10000)/100;
+        if (nii!=null&&opex!=null){ const ppp=nii+(trad??0)+(fees??0)+(oth??0)-opex; lookup[entity][period]['Pre-Provision Profit']=Math.round(ppp); }
+        const nonII=(trad??0)+(fees??0)+(oth??0);
+        if (nii!=null){ const tot=nii+nonII; if(tot>0) lookup[entity][period]['Non-Interest Income Share']=Math.round((nonII/tot)*1000)/10; }
+        const totalAssets=metrics['Total Assets'];
+        if (opex!=null&&totalAssets!=null&&totalAssets!==0) lookup[entity][period]['Opex Intensity']=Math.round((opex*4/totalAssets)*10000*10)/10;
+        const cet1=metrics['CET1 Ratio'];
+        if (cet1!=null){
+          const DSIB={ANZ:1.5,ASB:1.0,BNZ:1.0,Westpac:1.5};
+          const year=parseInt((period||'').split('-')[0],10)||0;
+          const base=year>=2026?6.5:year>=2025?6.0:year>=2024?5.5:year>=2023?5.0:4.5;
+          lookup[entity][period]['Capital Headroom']=Math.round((cet1-base-(DSIB[entity]??0))*100)/100;
+        }
+      }
+    }
+    return lookup;
+  }
+
+  function buildProvisioningMetrics(lookup, sortedPeriods) {
+    for (const [entity] of Object.entries(lookup)) {
+      for (let i=1;i<sortedPeriods.length;i++){
+        const curr=sortedPeriods[i], prev=sortedPeriods[i-1];
+        const cn=lookup[entity]?.[curr]?.['Total Non-Performing Loans'];
+        const pn=lookup[entity]?.[prev]?.['Total Non-Performing Loans'];
+        const ln=lookup[entity]?.[curr]?.['Net Loans and Advances'];
+        if (cn!=null&&pn!=null&&ln!=null&&ln!==0) lookup[entity][curr]['Credit Impairment Rate']=Math.round(((cn-pn)/ln)*100000)/1000;
+      }
+    }
+  }
+
+  /* ── Global state ──────────────────────────────────────────────────────── */
+  let allRows=[], allPeriods=[], allEntities=[], lookup={};
+  let sparkCharts = [];
+
+  /* ── Render KPI strip ──────────────────────────────────────────────────── */
+  function renderKpiStrip() {
+    const strip = document.getElementById('bank-kpi-strip');
+    const latestP = allPeriods[allPeriods.length-1];
+    const prevP   = allPeriods[allPeriods.length-2] || null;
+    strip.innerHTML = KPI_METRICS.map(({metric,label,unit}) => {
+      const val  = lookup[bankName]?.[latestP]?.[metric];
+      const prev = prevP ? lookup[bankName]?.[prevP]?.[metric] : null;
+      if (val == null) return '';
+      let trend = '';
+      if (prev!=null){ if(val>prev) trend=`<span class="bank-kpi-trend trend-up">▲</span>`; else if(val<prev) trend=`<span class="bank-kpi-trend trend-down">▼</span>`; }
+      return `<div class="bank-kpi"><div class="bank-kpi-label">${label}</div><div class="bank-kpi-val">${val.toFixed(1)}${unit}${trend}</div></div>`;
+    }).join('');
+  }
+
+  /* ── Render sparklines ─────────────────────────────────────────────────── */
+  function renderSparklines() {
+    sparkCharts.forEach(c => c.destroy());
+    sparkCharts = [];
+    const grid = document.getElementById('sparkline-grid');
+    grid.innerHTML = '';
+
+    // Collect all metrics that have at least one non-null value for this bank
+    const metrics = Object.keys(METRIC_LABELS);
+    const peerEntities = getPeerEntities(allEntities).filter(e => e !== bankName);
+    const color = bankColor(bankName);
+
+    for (const metric of metrics) {
+      const bankData = allPeriods.map(p => lookup[bankName]?.[p]?.[metric] ?? null);
+      if (!bankData.some(v => v!=null)) continue;
+
+      const card = document.createElement('div');
+      card.className = 'sparkline-card';
+      const label = METRIC_LABELS[metric] || metric;
+      card.innerHTML = `<div class="sparkline-label">${label}</div><div class="sparkline-wrap"><canvas></canvas></div>`;
+      grid.appendChild(card);
+
+      const canvas = card.querySelector('canvas');
+      const datasets = [{
+        label: bankName, data: bankData,
+        borderColor: color, backgroundColor: color+'22',
+        borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false,
+      }];
+
+      // Sector average for peer group
+      if (peerEntities.length >= 1) {
+        const avgData = allPeriods.map(p => {
+          const vals = peerEntities.map(e => lookup[e]?.[p]?.[metric]).filter(v => v!=null);
+          return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+        });
+        if (avgData.some(v=>v!=null)) {
+          datasets.push({ label:'Peer avg', data:avgData, borderColor:'#666', backgroundColor:'transparent', borderWidth:1.5, borderDash:[5,3], pointRadius:0, tension:0.3, spanGaps:false });
+        }
+      }
+
+      const chart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: { labels: [...allPeriods], datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode:'index', intersect:false },
+          plugins: {
+            legend: { display: peerEntities.length>=1, position:'bottom', labels:{ font:{size:9}, boxWidth:8, padding:4, color:'#666', filter: item => !item.text.startsWith('_') } },
+            tooltip: { backgroundColor:'#161b22', borderColor:'#252b33', borderWidth:1, titleColor:'#e6e6e6', bodyColor:'#e6e6e6',
+              callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1) ?? '—'}` }},
+          },
+          scales: {
+            x: { ticks:{font:{size:9},color:'#666',maxRotation:45,autoSkip:true,maxTicksLimit:8}, grid:{display:false}, border:{color:'#252b33'} },
+            y: { ticks:{font:{size:9},color:'#666'}, grid:{color:'#252b33'}, border:{color:'#252b33'} },
+          },
+        },
+      });
+      sparkCharts.push(chart);
+    }
+  }
+
+  /* ── Render disclosure table ───────────────────────────────────────────── */
+  function renderDisclosureTable(discRows) {
+    const bankRows = discRows.filter(r => r.entity === bankName);
+    if (!bankRows.length) return;
+
+    const section = document.getElementById('disclosure-section');
+    section.style.display = '';
+    const tbody = document.getElementById('disclosure-body');
+    const DISC_METRICS = ['Profit After Tax','Operating Expenses','Total Assets','CET1 Ratio','Net Loans and Advances','Deposits'];
+    const filtered = bankRows.filter(r => DISC_METRICS.includes(r.metric));
+    filtered.sort((a,b) => b.period.localeCompare(a.period) || a.metric.localeCompare(b.metric));
+    tbody.innerHTML = filtered.map(r => `<tr><td>${r.period}</td><td>${r.metric}</td><td>${r.value != null ? (typeof r.value==='number' ? r.value.toFixed(1) : r.value) : '—'}</td><td>${r.source||''}</td></tr>`).join('');
+  }
+
+  /* ── Load ──────────────────────────────────────────────────────────────── */
+  async function init() {
+    const statusEl = document.getElementById('status');
+    try {
+      const resp = await fetch(DATA_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      allRows    = await resp.json();
+      allPeriods  = [...new Set(allRows.map(r=>r.period))].sort();
+      allEntities = [...new Set(allRows.map(r=>r.entity))].sort();
+      lookup = buildLookup(allRows);
+      buildProvisioningMetrics(lookup, allPeriods);
+
+      // Determine entity type
+      const bankRow = allRows.find(r=>r.entity===bankName);
+      const entityType = bankRow?.entity_type || (STANDALONE.includes(bankName)?'standalone':'group');
+
+      document.getElementById('bank-name-display').textContent = bankName;
+      document.getElementById('bank-name-display').style.color = bankColor(bankName);
+      document.getElementById('bank-type-badge').textContent = entityType;
+      document.getElementById('bank-subtitle').textContent = `${entityType === 'standalone' ? 'Standalone bank' : 'Banking group'} · RBNZ quarterly metrics`;
+      document.getElementById('bank-header-card').style.display = '';
+
+      renderKpiStrip();
+      renderSparklines();
+      statusEl.textContent = `${allPeriods.length} quarters · ${allPeriods[0]} to ${allPeriods[allPeriods.length-1]}`;
+    } catch (err) {
+      statusEl.textContent = 'Data not yet available.';
+      statusEl.style.color = '#666';
+      console.warn('Load failed:', err);
+    }
+    try {
+      const dresp = await fetch(DISCLOSURE_URL);
+      if (dresp.ok) renderDisclosureTable(await dresp.json());
+    } catch (_) {}
+  }
+
+  init();
+</script>
+</body>
+</html>

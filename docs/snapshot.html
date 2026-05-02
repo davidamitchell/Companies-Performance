@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quarterly Snapshot — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    #status { font-size: var(--text-xs); color: var(--teal); margin-top: 0.4rem; letter-spacing: 0.04em; }
+
+    .period-controls {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .period-controls label {
+      font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.05em;
+    }
+    #period-sel {
+      background: #0d0d0d; border: 1px solid var(--border);
+      color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;
+      font-size: var(--text-xs); padding: 0.2rem 0.6rem; cursor: pointer;
+      letter-spacing: 0.04em; outline: none;
+    }
+    #period-sel:hover, #period-sel:focus { border-color: var(--teal); }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 960px) { .charts-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .charts-grid { grid-template-columns: 1fr; } }
+
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+    }
+    .chart-card h3 {
+      font-size: var(--text-xs); font-weight: 500; color: var(--text-muted);
+      margin-bottom: 0.6rem; letter-spacing: 0.08em; text-transform: lowercase;
+    }
+    .chart-wrap { position: relative; height: 200px; }
+  </style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>Quarterly Snapshot</h1>
+    <p class="page-subtitle">All key metrics for a single quarter — all banks side by side.</p>
+    <div id="status">Loading data…</div>
+  </div>
+
+  <main id="main-content">
+
+    <div class="period-controls">
+      <label for="period-sel">Quarter:</label>
+      <select id="period-sel"></select>
+    </div>
+
+    <div class="charts-grid" id="charts-grid"></div>
+
+  </main>
+
+  <footer>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
+  </footer>
+
+</div>
+
+<script>
+  /* ── Chart.js defaults ────────────────────────────────────────────────── */
+  Chart.defaults.color          = '#666';
+  Chart.defaults.borderColor    = '#252b33';
+  Chart.defaults.font.family    = "'IBM Plex Mono', monospace";
+  Chart.defaults.font.size      = 10;
+
+  const DATA_URL = 'data/processed/metrics.json';
+
+  const TABS = {
+    profitability:   ['NIM', 'Return on Equity', 'Return on Assets', 'Cost to Income Ratio', 'RORWA',
+                      'Pre-Provision Profit', 'Non-Interest Income Share', 'Opex Intensity'],
+    capital:         ['CET1 Ratio', 'Tier 1 Capital Ratio', 'Total Capital Ratio', 'Loan-to-Deposit Ratio', 'Risk Density', 'Capital Headroom'],
+    'asset quality': ['NPL Ratio', 'Total Non-Performing Loans', 'Provisioning Coverage', 'Credit Impairment Rate'],
+    liquidity:       ['Core Funding Ratio (CFR)', '1-Month Mismatch Ratio', '1-Week Mismatch Ratio',
+                      'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1'],
+  };
+  const KEY_METRICS = Object.values(TABS).flat();
+
+  const METRIC_LABELS = {
+    'Cost to Income Ratio':            'Cost to Income (%)',
+    'Return on Equity':                'Return on Equity (%)',
+    'Return on Assets':                'Return on Assets (%)',
+    'NIM':                             'Net Interest Margin (%)',
+    'RORWA':                           'Return on Risk-Weighted Assets (%)',
+    'Risk Density':                    'Risk Density (%)',
+    'Provisioning Coverage':           'Provisioning Coverage (%)',
+    'Loan-to-Deposit Ratio':           'Loan-to-Deposit Ratio (%)',
+    'CET1 Ratio':                      'CET1 Ratio (%)',
+    'Tier 1 Capital Ratio':            'Tier 1 Capital Ratio (%)',
+    'Total Capital Ratio':             'Total Capital Ratio (%)',
+    'NPL Ratio':                       'NPL Ratio (%)',
+    'Total Non-Performing Loans':      'Non-Performing Loans (NZDm)',
+    'Core Funding Ratio (CFR)':        'Core Funding Ratio (%)',
+    '1-Month Mismatch Ratio':          '1-Month Mismatch Ratio (%)',
+    '1-Week Mismatch Ratio':           '1-Week Mismatch Ratio (%)',
+    'Top 5 Non-Bank Credit Exposures': 'Top 5 Non-Bank Exposures (% CET1)',
+    'Top 5 Bank Credit Exposures':     'Top 5 Bank Exposures (% CET1)',
+    'Bank Exposures ≥10% of CET1':     'Bank Exposures ≥10% CET1 (count)',
+    'Pre-Provision Profit':            'Pre-Provision Profit (NZDm)',
+    'Non-Interest Income Share':       'Non-Interest Income Share (%)',
+    'Opex Intensity':                  'Opex Intensity (bps)',
+    'Capital Headroom':                'Capital Headroom (%)',
+    'Credit Impairment Rate':          'Credit Impairment Rate (% loans)',
+  };
+
+  const BANK_COLORS = {
+    'ANZ':       '#0064A3', 'ASB':      '#C8102E', 'BNZ':       '#231F20',
+    'Westpac':   '#D5001C', 'Kiwibank': '#1B7A3E', 'Rabobank':  '#FF6600',
+    'TSB':       '#5B3FA6', 'SBS':      '#005BAA', 'Co-op':     '#2ECC71',
+    'Heartland': '#F39C12', 'ICBC':     '#E74C3C', 'CCB':       '#8E44AD',
+    'BOC':       '#16A085', 'BOB':      '#D35400', 'BOI':       '#2C3E50',
+    'ANZ Group': '#7FB3D3', 'WBC Group':'#E8929A', 'CBA Group': '#95A5A6',
+    'BOC Group': '#76D7C4', 'CCB Group':'#C39BD3', 'Rabo Group':'#FAD7A0',
+    'ICBC Group':'#F1948A',
+  };
+  function bankColor(name) { return BANK_COLORS[name] || '#636e72'; }
+
+  const STANDALONE = ['ANZ','ASB','BNZ','Westpac','Kiwibank','Rabobank','TSB','SBS','Co-op',
+                       'Heartland','ICBC','CCB','BOC','BOB','BOI'];
+
+  let allRows     = [];
+  let allPeriods  = [];
+  let allEntities = [];
+  let charts      = [];
+
+  function buildLookup(rows) {
+    const lookup = {};
+    for (const r of rows) {
+      if (!lookup[r.entity]) lookup[r.entity] = {};
+      if (!lookup[r.entity][r.period]) lookup[r.entity][r.period] = {};
+      lookup[r.entity][r.period][r.metric] = r.value;
+    }
+    for (const [entity, periods] of Object.entries(lookup)) {
+      for (const [period, metrics] of Object.entries(periods)) {
+        const opex = metrics['Operating Expenses'];
+        const nii  = metrics['Net Interest Income'];
+        const trad = metrics['Trading and Hedging Gains'];
+        const fees = metrics['Fees and Commission Income'];
+        const oth  = metrics['Other Income'];
+        if (opex != null && nii != null) {
+          const income = nii + (trad ?? 0) + (fees ?? 0) + (oth ?? 0);
+          if (income > 0) lookup[entity][period]['Cost to Income Ratio'] = Math.round((opex / income) * 1000) / 10;
+        }
+        const pat = metrics['Profit After Tax'];
+        const rwa = metrics['Total Risk-Weighted Assets'];
+        if (pat != null && rwa != null && rwa !== 0) lookup[entity][period]['RORWA'] = Math.round((pat / rwa) * 10000) / 100;
+        const loans = metrics['Net Loans and Advances'];
+        if (rwa != null && loans != null && loans !== 0) lookup[entity][period]['Risk Density'] = Math.round((rwa / loans) * 10000) / 100;
+        const indProv = metrics['Individual Provisions'];
+        const colProv = metrics['Collective Provisions'];
+        const npl     = metrics['Total Non-Performing Loans'];
+        if (indProv != null && colProv != null && npl != null && npl !== 0) lookup[entity][period]['Provisioning Coverage'] = Math.round(((indProv + colProv) / npl) * 10000) / 100;
+        const deposits = metrics['Deposits'];
+        if (loans != null && deposits != null && deposits !== 0) lookup[entity][period]['Loan-to-Deposit Ratio'] = Math.round((loans / deposits) * 10000) / 100;
+        if (nii != null && opex != null) {
+          const ppp = nii + (trad ?? 0) + (fees ?? 0) + (oth ?? 0) - opex;
+          lookup[entity][period]['Pre-Provision Profit'] = Math.round(ppp);
+        }
+        const nonII = (trad ?? 0) + (fees ?? 0) + (oth ?? 0);
+        if (nii != null) {
+          const totalIncome = nii + nonII;
+          if (totalIncome > 0) lookup[entity][period]['Non-Interest Income Share'] = Math.round((nonII / totalIncome) * 1000) / 10;
+        }
+        const totalAssets = metrics['Total Assets'];
+        if (opex != null && totalAssets != null && totalAssets !== 0) lookup[entity][period]['Opex Intensity'] = Math.round((opex * 4 / totalAssets) * 10000 * 10) / 10;
+        const cet1 = metrics['CET1 Ratio'];
+        if (cet1 != null) {
+          const DSIB = { ANZ: 1.5, ASB: 1.0, BNZ: 1.0, Westpac: 1.5 };
+          const year = parseInt((period || '').split('-')[0], 10) || 0;
+          const baseMin = year >= 2026 ? 6.5 : year >= 2025 ? 6.0 : year >= 2024 ? 5.5 : year >= 2023 ? 5.0 : 4.5;
+          const surcharge = DSIB[entity] ?? 0;
+          lookup[entity][period]['Capital Headroom'] = Math.round((cet1 - baseMin - surcharge) * 100) / 100;
+        }
+      }
+    }
+    return lookup;
+  }
+
+  function buildProvisioningMetrics(lookup, sortedPeriods) {
+    for (const [entity] of Object.entries(lookup)) {
+      for (let i = 1; i < sortedPeriods.length; i++) {
+        const curr = sortedPeriods[i];
+        const prev = sortedPeriods[i - 1];
+        const currNpl = lookup[entity]?.[curr]?.['Total Non-Performing Loans'];
+        const prevNpl = lookup[entity]?.[prev]?.['Total Non-Performing Loans'];
+        const loans   = lookup[entity]?.[curr]?.['Net Loans and Advances'];
+        if (currNpl != null && prevNpl != null && loans != null && loans !== 0) {
+          lookup[entity][curr]['Credit Impairment Rate'] = Math.round(((currNpl - prevNpl) / loans) * 100000) / 1000;
+        }
+      }
+    }
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderAllCharts(lookup, period) {
+    charts.forEach(c => c.destroy());
+    charts = [];
+    const grid = document.getElementById('charts-grid');
+    grid.innerHTML = '';
+
+    // Filter to standalone entities with data for this period
+    const groupEntities = new Set(allRows.filter(r => r.entity_type === 'group').map(r => r.entity));
+    const standaloneEntities = groupEntities.size > 0
+      ? allEntities.filter(e => !groupEntities.has(e))
+      : allEntities.filter(e => STANDALONE.includes(e));
+
+    for (let i = 0; i < KEY_METRICS.length; i++) {
+      const metric = KEY_METRICS[i];
+      const label  = METRIC_LABELS[metric] || metric;
+
+      // Get banks that have data for this metric/period
+      const banksWithData = standaloneEntities.filter(e => lookup[e]?.[period]?.[metric] != null);
+      if (banksWithData.length === 0) continue;
+
+      const card = document.createElement('div');
+      card.className = 'chart-card';
+      card.innerHTML = `<h3>${escHtml(label)}</h3><div class="chart-wrap"><canvas id="snap-chart-${i}"></canvas></div>`;
+      grid.appendChild(card);
+
+      const values = banksWithData.map(e => lookup[e][period][metric]);
+      const colors = banksWithData.map(e => bankColor(e));
+      const ctx    = document.getElementById(`snap-chart-${i}`).getContext('2d');
+      const chart  = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: banksWithData,
+          datasets: [{
+            data: values,
+            backgroundColor: colors.map(c => c + 'cc'),
+            borderColor: colors,
+            borderWidth: 1,
+          }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+              titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+              callbacks: {
+                label: ctx => ` ${ctx.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#666', maxRotation: 45 },
+              grid: { display: false }, border: { color: '#252b33' },
+            },
+            y: {
+              ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+              grid: { color: '#252b33' }, border: { color: '#252b33' },
+            },
+          },
+        },
+      });
+      charts.push(chart);
+    }
+  }
+
+  async function loadData() {
+    const statusEl = document.getElementById('status');
+    try {
+      const resp = await fetch(DATA_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      allRows     = await resp.json();
+      allPeriods  = [...new Set(allRows.map(r => r.period))].sort();
+      allEntities = [...new Set(allRows.map(r => r.entity))].sort();
+
+      const sel = document.getElementById('period-sel');
+      sel.innerHTML = '';
+      for (let i = allPeriods.length - 1; i >= 0; i--) {
+        const opt = document.createElement('option');
+        opt.value = opt.textContent = allPeriods[i];
+        sel.appendChild(opt);
+      }
+      sel.value = allPeriods[allPeriods.length - 1] || '';
+
+      sel.addEventListener('change', () => {
+        const lookup = buildLookup(allRows);
+        buildProvisioningMetrics(lookup, allPeriods);
+        renderAllCharts(lookup, sel.value);
+      });
+
+      statusEl.textContent = `${allRows.length.toLocaleString()} rows — ${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
+
+      const lookup = buildLookup(allRows);
+      buildProvisioningMetrics(lookup, allPeriods);
+      renderAllCharts(lookup, sel.value);
+    } catch (err) {
+      statusEl.textContent = 'No data yet — trigger the fetch-data then process-data workflows.';
+      statusEl.style.color = '#666';
+      console.warn('Data load failed:', err);
+    }
+  }
+
+  loadData();
+</script>
+</body>
+</html>

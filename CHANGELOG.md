@@ -17,6 +17,17 @@ New entries go under `## [Unreleased]` at the top. On release, move them to a da
 - `strategy-author` skill added to `.github/copilot-instructions.md`; systemic improvement principles and root-cause mandate documented.
 - Skills git submodule (`.github/skills`) initialised to `davidamitchell/Skills` at commit `f8c5471`.
 - ADR-0006: Agent Instructions Format and Governance Standards — documents the decision to adopt the `Latest-developments-` instruction format, add CHANGELOG/PROGRESS/ADR mandates, and introduce the Slice Completion Checklist.
+- **W-0032**: `Capital Headroom` derived metric added to `docs/index.html` and capital tab. Computed as CET1 Ratio minus applicable RBNZ minimum (RBNZ 2019 capital reform phase-in 2023–2028, D-SIB surcharges for ANZ/Westpac +1.5%, ASB/BNZ +1.0%). Config in `config/capital_requirements.yaml`.
+- **W-0055**: `Pre-Provision Profit` (NZDm) derived metric added to profitability tab. Formula: NII + Trading + Fees + Other Income − Operating Expenses.
+- **W-0056**: `Non-Interest Income Share` (%) derived metric added to profitability tab. Formula: Non-interest income ÷ total operating income × 100.
+- **W-0057**: `Credit Impairment Rate` (% loans) derived metric added to asset quality tab. Formula: ΔNPL ÷ Net Loans × 100 (quarter-over-quarter).
+- **W-0058**: `Opex Intensity` (bps) derived metric added to profitability tab. Formula: (Operating Expenses × 4) ÷ Total Assets × 10,000.
+- **W-0021**: `docs/methodology.html` and `docs/lineage.html` transparency pages created. Navigation links added to all existing pages.
+- **W-0061**: Monthly schedule trigger (`0 6 1 * *`) added to `fetch-data.yml`.
+- **W-0062**: Hash-based URL state sharing in `docs/index.html`; "Copy link" button.
+- **W-0063**: CSV download of filtered data in canonical schema format.
+- **W-0040**: Indexed (base=100) chart mode toggle in `docs/index.html`.
+- **W-0047**: Auto-narrative panel with plain-English sector bullets in `docs/index.html`.
 
 ---
 

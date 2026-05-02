@@ -203,11 +203,8 @@
       .chart-grid { grid-template-columns: 1fr; }
     }
 
-    /* ── Sticky controls bar ─────────────────────────────────────────────── */
+    /* ── Controls bar ────────────────────────────────────────────────────── */
     .sticky-controls {
-      position: sticky;
-      top: 48px;
-      z-index: 50;
       background: var(--bg);
       border-bottom: 1px solid var(--border);
       padding: 0.65rem 0;
@@ -307,6 +304,11 @@
 
     /* Snapshot entity link */
     .entity-link:hover { color: var(--teal) !important; }
+    .rank-best  { color: var(--teal); }
+    .rank-worst { color: #e05252; }
+
+    /* Anomaly flag */
+    .anomaly-flag { color: #f0a500; font-size: 0.7em; cursor: help; margin-left: 0.2em; }
   </style>
 </head>
 <body>
@@ -320,6 +322,9 @@
       <a href="data-sources.html">Data Sources</a>
       <a href="glossary.html">Glossary</a>
       <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
     </div>
   </div>
 </nav>
@@ -331,6 +336,9 @@
     <p class="page-subtitle">Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
     <div id="freshness" style="font-size:var(--text-xs);color:var(--teal);margin-top:0.25rem;"></div>
+    <div style="margin-top:0.5rem;">
+      <button class="range-btn" id="btn-csv-download">↓ CSV</button>
+    </div>
   </div>
 
   <div class="sticky-controls">
@@ -365,6 +373,23 @@
           <input type="checkbox" id="chk-sector-avg" style="cursor:pointer;">
           Sector avg
         </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-range-band" style="cursor:pointer;">
+          Band (min/max)
+        </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-trend-flags" style="cursor:pointer;">
+          Trend flags
+        </label>
+      </fieldset>
+      <fieldset class="ctrl-group">
+        <legend>Chart mode</legend>
+        <button class="range-btn" id="btn-index-mode">Indexed (base=100)</button>
+      </fieldset>
+      <fieldset class="ctrl-group">
+        <legend>Share</legend>
+        <button class="range-btn" id="btn-copy-link">📋 Copy link</button>
+        <span id="copy-link-feedback" style="font-size:var(--text-xs);color:var(--teal);display:none;margin-left:0.4rem;">Copied!</span>
       </fieldset>
     </div>
   </div>
@@ -373,6 +398,19 @@
     <section id="kpi-summary" aria-label="Sector KPI summary">
       <div class="kpi-row" id="kpi-row">
         <!-- filled by JS -->
+      </div>
+    </section>
+
+    <section id="narrative-section" aria-label="Sector narrative" style="margin-bottom:1.25rem;">
+      <div class="section-title" style="cursor:pointer;user-select:none;" id="narrative-toggle">
+        sector narrative
+        <span id="narrative-toggle-icon" style="float:right;color:var(--text-muted);font-size:var(--text-xs);">▼ hide</span>
+      </div>
+      <div id="narrative-body" style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;">
+        <ul id="narrative-bullets" style="list-style:none;padding:0;margin:0.5rem 0;"></ul>
+        <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.5rem;font-style:italic;">
+          Auto-generated from RBNZ data — verify before citing.
+        </p>
       </div>
     </section>
 
@@ -390,6 +428,7 @@
       <div class="section-title">
         latest quarter snapshot
         <span id="latest-period-label"></span>
+        <a href="snapshot.html" style="margin-left:auto;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;" id="snapshot-fullpage-link">Full snapshot →</a>
       </div>
       <div class="snapshot-controls">
         <span>period:</span>
@@ -403,6 +442,20 @@
         </table>
       </div>
     </section>
+
+    <section id="ranking-section" aria-label="Cross-metric ranking">
+      <div class="section-title">
+        performance ranking
+        <button id="rank-view-toggle" class="quick-btn" title="Toggle rank/value view">Value view</button>
+      </div>
+      <div class="table-scroll-wrap">
+        <table id="ranking-table">
+          <caption>Cross-metric ranking — latest quarter. Rank 1 = best performer. Teal = top quartile, red = bottom quartile.</caption>
+          <thead><tr id="ranking-head"></tr></thead>
+          <tbody id="ranking-body"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -411,6 +464,9 @@
       <a href="data-sources.html">Data Sources</a>
       <a href="glossary.html">Glossary</a>
       <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
     </nav>
     <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
@@ -454,9 +510,10 @@
   const OCR_URL  = 'data/processed/ocr.json';
 
   const TABS = {
-    profitability:   ['NIM', 'Return on Equity', 'Return on Assets', 'Cost to Income Ratio', 'RORWA'],
-    capital:         ['CET1 Ratio', 'Tier 1 Capital Ratio', 'Total Capital Ratio', 'Loan-to-Deposit Ratio', 'Risk Density'],
-    'asset quality': ['NPL Ratio', 'Total Non-Performing Loans', 'Provisioning Coverage'],
+    profitability:   ['NIM', 'Return on Equity', 'Return on Assets', 'Cost to Income Ratio', 'RORWA',
+                      'Pre-Provision Profit', 'Non-Interest Income Share', 'Opex Intensity'],
+    capital:         ['CET1 Ratio', 'Tier 1 Capital Ratio', 'Total Capital Ratio', 'Loan-to-Deposit Ratio', 'Risk Density', 'Capital Headroom'],
+    'asset quality': ['NPL Ratio', 'Total Non-Performing Loans', 'Provisioning Coverage', 'Credit Impairment Rate'],
     liquidity:       ['Core Funding Ratio (CFR)', '1-Month Mismatch Ratio', '1-Week Mismatch Ratio',
                       'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1'],
   };
@@ -483,6 +540,11 @@
     'Top 5 Non-Bank Credit Exposures': 'Top 5 Non-Bank Exposures (% CET1)',
     'Top 5 Bank Credit Exposures':     'Top 5 Bank Exposures (% CET1)',
     'Bank Exposures ≥10% of CET1':     'Bank Exposures ≥10% CET1 (count)',
+    'Pre-Provision Profit':         'Pre-Provision Profit (NZDm)',
+    'Non-Interest Income Share':    'Non-Interest Income Share (%)',
+    'Opex Intensity':               'Opex Intensity (bps)',
+    'Capital Headroom':             'Capital Headroom (%)',
+    'Credit Impairment Rate':       'Credit Impairment Rate (% loans)',
   };
 
   const METRIC_INFO = {
@@ -600,6 +662,36 @@
       note: 'Count or total of material single-counterparty interbank positions.',
       good: 'Lower indicates fewer concentrated interbank positions.',
     },
+    'Pre-Provision Profit': {
+      definition: 'Net Interest Income + Trading and Hedging Gains + Fees and Commission Income + Other Income minus Operating Expenses. Profit before credit impairment charges and tax.',
+      source: 'Derived: NII + Trading + Fees + Other Income − Operating Expenses. RBNZ series DBB.QIE15, QIE40, QIE50, QIE55, QIE57, QIE60.',
+      note: 'Measures core earnings power before credit cycle effects. More stable than net profit over the cycle.',
+      good: 'Rising PPP indicates improving underlying profitability independent of provisioning decisions.',
+    },
+    'Non-Interest Income Share': {
+      definition: 'Non-interest income (trading, fees, other) as a percentage of total operating income.',
+      source: 'Derived: (Trading + Fees + Other) ÷ (NII + Trading + Fees + Other) × 100. RBNZ series DBB.QIE40, QIE50, QIE55, QIE57.',
+      note: 'Diversification indicator. Higher share means less reliance on interest rate margin. NZ banks are predominantly NII-driven.',
+      good: 'NZ major banks typically 15%–25%. Higher diversification reduces sensitivity to rate cycles.',
+    },
+    'Opex Intensity': {
+      definition: 'Operating expenses annualised as a proportion of total assets, expressed in basis points.',
+      source: 'Derived: (Operating Expenses × 4) ÷ Total Assets × 10000. RBNZ series DBB.QIE60, QIG10.',
+      note: 'Asset-based efficiency metric. Complements Cost-to-Income by removing income volatility from the denominator.',
+      good: 'Lower is more efficient. NZ major banks typically 50–90 bps.',
+    },
+    'Capital Headroom': {
+      definition: 'CET1 Ratio minus the applicable RBNZ minimum CET1 requirement (phase-in schedule 2023–2028, plus D-SIB surcharge for ANZ, ASB, BNZ, Westpac).',
+      source: 'Derived: CET1 Ratio − RBNZ minimum. Capital reform schedule: RBNZ 2019 reform. RBNZ series DBB.QIB12.',
+      note: 'Shows buffer above regulatory minimum. The 2.5% capital conservation buffer sits above the minimum; breaching it triggers dividend restrictions. D-SIBs (ANZ, ASB, BNZ, Westpac) face an additional CET1 surcharge of 1.0%–1.5%.',
+      good: 'Higher headroom provides more flexibility. Banks typically hold 4%–8% above minimum.',
+    },
+    'Credit Impairment Rate': {
+      definition: 'Approximation of quarterly credit impairment charge: change in Total Non-Performing Loans divided by Net Loans and Advances, expressed as a percentage.',
+      source: 'Derived: ΔNPL ÷ Net Loans × 100. RBNZ series DBB.QIC50, QIG30.',
+      note: 'Proxy for the impairment charge rate. Rising values indicate credit cycle deterioration. Not a direct measure of provisioning charges.',
+      good: 'Close to zero or negative (improving credit quality) is better. Sustained positive readings signal rising credit stress.',
+    },
   };
 
   const TOP_6_BANKS = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];
@@ -618,6 +710,17 @@
   };
   function bankColor(name) { return BANK_COLORS[name] || '#636e72'; }
 
+  /* ── Good-direction set for ranking and trend flags ────────────────────── */
+  const HIGHER_IS_BETTER = new Set([
+    'NIM', 'Return on Equity', 'Return on Assets', 'CET1 Ratio', 'Tier 1 Capital Ratio',
+    'Total Capital Ratio', 'Core Funding Ratio (CFR)', 'RORWA', 'Provisioning Coverage',
+    'Non-Interest Income Share', 'Capital Headroom', 'Pre-Provision Profit',
+  ]);
+  // Trend flag thresholds: slope must exceed this fraction of the metric's std-dev to be
+  // considered a real trend (not noise). Fallback applies when std-dev is zero.
+  const TREND_THRESHOLD_SIGMA_FACTOR = 0.05;
+  const TREND_THRESHOLD_FALLBACK     = 0.1;
+
   /* ── State ─────────────────────────────────────────────────────────────── */
   let allRows      = [];
   let allPeriods   = [];
@@ -635,9 +738,13 @@
   let showSectorAvg   = localStorage.getItem('showSectorAvg')   === 'true';
   let activeTab       = localStorage.getItem('activeTab')       || 'profitability';
   let snapshotPeriod  = localStorage.getItem('snapshotPeriod')  || '';
+  let chartMode       = localStorage.getItem('chartMode')       || 'normal';
   let sortState       = { col: -1, dir: 1 };
   let lastLookup      = {};
   let lastVisible     = [];
+  let showRangeBand   = localStorage.getItem('showRangeBand')   === 'true';
+  let showTrendFlags  = localStorage.getItem('showTrendFlags')  === 'true';
+  let rankingViewMode = localStorage.getItem('rankingViewMode') || 'rank';
 
   // NZ/global events inlined for static-site delivery.
   const NZ_EVENTS = [
@@ -702,9 +809,60 @@
           lookup[entity][period]['Loan-to-Deposit Ratio'] =
             Math.round((loans / deposits) * 10000) / 100;
         }
+        // Pre-Provision Profit (NZDm)
+        if (nii != null && opex != null) {
+          const ppp = nii + (trad ?? 0) + (fees ?? 0) + (oth ?? 0) - opex;
+          lookup[entity][period]['Pre-Provision Profit'] = Math.round(ppp);
+        }
+        // Non-Interest Income Share (%)
+        const nonII = (trad ?? 0) + (fees ?? 0) + (oth ?? 0);
+        if (nii != null) {
+          const totalIncome = nii + nonII;
+          if (totalIncome > 0) {
+            lookup[entity][period]['Non-Interest Income Share'] =
+              Math.round((nonII / totalIncome) * 1000) / 10;
+          }
+        }
+        // Opex Intensity (bps): (opex × 4) / totalAssets × 10000
+        const totalAssets = metrics['Total Assets'];
+        if (opex != null && totalAssets != null && totalAssets !== 0) {
+          lookup[entity][period]['Opex Intensity'] =
+            Math.round((opex * 4 / totalAssets) * 10000 * 10) / 10;
+        }
+        // Capital Headroom (%)
+        // D-SIB CET1 surcharges mirror config/capital_requirements.yaml dsib_surcharges.
+        // Both locations must be kept in sync if RBNZ updates the surcharge schedule.
+        const cet1 = metrics['CET1 Ratio'];
+        if (cet1 != null) {
+          const DSIB_CET1_SURCHARGES = { ANZ: 1.5, ASB: 1.0, BNZ: 1.0, Westpac: 1.5 };
+          const year = parseInt((period || '').split('-')[0], 10) || 0;
+          const baseMin = year >= 2026 ? 6.5 : year >= 2025 ? 6.0 : year >= 2024 ? 5.5 : year >= 2023 ? 5.0 : 4.5;
+          const surcharge = DSIB_CET1_SURCHARGES[entity] ?? 0;
+          const minReq = baseMin + surcharge;
+          lookup[entity][period]['Capital Headroom'] =
+            Math.round((cet1 - minReq) * 100) / 100;
+        }
       }
     }
     return lookup;
+  }
+
+  /* ── Credit impairment rate (requires sorted periods for QoQ diff) ───── */
+  function buildProvisioningMetrics(lookup, sortedPeriods) {
+    for (const [entity, periods] of Object.entries(lookup)) {
+      for (let i = 1; i < sortedPeriods.length; i++) {
+        const curr = sortedPeriods[i];
+        const prev = sortedPeriods[i - 1];
+        const currNpl  = lookup[entity]?.[curr]?.['Total Non-Performing Loans'];
+        const prevNpl  = lookup[entity]?.[prev]?.['Total Non-Performing Loans'];
+        const loans    = lookup[entity]?.[curr]?.['Net Loans and Advances'];
+        if (currNpl != null && prevNpl != null && loans != null && loans !== 0) {
+          lookup[entity][curr]['Credit Impairment Rate'] =
+            // ×100 converts ratio to %; ×1000 then /1000 rounds to 3 decimal places
+            Math.round(((currNpl - prevNpl) / loans) * 100000) / 1000;
+        }
+      }
+    }
   }
 
   /* ── Data loading ─────────────────────────────────────────────────────── */
@@ -723,6 +881,7 @@
       setActiveQuickBtn('btn-top6');
       buildTabBar();
       buildSnapshotPeriodSelector();
+      loadFromHash();
       applyRangePreset(rangePreset, false);
       render();
     } catch (err) {
@@ -825,6 +984,7 @@
         bar.querySelectorAll('.tab-btn').forEach(b =>
           b.classList.toggle('active', b.textContent === activeTab));
         renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+        syncUrlHash();
       });
       bar.appendChild(btn);
     }
@@ -838,6 +998,7 @@
       btn.classList.toggle('active', btn.dataset.range === rangePreset);
     });
     if (doRender) render();
+    syncUrlHash();
   }
 
   function getVisiblePeriods() {
@@ -846,7 +1007,7 @@
     return allPeriods;
   }
 
-  document.querySelectorAll('.range-btn').forEach(btn => {
+  document.querySelectorAll('.range-btn[data-range]').forEach(btn => {
     btn.addEventListener('click', () => applyRangePreset(btn.dataset.range));
   });
 
@@ -878,6 +1039,26 @@
       showSectorAvg = chk.checked;
       localStorage.setItem('showSectorAvg', showSectorAvg);
       render();
+    });
+  })();
+
+  (function initRangeBandToggle() {
+    const chk = document.getElementById('chk-range-band');
+    chk.checked = showRangeBand;
+    chk.addEventListener('change', () => {
+      showRangeBand = chk.checked;
+      localStorage.setItem('showRangeBand', showRangeBand);
+      renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+    });
+  })();
+
+  (function initTrendFlagsToggle() {
+    const chk = document.getElementById('chk-trend-flags');
+    chk.checked = showTrendFlags;
+    chk.addEventListener('change', () => {
+      showTrendFlags = chk.checked;
+      localStorage.setItem('showTrendFlags', showTrendFlags);
+      renderCharts(lastLookup, lastVisible, getVisiblePeriods());
     });
   })();
 
@@ -913,17 +1094,45 @@
   function render() {
     sortState = { col: -1, dir: 1 };
     const lookup = buildLookup(allRows);
+    buildProvisioningMetrics(lookup, allPeriods);
     const visible = allEntities.filter(e => selectedEntities.has(e));
     lastLookup = lookup;
     lastVisible = visible;
     const visiblePeriods = getVisiblePeriods();
     renderKpiRow(lookup, visible);
+    renderNarrative(lookup, visible);
     renderCharts(lookup, visible, visiblePeriods);
     renderSnapshot(lookup, visible);
+    renderRankingTable(lookup, visible);
     document.getElementById('period-range').textContent =
       visiblePeriods.length
         ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}`
         : '';
+    syncUrlHash();
+  }
+
+  /* ── URL hash state ───────────────────────────────────────────────────── */
+  function syncUrlHash() {
+    const params = new URLSearchParams();
+    if (selectedEntities.size > 0) params.set('banks', [...selectedEntities].join(','));
+    params.set('range', rangePreset);
+    params.set('tab', activeTab);
+    if (chartMode !== 'normal') params.set('mode', chartMode);
+    history.replaceState(null, '', '#' + params.toString());
+  }
+
+  function loadFromHash() {
+    if (!location.hash || location.hash === '#') return;
+    try {
+      const params = new URLSearchParams(location.hash.slice(1));
+      if (params.has('banks')) {
+        const banks = params.get('banks').split(',').filter(Boolean);
+        if (banks.length > 0) selectedEntities = new Set(banks);
+      }
+      if (params.has('range')) rangePreset = params.get('range');
+      if (params.has('tab') && TABS[params.get('tab')]) activeTab = params.get('tab');
+      if (params.has('mode')) chartMode = params.get('mode') === 'indexed' ? 'indexed' : 'normal';
+    } catch (err) { console.warn('Failed to load state from URL hash:', err); }
   }
 
   /* ── KPI summary row ──────────────────────────────────────────────────── */
@@ -958,6 +1167,105 @@
         <div class="kpi-sub">${worstStr}</div>
       </div>`;
     }).join('');
+  }
+
+  /* ── Auto-narrative ───────────────────────────────────────────────────── */
+  function renderNarrative(lookup, visible) {
+    const bulletsEl = document.getElementById('narrative-bullets');
+    if (!bulletsEl) return;
+    const showNarrative = localStorage.getItem('showNarrative') !== 'false';
+    const bodyEl = document.getElementById('narrative-body');
+    const iconEl = document.getElementById('narrative-toggle-icon');
+    if (bodyEl) bodyEl.style.display = showNarrative ? '' : 'none';
+    if (iconEl) iconEl.textContent = showNarrative ? '▼ hide' : '▶ show';
+
+    const standalone = getStandaloneEntities(visible);
+    const period = allPeriods[allPeriods.length - 1];
+    const prevPeriod = allPeriods.length >= 2 ? allPeriods[allPeriods.length - 2] : null;
+    if (!period || standalone.length === 0) { bulletsEl.innerHTML = ''; return; }
+
+    const bullets = [];
+
+    // NIM bullet
+    const nimVals = standalone.map(e => lookup[e]?.[period]?.['NIM']).filter(v => v != null);
+    const nimPrev = prevPeriod ? standalone.map(e => lookup[e]?.[prevPeriod]?.['NIM']).filter(v => v != null) : [];
+    if (nimVals.length >= 2) {
+      const avg = nimVals.reduce((a, b) => a + b, 0) / nimVals.length;
+      let nimNote = '';
+      if (nimPrev.length >= 2) {
+        const prevAvg = nimPrev.reduce((a, b) => a + b, 0) / nimPrev.length;
+        const bps = Math.round((avg - prevAvg) * 100);
+        const dir = bps >= 0 ? 'up' : 'down';
+        nimNote = `, ${dir} ${Math.abs(bps)} bps from the prior quarter`;
+      }
+      const nimSeries = allPeriods.map(p => {
+        const vals = standalone.map(e => lookup[e]?.[p]?.['NIM']).filter(v => v != null);
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+      }).filter(v => v != null);
+      if (nimSeries.length) {
+        const maxNim = Math.max(...nimSeries);
+        const minNim = Math.min(...nimSeries);
+        const isHighest = avg >= maxNim - 0.01; // 1 bp tolerance for floating-point equality
+        const isLowest  = avg <= minNim + 0.01;
+        const suffix = isHighest ? ` — highest in available history` : isLowest ? ` — lowest in available history` : '';
+        bullets.push(`Sector NIM averaged ${avg.toFixed(2)}%${nimNote}${suffix}.`);
+      } else {
+        bullets.push(`Sector NIM averaged ${avg.toFixed(2)}%${nimNote}.`);
+      }
+    }
+
+    // ROE top performer
+    const roePairs = standalone.map(e => ({ e, v: lookup[e]?.[period]?.['Return on Equity'] })).filter(x => x.v != null);
+    if (roePairs.length) {
+      const top = roePairs.reduce((a, b) => a.v > b.v ? a : b);
+      bullets.push(`${top.e} posted the highest ROE at ${top.v.toFixed(1)}%.`);
+    }
+
+    // CET1 direction
+    if (prevPeriod) {
+      let improved = 0, declined = 0;
+      for (const e of standalone) {
+        const cur = lookup[e]?.[period]?.['CET1 Ratio'];
+        const prv = lookup[e]?.[prevPeriod]?.['CET1 Ratio'];
+        if (cur != null && prv != null) {
+          if (cur > prv) improved++;
+          else if (cur < prv) declined++;
+        }
+      }
+      const total = improved + declined;
+      if (total > 0) {
+        if (improved > declined) bullets.push(`CET1 ratios improved across ${improved} of ${total} banks quarter-on-quarter.`);
+        else if (declined > improved) bullets.push(`CET1 ratios declined across ${declined} of ${total} banks quarter-on-quarter.`);
+        else bullets.push(`CET1 ratios were mixed — ${improved} improved, ${declined} declined.`);
+      }
+    }
+
+    // Cost-to-Income trend
+    const ctiVals4 = [];
+    for (let i = Math.max(0, allPeriods.length - 4); i < allPeriods.length; i++) {
+      const p = allPeriods[i];
+      const vals = standalone.map(e => lookup[e]?.[p]?.['Cost to Income Ratio']).filter(v => v != null);
+      if (vals.length) ctiVals4.push(vals.reduce((a, b) => a + b, 0) / vals.length);
+    }
+    if (ctiVals4.length >= 2) {
+      const latest = ctiVals4[ctiVals4.length - 1];
+      const oldest = ctiVals4[0];
+      const trend = latest < oldest - 0.5 ? 'improving' : latest > oldest + 0.5 ? 'deteriorating' : 'stable';
+      bullets.push(`Cost-to-Income averaged ${latest.toFixed(1)}% — ${trend} over the past ${ctiVals4.length} quarters.`);
+    }
+
+    // NPL trend
+    const nplVals = standalone.map(e => lookup[e]?.[period]?.['NPL Ratio']).filter(v => v != null);
+    const nplPrev = prevPeriod ? standalone.map(e => lookup[e]?.[prevPeriod]?.['NPL Ratio']).filter(v => v != null) : [];
+    if (nplVals.length && nplPrev.length) {
+      const avg = nplVals.reduce((a, b) => a + b, 0) / nplVals.length;
+      const prevAvg = nplPrev.reduce((a, b) => a + b, 0) / nplPrev.length;
+      const bps = Math.round((avg - prevAvg) * 100);
+      const dir = bps > 0 ? `rose ${bps} bps` : bps < 0 ? `fell ${Math.abs(bps)} bps` : 'was flat';
+      bullets.push(`Sector average NPL Ratio ${dir} quarter-on-quarter to ${avg.toFixed(2)}%.`);
+    }
+
+    bulletsEl.innerHTML = bullets.map(b => `<li style="padding:0.2rem 0;">▸ ${escHtml(b)}</li>`).join('');
   }
 
   /* ── Charts ───────────────────────────────────────────────────────────── */
@@ -1009,6 +1317,17 @@
     const grid = document.getElementById('chart-grid');
     grid.innerHTML = '';
 
+    // Indexed mode notice
+    const existingNote = document.getElementById('indexed-mode-note');
+    if (existingNote) existingNote.remove();
+    if (chartMode === 'indexed') {
+      const note = document.createElement('div');
+      note.id = 'indexed-mode-note';
+      note.style.cssText = 'font-size:var(--text-xs);color:var(--text-muted);margin-bottom:0.75rem;padding:0.4rem 0.75rem;border-left:2px solid var(--teal);';
+      note.textContent = 'Indexed mode active — each bank\'s first available value = 100. Values are not comparable across metrics.';
+      grid.parentElement.insertBefore(note, grid);
+    }
+
     const tabMetrics    = TABS[activeTab] || [];
     const ocrLookup     = buildOcrLookup();
     const ocrEvents     = getOcrEvents(visiblePeriods);
@@ -1055,11 +1374,26 @@
           const v = lookup[entity]?.[p]?.[metric];
           return (v != null) ? v : null;
         });
+        let lbl = entity;
+        if (showTrendFlags) {
+          const slope = trailingSlope(data);
+          if (slope !== null) {
+            const nonNull = data.filter(v => v != null);
+            const meanVal = nonNull.reduce((a, b) => a + b, 0) / nonNull.length;
+            const variance = nonNull.reduce((a, b) => a + (b - meanVal) ** 2, 0) / nonNull.length;
+            const stdDev = Math.sqrt(variance);
+            const threshold = stdDev > 0 ? TREND_THRESHOLD_SIGMA_FACTOR * stdDev : TREND_THRESHOLD_FALLBACK;
+            const higherBetter = HIGHER_IS_BETTER.has(metric);
+            const improving    = higherBetter ? slope > threshold  : slope < -threshold;
+            const deteriorating = higherBetter ? slope < -threshold : slope > threshold;
+            lbl += improving ? ' ▲' : deteriorating ? ' ▼' : ' →';
+          }
+        }
         return {
-          label: entity, data,
+          label: lbl, data,
           borderColor: bankColor(entity), backgroundColor: bankColor(entity) + '22',
           borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
-          tension: 0.3, spanGaps: false, yAxisID: 'y',
+          tension: 0, spanGaps: false, yAxisID: 'y',
         };
       }).filter(ds => ds.data.some(v => v != null));
 
@@ -1076,8 +1410,24 @@
             label: 'Sector avg', data: avgData,
             borderColor: '#888', backgroundColor: 'transparent',
             borderWidth: 1.5, borderDash: [5, 3],
-            pointRadius: 0, tension: 0.3, spanGaps: false, yAxisID: 'y',
+            pointRadius: 0, tension: 0, spanGaps: false, yAxisID: 'y',
           });
+        }
+      }
+
+      // Range band overlay (min/max across standalone visible banks)
+      if (showRangeBand && standaloneVisible.length >= 2) {
+        const minData = visiblePeriods.map(p => {
+          const vals = standaloneVisible.map(e => lookup[e]?.[p]?.[metric]).filter(v => v != null);
+          return vals.length >= 2 ? Math.min(...vals) : null;
+        });
+        const maxData = visiblePeriods.map(p => {
+          const vals = standaloneVisible.map(e => lookup[e]?.[p]?.[metric]).filter(v => v != null);
+          return vals.length >= 2 ? Math.max(...vals) : null;
+        });
+        if (minData.some(v => v != null) && maxData.some(v => v != null)) {
+          datasets.push({ label: '_band_min', data: minData, borderColor: 'transparent', backgroundColor: 'transparent', borderWidth: 0, pointRadius: 0, spanGaps: false, yAxisID: 'y', fill: false });
+          datasets.push({ label: '_band_max', data: maxData, borderColor: 'transparent', backgroundColor: '#00C3A508', borderWidth: 0, pointRadius: 0, spanGaps: false, yAxisID: 'y', fill: '-1' });
         }
       }
 
@@ -1090,9 +1440,21 @@
             borderColor: '#00C3A5', backgroundColor: 'transparent',
             borderWidth: 2, borderDash: [5, 3],
             pointRadius: 0, pointHoverRadius: 4,
-            tension: 0.3, spanGaps: true, yAxisID: 'yOCR',
+            tension: 0, spanGaps: true, yAxisID: 'yOCR',
           });
         }
+      }
+
+      // Indexed mode: rebase all non-OCR datasets to 100 at first non-null value
+      if (chartMode === 'indexed') {
+        datasets.forEach(ds => {
+          if (ds.yAxisID === 'yOCR') return; // skip OCR overlay
+          const firstNonNull = ds.data.findIndex(v => v != null);
+          if (firstNonNull === -1) return;
+          const base = ds.data[firstNonNull];
+          if (base === 0) return; // cannot index a zero-base value; skip dataset silently
+          ds.data = ds.data.map(v => v != null ? Math.round((v / base) * 1000) / 10 : null);
+        });
       }
 
       const scalesConfig = {
@@ -1136,6 +1498,7 @@
               labels: {
                 font: { size: 10, family: "'IBM Plex Mono', monospace" },
                 boxWidth: 10, padding: 8, color: '#666',
+                filter: item => !item.text.startsWith('_band_'),
               },
             },
             tooltip: {
@@ -1155,6 +1518,10 @@
       chartMeta.push({ metric, label, chartConfig, tooltipCallback });
     }
     renderNzLegend(visiblePeriods);
+    // NIM pass-through scatter panel (profitability tab only)
+    if (activeTab === 'profitability') {
+      renderNimPassThrough(lookup, visible, visiblePeriods);
+    }
   }
 
   /* ── Chart download ───────────────────────────────────────────────────── */
@@ -1177,6 +1544,36 @@
     link.download = `${slug}-${date}.png`;
     link.href = offscreen.toDataURL('image/png');
     link.click();
+  }
+
+  /* ── CSV download ─────────────────────────────────────────────────────── */
+  function downloadCsv() {
+    const lookup = lastLookup;
+    const visible = lastVisible;
+    const visiblePeriods = getVisiblePeriods();
+    const rows = ['entity,metric,value,period,source'];
+    for (const entity of visible) {
+      for (const period of visiblePeriods) {
+        const metrics = lookup[entity]?.[period] || {};
+        for (const [metric, value] of Object.entries(metrics)) {
+          if (value != null) {
+            const safeEntity = String(entity).replace(/"/g, '""');
+            const safeMetric = String(metric).replace(/"/g, '""');
+            rows.push(`"${safeEntity}","${safeMetric}",${value},"${period}","RBNZ"`);
+          }
+        }
+      }
+    }
+    const csvContent = rows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const date = new Date().toISOString().slice(0, 10);
+    const rangeSuffix = rangePreset === 'all' ? 'all' : rangePreset + 'q';
+    const link = document.createElement('a');
+    link.download = `nz-bank-performance-${rangeSuffix}-${date}.csv`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   /* ── Fullscreen modal ─────────────────────────────────────────────────── */
@@ -1276,6 +1673,77 @@
     if (shouldClosePopoverOnClick(e, pop)) closeMetricPopover();
   });
 
+  /* ── CSV download button ─────────────────────────────────────────────── */
+  document.getElementById('btn-csv-download').addEventListener('click', downloadCsv);
+
+  /* ── Copy link button ────────────────────────────────────────────────── */
+  document.getElementById('btn-copy-link').addEventListener('click', () => {
+    syncUrlHash();
+    navigator.clipboard.writeText(location.href).then(() => {
+      const fb = document.getElementById('copy-link-feedback');
+      fb.style.display = 'inline';
+      setTimeout(() => { fb.style.display = 'none'; }, 2000);
+    });
+  });
+
+  /* ── Indexed mode toggle ─────────────────────────────────────────────── */
+  (function initIndexMode() {
+    const btn = document.getElementById('btn-index-mode');
+    btn.classList.toggle('active', chartMode === 'indexed');
+    btn.addEventListener('click', () => {
+      chartMode = chartMode === 'indexed' ? 'normal' : 'indexed';
+      localStorage.setItem('chartMode', chartMode);
+      btn.classList.toggle('active', chartMode === 'indexed');
+      renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+    });
+  })();
+
+  /* ── Narrative toggle ────────────────────────────────────────────────── */
+  (function initNarrativeToggle() {
+    const toggle = document.getElementById('narrative-toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', () => {
+      const show = localStorage.getItem('showNarrative') !== 'false';
+      localStorage.setItem('showNarrative', show ? 'false' : 'true');
+      renderNarrative(lastLookup, lastVisible);
+    });
+  })();
+
+  /* ── Anomaly detection ────────────────────────────────────────────────── */
+  /** Returns map { [entity]: { [metric]: { sigma, mean, direction } } } for values
+   *  that deviate > 2σ from the bank's own trailing 8-quarter history. */
+  function computeAnomalies(lookup, visible) {
+    const result = {};
+    const selPeriod = getSnapshotPeriod();
+    const selIdx = allPeriods.indexOf(selPeriod);
+    if (selIdx === -1) return result;
+    // Trailing 8 quarters including the current period (using allPeriods for full history)
+    const windowStart = Math.max(0, selIdx - 7);
+    const window = allPeriods.slice(windowStart, selIdx + 1);
+    for (const entity of visible) {
+      result[entity] = {};
+      for (const metric of KEY_METRICS) {
+        const currentVal = lookup[entity]?.[selPeriod]?.[metric];
+        if (currentVal == null) continue;
+        const vals = window.map(p => lookup[entity]?.[p]?.[metric]).filter(v => v != null);
+        if (vals.length < 4) continue;
+        const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length;
+        const stddev = Math.sqrt(variance);
+        if (stddev === 0) continue;
+        const sigma = Math.abs(currentVal - mean) / stddev;
+        if (sigma > 2) {
+          result[entity][metric] = {
+            sigma: Math.round(sigma * 10) / 10,
+            mean: Math.round(mean * 10) / 10,
+            direction: currentVal > mean ? 'above' : 'below',
+          };
+        }
+      }
+    }
+    return result;
+  }
+
   /* ── Snapshot table ───────────────────────────────────────────────────── */
   function renderSnapshot(lookup, visible) {
     const selPeriod = getSnapshotPeriod();
@@ -1342,6 +1810,7 @@
     // Render body
     const body = document.getElementById('snapshot-body');
     body.innerHTML = '';
+    const anomalies = computeAnomalies(lookup, visible);
     for (const { entity, latest, prev } of rows) {
       const tr = document.createElement('tr');
       let cells = `<td scope="row"><div class="entity-cell">
@@ -1362,7 +1831,13 @@
           let cls = '';
           if (colBest[colIdx]  != null && val === colBest[colIdx])  cls = 'cell-best';
           if (colWorst[colIdx] != null && val === colWorst[colIdx]) cls = 'cell-worst';
-          cells += `<td class="${cls}">${val.toFixed(1)}${trend}</td>`;
+          let anomalyHtml = '';
+          const anom = anomalies[entity]?.[metric];
+          if (anom) {
+            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
+          }
+          cells += `<td class="${cls}">${val.toFixed(1)}${trend}${anomalyHtml}</td>`;
         }
       });
       tr.innerHTML = cells;
@@ -1377,6 +1852,267 @@
       });
     });
   }
+
+  /* ── Trailing slope helper ────────────────────────────────────────────── */
+  const TRAILING_PERIODS_FOR_SLOPE = 4; // quarters used for trend direction
+  function trailingSlope(data) {
+    const vals = data.slice(-TRAILING_PERIODS_FOR_SLOPE).filter(v => v != null);
+    if (vals.length < 2) return null;
+    return (vals[vals.length - 1] - vals[0]) / (vals.length - 1);
+  }
+
+  /* ── Quarter offset helper ────────────────────────────────────────────── */
+  /** Move a period string "YYYY-QN" by n quarters. Handles year rollover. */
+  function quarterOffset(period, n) {
+    const parts = (period || '').split('-Q');
+    if (parts.length !== 2) return period;
+    let year = parseInt(parts[0], 10);
+    let q    = parseInt(parts[1], 10);
+    q += n;
+    while (q > 4) { q -= 4; year++; }
+    while (q < 1) { q += 4; year--; }
+    return `${year}-Q${q}`;
+  }
+
+  /* ── Linear regression ────────────────────────────────────────────────── */
+  function linearRegression(points) {
+    const n = points.length;
+    if (n < 2) return null;
+    const sumX  = points.reduce((s, p) => s + p.x, 0);
+    const sumY  = points.reduce((s, p) => s + p.y, 0);
+    const sumXY = points.reduce((s, p) => s + p.x * p.y, 0);
+    const sumX2 = points.reduce((s, p) => s + p.x * p.x, 0);
+    const denom = n * sumX2 - sumX * sumX;
+    if (denom === 0) return null;
+    const m = (n * sumXY - sumX * sumY) / denom;
+    const b = (sumY - m * sumX) / n;
+    return { m, b };
+  }
+
+  /* ── NIM Pass-Through scatter chart ───────────────────────────────────── */
+  function renderNimPassThrough(lookup, visible, visiblePeriods) {
+    const grid = document.getElementById('chart-grid');
+    const card = document.createElement('div');
+    card.className = 'chart-card';
+    card.id = 'nim-passthrough-card';
+
+    if (ocrRows.length === 0) {
+      card.innerHTML = `<div class="chart-card-hd"><h3>nim pass-through analysis</h3></div>
+        <div style="padding:1.5rem 0;color:var(--text-muted);font-size:var(--text-xs);text-align:center;">
+          Load OCR data to see NIM pass-through analysis.
+        </div>`;
+      grid.appendChild(card);
+      return card;
+    }
+
+    // Identify all OCR-change events from ocrRows (|delta| >= 0.25)
+    const ocrLookup = buildOcrLookup();
+    const ocrChangeEvents = [];
+    for (let i = 1; i < allPeriods.length; i++) {
+      const prev = allPeriods[i - 1];
+      const curr = allPeriods[i];
+      const prevVal = ocrLookup[prev];
+      const currVal = ocrLookup[curr];
+      if (prevVal == null || currVal == null) continue;
+      const delta = currVal - prevVal;
+      if (Math.abs(delta) >= 0.25)
+        ocrChangeEvents.push({ period: curr, deltaBps: Math.round(delta * 100) });
+    }
+
+    // Build scatter points: one per bank per OCR-change event
+    const bankPoints = {};   // { bankName: [{ x, y, period, deltaBps }] }
+    for (const { period, deltaBps } of ocrChangeEvents) {
+      const pPlus2 = quarterOffset(period, 2);
+      const pMinus1 = quarterOffset(period, -1);
+      for (const entity of visible) {
+        const nimBefore = lookup[entity]?.[pMinus1]?.['NIM'];
+        const nimAfter  = lookup[entity]?.[pPlus2]?.['NIM'];
+        if (nimBefore == null || nimAfter == null) continue;
+        const nimChangeBps = Math.round((nimAfter - nimBefore) * 100);
+        if (!bankPoints[entity]) bankPoints[entity] = [];
+        bankPoints[entity].push({ x: deltaBps, y: nimChangeBps, period, deltaBps });
+      }
+    }
+
+    const scatterDatasets = [];
+    const trendDatasets   = [];
+
+    for (const [entity, points] of Object.entries(bankPoints)) {
+      const color = bankColor(entity);
+      scatterDatasets.push({
+        type: 'scatter',
+        label: entity,
+        data: points.map(p => ({
+          x: p.x, y: p.y,
+          period: p.period, deltaBps: p.deltaBps, entity,
+        })),
+        backgroundColor: color + 'cc',
+        borderColor: color,
+        borderWidth: 1,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      });
+
+      // Best-fit trend line
+      const reg = linearRegression(points);
+      if (reg) {
+        const xs = points.map(p => p.x);
+        const xMin = Math.min(...xs) - 5;
+        const xMax = Math.max(...xs) + 5;
+        trendDatasets.push({
+          type: 'line',
+          label: `${entity} trend`,
+          data: [{ x: xMin, y: reg.m * xMin + reg.b }, { x: xMax, y: reg.m * xMax + reg.b }],
+          borderColor: color,
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderDash: [5, 3],
+          pointRadius: 0,
+          tension: 0,
+          showLine: true,
+        });
+      }
+    }
+
+    const allDatasets = [...scatterDatasets, ...trendDatasets];
+    const canvasId = 'chart-nim-passthrough';
+
+    card.innerHTML = `
+      <div class="chart-card-hd">
+        <h3>nim pass-through analysis (ocr change vs nim +2Q)</h3>
+      </div>
+      <div class="chart-wrap" style="height:260px;"><canvas id="${canvasId}"></canvas></div>
+      <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.5rem;">
+        x = OCR change (bps) · y = NIM change 2 quarters later (bps) · dashed = per-bank trend
+      </div>`;
+    grid.appendChild(card);
+
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+      type: 'scatter',
+      data: { datasets: allDatasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 10, family: "'IBM Plex Mono', monospace" },
+              boxWidth: 10, padding: 8, color: '#666',
+              filter: item => !item.text.endsWith(' trend'),
+            },
+          },
+          tooltip: {
+            backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+            titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+            callbacks: {
+              label(ctx) {
+                if (ctx.dataset.type === 'line') return null;
+                const p = ctx.raw;
+                return ` ${p.entity} — ${p.period}: OCR ${p.deltaBps > 0 ? '+' : ''}${p.deltaBps}bps → NIM ${p.y > 0 ? '+' : ''}${p.y}bps`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'OCR change (bps)', color: '#666', font: { size: 9 } },
+            ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+            grid: { color: '#252b33' }, border: { color: '#252b33' },
+          },
+          y: {
+            title: { display: true, text: 'NIM change +2Q (bps)', color: '#666', font: { size: 9 } },
+            ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+            grid: { color: '#252b33' }, border: { color: '#252b33' },
+          },
+        },
+      },
+    });
+
+    return card;
+  }
+
+  /* ── Ranking table ────────────────────────────────────────────────────── */
+  function renderRankingTable(lookup, visible) {
+    const selPeriod = getSnapshotPeriod();
+    const head = document.getElementById('ranking-head');
+    const body = document.getElementById('ranking-body');
+    if (!head || !body) return;
+
+    // Only include KEY_METRICS that have at least one non-null value in selPeriod
+    const activeMetrics = KEY_METRICS.filter(m =>
+      visible.some(e => lookup[e]?.[selPeriod]?.[m] != null)
+    );
+
+    // Header
+    head.innerHTML = '<th scope="col">Bank</th>' +
+      activeMetrics.map(m => `<th scope="col">${escHtml(METRIC_LABELS[m] || m)}</th>`).join('');
+
+    const isRankView = rankingViewMode === 'rank';
+    const N = visible.length;
+    const topQ  = Math.ceil(N / 4);
+    const botQ  = Math.ceil(N / 4);
+
+    // Pre-compute ranks per metric
+    const metricRanks = {};
+    for (const m of activeMetrics) {
+      const higherBetter = HIGHER_IS_BETTER.has(m);
+      const vals = visible
+        .map(e => ({ e, v: lookup[e]?.[selPeriod]?.[m] }))
+        .filter(x => x.v != null);
+      // Sort: rank 1 = best
+      vals.sort((a, b) => higherBetter ? b.v - a.v : a.v - b.v);
+      metricRanks[m] = {};
+      vals.forEach((x, i) => { metricRanks[m][x.e] = i + 1; });
+    }
+
+    body.innerHTML = '';
+    const anomalies = computeAnomalies(lookup, visible);
+    for (const entity of visible) {
+      const tr = document.createElement('tr');
+      let cells = `<td scope="row"><div class="entity-cell">
+        <span class="swatch" style="background:${bankColor(entity)}"></span>
+        ${escHtml(entity)}
+      </div></td>`;
+      for (const m of activeMetrics) {
+        const val = lookup[entity]?.[selPeriod]?.[m];
+        if (val == null) {
+          cells += `<td class="val-null">—</td>`;
+        } else if (isRankView) {
+          const rank = metricRanks[m][entity];
+          const nRanked = Object.keys(metricRanks[m]).length;
+          let cls = '';
+          if (rank != null) {
+            if (rank <= topQ) cls = 'rank-best';
+            else if (rank > nRanked - botQ) cls = 'rank-worst';
+          }
+          cells += `<td class="${cls}">${rank != null ? rank : '—'}</td>`;
+        } else {
+          let anomalyHtml = '';
+          const anom = anomalies[entity]?.[m];
+          if (anom) {
+            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
+          }
+          cells += `<td>${val.toFixed(1)}${anomalyHtml}</td>`;
+        }
+      }
+      tr.innerHTML = cells;
+      body.appendChild(tr);
+    }
+  }
+
+  (function initRankViewToggle() {
+    const btn = document.getElementById('rank-view-toggle');
+    if (!btn) return;
+    btn.textContent = rankingViewMode === 'rank' ? 'Value view' : 'Rank view';
+    btn.addEventListener('click', () => {
+      rankingViewMode = rankingViewMode === 'rank' ? 'value' : 'rank';
+      localStorage.setItem('rankingViewMode', rankingViewMode);
+      btn.textContent = rankingViewMode === 'rank' ? 'Value view' : 'Rank view';
+      renderRankingTable(lastLookup, lastVisible);
+    });
+  })();
 
   /* ── Utilities ────────────────────────────────────────────────────────── */
   function escHtml(str) {
