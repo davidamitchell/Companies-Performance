@@ -28,6 +28,7 @@ New entries go under `## [Unreleased]` at the top. On release, move them to a da
 - **W-0063**: CSV download of filtered data in canonical schema format.
 - **W-0040**: Indexed (base=100) chart mode toggle in `docs/index.html`.
 - **W-0047**: Auto-narrative panel with plain-English sector bullets in `docs/index.html`.
+- **New ratios**: `Cost to Income per Employee` (%) and `Cost to Income per Customer` (%) added to `src/processing/compute_productivity.py`. Each is Expenses ÷ Gross Income × 100 expressed in the per-unit productivity context. Glossary updated.
 - **S-0012/S-0013**: Reference data files added: `data/reference/employees.csv` (annual FTE per bank, sourced from KPMG FIPS and bank annual reports) and `data/reference/customers.csv` (active retail customer estimates). Schema documented in `config/reference.yaml`.
 - **W-0075**: `data/reference/` directory created with `employees.csv`, `customers.csv`, and `config/reference.yaml`.
 - **W-0076**: `src/processing/compute_productivity.py` and `scripts/compute_productivity.py` added. Computes six productivity metrics: Profit per Employee, Gross Income per Employee, Expenses per Employee, Profit per Customer, Gross Income per Customer, Expenses per Customer. Output: `data/processed/productivity.csv` and `docs/data/processed/productivity.json`. Confidence field propagated from reference data. Tests in `tests/test_compute_productivity.py` (20 tests).

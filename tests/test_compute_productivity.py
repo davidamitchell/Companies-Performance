@@ -9,6 +9,7 @@ from pathlib import Path
 
 from src.processing.compute_productivity import (
     PRODUCTIVITY_METRICS,
+    _emit_ratio,
     _load_customers_csv,
     _load_employees_csv,
     _lookup_reference,
@@ -281,7 +282,7 @@ def test_compute_productivity_basic(tmp_path: Path) -> None:
     _write_customers_csv(cust_csv, [_CUSTOMERS_ROW])
 
     rows = compute_productivity(metrics_csv, emp_csv, cust_csv)
-    assert len(rows) == 6  # 3 per-employee + 3 per-customer
+    assert len(rows) == 8  # 4 per-employee + 4 per-customer
 
     by_metric = {r["metric"]: r for r in rows}
 
@@ -310,6 +311,21 @@ def test_compute_productivity_basic(tmp_path: Path) -> None:
     expected_ppc = round((100 * 4 * 1_000_000) / 2_800_000, 2)
     assert abs(ppc["value"] - expected_ppc) < 0.01
 
+    # Cost to Income per Employee: (200/460) × 100 = 43.48%
+    ctie = by_metric["Cost to Income per Employee"]
+    assert ctie["entity"] == "ANZ"
+    assert ctie["period"] == "2023-Q3"
+    assert ctie["source"] == "productivity"
+    assert ctie["confidence"] == "exact"
+    expected_ctie = round((200 / 460) * 100, 2)
+    assert abs(ctie["value"] - expected_ctie) < 0.01
+
+    # Cost to Income per Customer: same formula as per-employee (denominators cancel)
+    ctic = by_metric["Cost to Income per Customer"]
+    assert ctic["confidence"] == "estimated"
+    expected_ctic = round((200 / 460) * 100, 2)
+    assert abs(ctic["value"] - expected_ctic) < 0.01
+
 
 def test_compute_productivity_no_employee_data(tmp_path: Path) -> None:
     """Missing employee reference → per-employee metrics omitted, per-customer still produced."""
@@ -323,7 +339,9 @@ def test_compute_productivity_no_employee_data(tmp_path: Path) -> None:
     rows = compute_productivity(metrics_csv, emp_csv, cust_csv)
     metrics_found = {r["metric"] for r in rows}
     assert "Profit per Employee" not in metrics_found
+    assert "Cost to Income per Employee" not in metrics_found
     assert "Profit per Customer" in metrics_found
+    assert "Cost to Income per Customer" in metrics_found
 
 
 def test_compute_productivity_null_pat(tmp_path: Path) -> None:
@@ -421,11 +439,62 @@ def test_compute_productivity_trading_defaults_to_zero(tmp_path: Path) -> None:
     # Gross income = NII only (400 NZDm)
     expected_gie = round((400 * 4 * 1_000_000) / 7300, 2)
     assert abs(by_metric["Gross Income per Employee"]["value"] - expected_gie) < 0.01
+    # Cost to Income per Employee: 200/400 × 100 = 50%
+    expected_ctie = round((200 / 400) * 100, 2)
+    assert abs(by_metric["Cost to Income per Employee"]["value"] - expected_ctie) < 0.01
 
 
 # ---------------------------------------------------------------------------
-# write_productivity_csv / write_productivity_json
+# _emit_ratio
 # ---------------------------------------------------------------------------
+
+
+def test_emit_ratio_basic() -> None:
+    """_emit_ratio emits a percentage ratio row."""
+    output: list = []
+    _emit_ratio(output, "ANZ", "2024-Q1", "Cost to Income per Employee", 200.0, 460.0, "exact")
+    assert len(output) == 1
+    assert output[0]["metric"] == "Cost to Income per Employee"
+    assert abs(output[0]["value"] - round((200 / 460) * 100, 2)) < 0.01
+    assert output[0]["source"] == "productivity"
+    assert output[0]["confidence"] == "exact"
+
+
+def test_emit_ratio_null_numerator() -> None:
+    """_emit_ratio emits nothing when numerator is None."""
+    output: list = []
+    _emit_ratio(output, "ANZ", "2024-Q1", "Cost to Income per Employee", None, 460.0, "exact")
+    assert len(output) == 0
+
+
+def test_emit_ratio_null_denominator() -> None:
+    """_emit_ratio emits nothing when denominator is None."""
+    output: list = []
+    _emit_ratio(output, "ANZ", "2024-Q1", "Cost to Income per Employee", 200.0, None, "exact")
+    assert len(output) == 0
+
+
+def test_emit_ratio_zero_denominator() -> None:
+    """_emit_ratio emits nothing when denominator is zero."""
+    output: list = []
+    _emit_ratio(output, "ANZ", "2024-Q1", "Cost to Income per Employee", 200.0, 0.0, "exact")
+    assert len(output) == 0
+
+
+def test_compute_productivity_ratio_null_nii(tmp_path: Path) -> None:
+    """Null NII → gross income is None → cost-to-income ratio omitted."""
+    rows_no_nii = [r for r in _COMMON_METRICS_ROWS if r["metric"] != "Net Interest Income"]
+    metrics_csv = tmp_path / "metrics.csv"
+    emp_csv = tmp_path / "employees.csv"
+    cust_csv = tmp_path / "customers.csv"
+    _write_metrics_csv(metrics_csv, rows_no_nii)
+    _write_employees_csv(emp_csv, [_EMPLOYEES_ROW])
+    _write_customers_csv(cust_csv, [_CUSTOMERS_ROW])
+
+    rows = compute_productivity(metrics_csv, emp_csv, cust_csv)
+    metrics_found = {r["metric"] for r in rows}
+    assert "Cost to Income per Employee" not in metrics_found
+    assert "Cost to Income per Customer" not in metrics_found
 
 
 def test_write_productivity_csv(tmp_path: Path) -> None:
@@ -479,7 +548,9 @@ def test_productivity_metrics_constant() -> None:
     assert "Profit per Employee" in PRODUCTIVITY_METRICS
     assert "Gross Income per Employee" in PRODUCTIVITY_METRICS
     assert "Expenses per Employee" in PRODUCTIVITY_METRICS
+    assert "Cost to Income per Employee" in PRODUCTIVITY_METRICS
     assert "Profit per Customer" in PRODUCTIVITY_METRICS
     assert "Gross Income per Customer" in PRODUCTIVITY_METRICS
     assert "Expenses per Customer" in PRODUCTIVITY_METRICS
-    assert len(PRODUCTIVITY_METRICS) == 6
+    assert "Cost to Income per Customer" in PRODUCTIVITY_METRICS
+    assert len(PRODUCTIVITY_METRICS) == 8

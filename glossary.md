@@ -212,4 +212,10 @@ Total operating income divided by estimated active retail customers for a given 
 ### Expenses per Customer
 Total operating expenses divided by estimated active retail customers for a given period. Measures the cost of serving each active customer. Expressed in NZD per active customer (annualised). **Derived from Operating Expenses ÷ Active Retail Customers; not stored in the RBNZ Dashboard.**
 
+### Cost to Income per Employee
+Expenses per Employee divided by Gross Income per Employee, expressed as a percentage. Measures what fraction of each dollar of income generated per staff member is consumed by operating costs. Equivalent to the Cost to Income Ratio (the per-FTE denominators cancel), but expressed in the per-employee productivity context. Lower is more efficient. **Derived from Expenses per Employee ÷ Gross Income per Employee × 100; not stored in the RBNZ Dashboard.**
+
+### Cost to Income per Customer
+Expenses per Customer divided by Gross Income per Customer, expressed as a percentage. Measures what fraction of each dollar of income generated per active customer is consumed by operating costs. Equivalent to the Cost to Income Ratio (the per-customer denominators cancel), but expressed in the per-customer productivity context. Lower is more efficient. **Derived from Expenses per Customer ÷ Gross Income per Customer × 100; not stored in the RBNZ Dashboard.**
+
 ---

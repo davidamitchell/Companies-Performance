@@ -526,7 +526,9 @@
     liquidity:       ['Core Funding Ratio (CFR)', '1-Month Mismatch Ratio', '1-Week Mismatch Ratio',
                       'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1'],
     productivity:    ['Profit per Employee', 'Gross Income per Employee', 'Expenses per Employee',
-                      'Profit per Customer', 'Gross Income per Customer', 'Expenses per Customer'],
+                      'Cost to Income per Employee',
+                      'Profit per Customer', 'Gross Income per Customer', 'Expenses per Customer',
+                      'Cost to Income per Customer'],
   };
 
   const KEY_METRICS = Object.values(TABS).flat();
@@ -559,9 +561,11 @@
     'Profit per Employee':          'Profit per Employee (NZD/FTE)',
     'Gross Income per Employee':    'Gross Income per Employee (NZD/FTE)',
     'Expenses per Employee':        'Expenses per Employee (NZD/FTE)',
+    'Cost to Income per Employee':  'Cost to Income per Employee (%)',
     'Profit per Customer':          'Profit per Customer (NZD)',
     'Gross Income per Customer':    'Gross Income per Customer (NZD)',
     'Expenses per Customer':        'Expenses per Customer (NZD)',
+    'Cost to Income per Customer':  'Cost to Income per Customer (%)',
   };
 
   /* Metric name → URL slug for metric.html?m=<slug> */

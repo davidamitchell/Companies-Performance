@@ -14,13 +14,15 @@ Outputs canonical rows in the schema:
     source      — "productivity"
     confidence  — "exact" / "triangulated" / "estimated" (from reference data)
 
-The six metrics are:
+The eight metrics are:
 - Profit per Employee (NZD/FTE, annualised)
 - Gross Income per Employee (NZD/FTE, annualised)
 - Expenses per Employee (NZD/FTE, annualised)
+- Cost to Income per Employee (%, Expenses per Employee ÷ Gross Income per Employee × 100)
 - Profit per Customer (NZD/customer, annualised)
 - Gross Income per Customer (NZD/customer, annualised)
 - Expenses per Customer (NZD/customer, annualised)
+- Cost to Income per Customer (%, Expenses per Customer ÷ Gross Income per Customer × 100)
 
 Annualisation: quarterly NZDm values are multiplied by 4 then divided by the
 denominator. The divisor is taken from the most recent annual reference data
@@ -48,9 +50,11 @@ PRODUCTIVITY_METRICS = (
     "Profit per Employee",
     "Gross Income per Employee",
     "Expenses per Employee",
+    "Cost to Income per Employee",
     "Profit per Customer",
     "Gross Income per Customer",
     "Expenses per Customer",
+    "Cost to Income per Customer",
 )
 
 # Confidence tier ordering (lower index = higher quality)
@@ -294,6 +298,15 @@ def compute_productivity(
                 _emit_metric(
                     output, entity, period, "Expenses per Employee", opex_ann, fte, emp_conf
                 )
+                _emit_ratio(
+                    output,
+                    entity,
+                    period,
+                    "Cost to Income per Employee",
+                    opex_ann,
+                    gross_income_ann,
+                    emp_conf,
+                )
 
             # --- Customer reference ---
             cust_ref = _lookup_reference(customers, entity, qend)
@@ -330,6 +343,15 @@ def compute_productivity(
                     active_cust,
                     cust_conf,
                 )
+                _emit_ratio(
+                    output,
+                    entity,
+                    period,
+                    "Cost to Income per Customer",
+                    opex_ann,
+                    gross_income_ann,
+                    cust_conf,
+                )
 
     logger.info("Productivity computation complete: %d rows", len(output))
     return output
@@ -352,6 +374,38 @@ def _emit_metric(
         return
     # Convert NZDm → NZD and divide by denominator
     value = round((numerator_nzdm * 1_000_000) / denominator, 2)
+    output.append(
+        {
+            "entity": entity,
+            "metric": metric,
+            "value": value,
+            "period": period,
+            "source": _SOURCE_ID,
+            "confidence": confidence,
+        }
+    )
+
+
+def _emit_ratio(
+    output: list[dict[str, Any]],
+    entity: str,
+    period: str,
+    metric: str,
+    numerator_nzdm: float | None,
+    denominator_nzdm: float | None,
+    confidence: str,
+) -> None:
+    """Compute a percentage ratio and append to output if both values are non-null.
+
+    Both inputs are in NZDm; the NZDm unit cancels in the ratio so the result
+    is dimensionless and expressed as a percentage.
+    """
+    if numerator_nzdm is None or denominator_nzdm is None:
+        return
+    if denominator_nzdm == 0:
+        logger.warning("Zero denominator for ratio metric=%r %s; skipping", metric, period)
+        return
+    value = round((numerator_nzdm / denominator_nzdm) * 100, 2)
     output.append(
         {
             "entity": entity,
