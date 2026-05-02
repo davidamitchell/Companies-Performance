@@ -873,9 +873,9 @@ The lag relationship between OCR changes and bank NIM is the central empirical q
 
 ### W-0045
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -889,9 +889,9 @@ The range band is a low-effort, high-insight addition for understanding sector-w
 
 ### W-0046
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -921,9 +921,9 @@ Template-based narrative generation is more auditable and lower-risk than LLM co
 
 ### W-0048
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -971,9 +971,9 @@ Data gaps are unavoidable but must be transparent. Users citing figures from thi
 
 ### W-0051
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1181,9 +1181,9 @@ Cost-to-Income Ratio captures efficiency relative to revenue; opex intensity cap
 
 ### W-0059
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 

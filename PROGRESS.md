@@ -404,3 +404,15 @@ Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers"
 **Mini-retro:**
 - Batch execution of 13 items in one session was feasible because all items were well-specified with concrete formulas and clear scope. The main risk was JS syntax consistency in the large index.html file — mitigated by using a sub-agent with full context.
 - Root cause of complexity: index.html is a monolithic file. Future work should assess whether splitting into modules would reduce the cognitive load per change.
+
+## 2026-05-02 — Batch 2: W-0045, W-0046, W-0048, W-0051, W-0059
+
+Five items implemented in a single session.
+
+- **W-0045**: Added "Band (min/max)" checkbox to Overlays fieldset. When enabled with ≥2 standalone banks visible, renders a semi-transparent teal shaded band (`#00C3A508` fill) between the min and max values across standalone banks for each period. Uses two hidden `_band_min`/`_band_max` datasets with a `fill: '-1'` Chart.js band fill. Legend entries starting with `_band_` are filtered from display.
+- **W-0046**: Added `#ranking-section` below the snapshot table. `renderRankingTable()` shows rows = banks, columns = KEY_METRICS with data in the selected period. Rank view colours top quartile teal (`.rank-best`) and bottom quartile red (`.rank-worst`). A "Value view" / "Rank view" toggle button persists state in `localStorage["rankingViewMode"]`. `HIGHER_IS_BETTER` set drives ranking direction for 12 metrics; lower-is-better for the remaining 11.
+- **W-0048**: Added "Trend flags" checkbox to Overlays fieldset. When enabled, appends ` ▲` / ` ▼` / ` →` to each bank's chart legend label based on the trailing slope of the last 4 data points. Stable threshold: `|slope| < 0.05 × stdDev` (or 0.1 if stdDev = 0). Direction is interpreted via `HIGHER_IS_BETTER`. `trailingSlope()` helper added.
+- **W-0051**: Replaced the terse `#capital-reform` section in `docs/methodology.html` with a richer version: narrative introduction, restructured CET1 requirements table (Period / Non-D-SIB / D-SIB base / surcharges), conservation buffer explanation, and Capital Headroom linkage.
+- **W-0059**: Added `--batch` flag to `scripts/download_disclosures.py` (existing batch behaviour is now explicitly invoked via this flag). Created `.github/workflows/download-disclosures.yml` with `workflow_dispatch` inputs for `bank` and `force`. Added 6 tests for the `--batch` flag covering: acceptance, all-banks processing, bank filter, force pass-through, partial failure exit code, and non-abort behaviour on single failure.
+
+**Tests:** 198 passed (no regressions). Lint clean.
