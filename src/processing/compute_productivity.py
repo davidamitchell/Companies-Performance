@@ -215,10 +215,10 @@ def compute_productivity(
     logger.info("Loading metrics from %s", metrics_path)
     all_rows = _load_metrics_csv(metrics_path)
 
-    logger.info("Loading employee reference data from %s", employees_path)
+    logger.info("Loading employee reference data")
     employees = _load_employees_csv(employees_path)
 
-    logger.info("Loading customer reference data from %s", customers_path)
+    logger.info("Loading customer reference data")
     customers = _load_customers_csv(customers_path)
 
     lookup = _build_lookup(all_rows)
@@ -271,10 +271,10 @@ def compute_productivity(
             emp_ref = _lookup_reference(employees, entity, qend)
 
             if emp_ref is None:
+                # Bank not in reference data or no data point before this quarter (expected
+                # for smaller institutions and early periods before reference coverage)
                 logger.warning(
-                    "No employee reference data for %s at %s; skipping per-employee metrics",
-                    entity,
-                    period,
+                    "No employee reference for institution at %s; per-employee skipped", period
                 )
             else:
                 fte = emp_ref["fte"]
@@ -299,10 +299,10 @@ def compute_productivity(
             cust_ref = _lookup_reference(customers, entity, qend)
 
             if cust_ref is None:
+                # Bank not in reference data or no data point before this quarter (expected
+                # for smaller institutions and early periods before reference coverage)
                 logger.warning(
-                    "No customer reference data for %s at %s; skipping per-customer metrics",
-                    entity,
-                    period,
+                    "No customer reference for institution at %s; per-customer skipped", period
                 )
             else:
                 active_cust = cust_ref["active_customers"]
@@ -348,7 +348,7 @@ def _emit_metric(
     if numerator_nzdm is None:
         return
     if denominator == 0:
-        logger.warning("Zero denominator for %s %s %s; skipping", entity, metric, period)
+        logger.warning("Zero denominator for metric=%r %s; skipping", metric, period)
         return
     # Convert NZDm → NZD and divide by denominator
     value = round((numerator_nzdm * 1_000_000) / denominator, 2)

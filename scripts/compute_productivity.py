@@ -48,7 +48,7 @@ def main() -> int:
 
     for path in (_METRICS_CSV, _EMPLOYEES_CSV, _CUSTOMERS_CSV):
         if not path.exists():
-            logger.error("Required input file not found: %s", path)
+            logger.error("Required input file not found: %s", path.name)
             return 1
 
     try:
