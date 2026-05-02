@@ -18,7 +18,7 @@ Entries are added after each spike is completed. Do not add entries for routine 
 
 ## Spike outputs
 
-_No spikes completed yet. See `backlog.md` for open spikes (S-0001, S-0002, S-0003)._
+_No spikes completed yet. See `BACKLOG.md` for open spikes (S-0001, S-0002, S-0003)._
 
 ---
 

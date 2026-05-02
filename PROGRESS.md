@@ -95,8 +95,8 @@ Last updated: 2026-05-01 (Phase 19 UI layout items W-0079 through W-0088)
 - Repository structure initialised following `davidamitchell/Research` conventions
 - `.github/skills/` submodule added pointing to `davidamitchell/Skills`
 - `.github/copilot-instructions.md` created with language constraints and operational rules
-- `backlog.md` populated with all phases and work items
-- `progress.md` initialised (this file)
+- `BACKLOG.md` populated with all phases and work items
+- `PROGRESS.md` initialised (this file)
 - `learnings.md` initialised with structure
 - `glossary.md` created with all KPI categories and definitions
 - `docs-adr/README.md` created with index and template
@@ -358,3 +358,25 @@ Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers"
 - *What slowed things down?* The fullscreen modal required `structuredClone` of the Chart.js config to avoid shared state; tooltip callbacks (functions) are not clonable and needed to be stored separately on `chartMeta` and reattached.
 - *Single change to prevent next time?* When designing chart config storage, separate serialisable config from non-serialisable callbacks from the start.
 - *Is this a pattern?* Yes — any time chart configs need to be duplicated (e.g. for export, fullscreen, or print), treat the callback functions as a separate layer attached after cloning.
+
+
+### 2026-05-02 — File naming alignment, CHANGELOG, and copilot instructions improvements (W-0068, W-0089, W-0090)
+
+**Completed:**
+
+- **W-0089**: `backlog.md` → `BACKLOG.md`, `progress.md` → `PROGRESS.md` — aligns with `davidamitchell/Research` convention already specified in ADR-0002. All references updated (README.md, learnings.md, copilot-instructions.md, BACKLOG.md itself).
+- **W-0068**: `CHANGELOG.md` created following Keep a Changelog 1.0.0. Historical entries backfilled for the initial scaffold, first processed data, disclosure pipeline, OCR overlay, and Phase 19 UI. Future schema changes must include a CHANGELOG entry as a hard gate.
+- **W-0090**: `.github/copilot-instructions.md` comprehensively updated following a review of `davidamitchell/Latest-developments-/.github/copilot-instructions.md`:
+  - Skills section moved to the top of the file
+  - Explicit Skill Chains table added
+  - `BACKLOG.md`, `PROGRESS.md`, `learnings.md`, `CHANGELOG.md`, and ADR mandates added as standalone sections
+  - Slice Completion Checklist added (hard gates: make check, make test, PROGRESS.md, CHANGELOG.md if schema change, ADR if warranted, glossary if new metric)
+  - `decisions` skill added to the skills table (maps to `adr`)
+  - "Root Cause Before Action" section added
+  - Previous "Continuous Improvement" and "Systemic Improvement Principles" sections consolidated
+  - All `backlog.md`/`progress.md` lowercase references updated to uppercase
+
+**Mini-retro:**
+- Root cause of the file naming non-conformance: ADR-0002 specified the standard but the initial scaffold implementation was never checked against it. Fix: Slice Completion Checklist now includes an ADR compliance gate, and the file naming standard is explicitly enforced by the instructions.
+- Root cause of the missing CHANGELOG: W-0068 was in the backlog but not yet executed. The new copilot instructions make CHANGELOG maintenance a hard gate for every schema-changing item.
+- Root cause of the instructions gap: the reference repo (`Latest-developments-`) had evolved since this repo was scaffolded and the divergence was not tracked. Fix: ADR mandate now includes a rule to review the reference repo when making instruction changes.
