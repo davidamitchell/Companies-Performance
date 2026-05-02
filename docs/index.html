@@ -789,12 +789,14 @@
             Math.round((opex * 4 / totalAssets) * 10000 * 10) / 10;
         }
         // Capital Headroom (%)
+        // D-SIB CET1 surcharges mirror config/capital_requirements.yaml dsib_surcharges.
+        // Both locations must be kept in sync if RBNZ updates the surcharge schedule.
         const cet1 = metrics['CET1 Ratio'];
         if (cet1 != null) {
-          const DSIB_BANKS = { ANZ: 1.5, ASB: 1.0, BNZ: 1.0, Westpac: 1.5 };
+          const DSIB_CET1_SURCHARGES = { ANZ: 1.5, ASB: 1.0, BNZ: 1.0, Westpac: 1.5 };
           const year = parseInt((period || '').split('-')[0], 10) || 0;
           const baseMin = year >= 2026 ? 6.5 : year >= 2025 ? 6.0 : year >= 2024 ? 5.5 : year >= 2023 ? 5.0 : 4.5;
-          const surcharge = DSIB_BANKS[entity] ?? 0;
+          const surcharge = DSIB_CET1_SURCHARGES[entity] ?? 0;
           const minReq = baseMin + surcharge;
           lookup[entity][period]['Capital Headroom'] =
             Math.round((cet1 - minReq) * 100) / 100;

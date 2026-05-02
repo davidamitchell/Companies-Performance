@@ -380,3 +380,27 @@ Root cause of ASB "Net Loans and Advances" gap: ASB uses "Advances to customers"
 - Root cause of the file naming non-conformance: ADR-0002 specified the standard but the initial scaffold implementation was never checked against it. Fix: Slice Completion Checklist now includes an ADR compliance gate, and the file naming standard is explicitly enforced by the instructions.
 - Root cause of the missing CHANGELOG: W-0068 was in the backlog but not yet executed. The new copilot instructions make CHANGELOG maintenance a hard gate for every schema-changing item.
 - Root cause of the instructions gap: the reference repo (`Latest-developments-`) had evolved since this repo was scaffolded and the divergence was not tracked. Fix: ADR mandate now includes a rule to review the reference repo when making instruction changes.
+
+## 2026-05-02 — Backlog execution: W-0032, W-0040, W-0047, W-0055–W-0063, W-0070–W-0071, W-0021
+
+**What changed:**
+
+- **W-0061**: Added monthly schedule trigger (`0 6 1 * *`) to `fetch-data.yml` alongside `workflow_dispatch`. Updated comment to reflect both triggers.
+- **W-0070**: Added YAML front matter (`title`, `status`, `date`, `authors`, `tags`, `supersedes`, `superseded_by`) to ADR-0001 through ADR-0004. Added coded consequence bullet IDs (POS-001, NEG-001, NEU-001) to all four ADRs.
+- **W-0071**: Added `## Code Review Standard` section to `.github/copilot-instructions.md` with six-point checklist: correctness, data accuracy, test coverage, security, idempotency, ADR compliance.
+- **W-0032**: Created `config/capital_requirements.yaml` with the RBNZ 2019 capital reform phase-in schedule (2023–2028, D-SIB and non-D-SIB). Added Capital Headroom derived metric to `buildLookup()` in `docs/index.html`, using the phase-in schedule and D-SIB surcharges (ANZ/Westpac +1.5%, ASB/BNZ +1.0%). Added to capital tab, METRIC_LABELS, and METRIC_INFO.
+- **W-0055**: Added Pre-Provision Profit (PPP = NII + Trading + Fees + Other − Opex) to `buildLookup()`. Added to profitability tab, METRIC_LABELS, METRIC_INFO.
+- **W-0056**: Added Non-Interest Income Share (%) to `buildLookup()`. Added to profitability tab, METRIC_LABELS, METRIC_INFO.
+- **W-0057**: Added `buildProvisioningMetrics()` function for Credit Impairment Rate (ΔNPL ÷ Net Loans × 100). Called from `render()`. Added to asset quality tab, METRIC_LABELS, METRIC_INFO.
+- **W-0058**: Added Opex Intensity (bps) to `buildLookup()` (quarterly opex × 4 ÷ total assets × 10000). Added to profitability tab, METRIC_LABELS, METRIC_INFO.
+- **W-0062**: Added `syncUrlHash()` and `loadFromHash()` for hash-based URL state encoding (banks, range, tab, mode). Added "📋 Copy link" button with Copied! feedback.
+- **W-0063**: Added `downloadCsv()` function and "↓ CSV" button. Exports filtered data in canonical schema format.
+- **W-0040**: Added Indexed (base=100) chart mode toggle. Rebases all non-OCR datasets to 100 at first non-null value. Stored in `localStorage["chartMode"]`. Shows informational note when active.
+- **W-0047**: Added auto-narrative panel (`#narrative-section`) between KPI row and charts. Generates 4–5 plain-English bullets: NIM trend, ROE leader, CET1 direction, C/I trend, NPL trend. Collapsible with localStorage state.
+- **W-0021**: Created `docs/methodology.html` (KPI formulas, RBNZ series table, derived metrics, capital reform schedule, data currency) and `docs/lineage.html` (data model, pipeline stages, source files, disclosure pipeline). Added Methodology and Lineage nav/footer links to all existing pages.
+
+**Tests:** 192 passed (no regressions).
+
+**Mini-retro:**
+- Batch execution of 13 items in one session was feasible because all items were well-specified with concrete formulas and clear scope. The main risk was JS syntax consistency in the large index.html file — mitigated by using a sub-agent with full context.
+- Root cause of complexity: index.html is a monolithic file. Future work should assess whether splitting into modules would reduce the cognitive load per change.
