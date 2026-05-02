@@ -1,3 +1,13 @@
+---
+title: "ADR-0004: RBNZ Data Contract — Canonical Schema and XLSX Mapping"
+status: accepted
+date: 2026-04-28
+authors: [davidamitchell]
+tags: [data-contract, schema, rbnz, xlsx-mapping]
+supersedes: null
+superseded_by: null
+---
+
 # ADR-0004: RBNZ Data Contract — Canonical Schema and XLSX Mapping
 
 **Status:** Accepted
@@ -90,7 +100,7 @@ The following glossary metrics are **not available** in the RBNZ XLSX:
 
 ## Consequences
 
-- The processing pipeline has a well-defined input schema (RBNZ XLSX) and output schema (canonical CSV/JSON).
-- Adding new metrics requires updating both `glossary.md` and `config/metrics.yaml`.
-- LCR and derived metrics are deferred — open a backlog item if they are needed.
-- Group vs. standalone entity distinction is a consumer concern, not a pipeline concern.
+- POS-001: The processing pipeline has a well-defined input schema (RBNZ XLSX) and output schema (canonical CSV/JSON).
+- POS-002: Adding new metrics requires updating both `glossary.md` and `config/metrics.yaml`.
+- NEG-001: LCR and derived metrics are deferred — open a backlog item if they are needed.
+- NEU-001: Group vs. standalone entity distinction is a consumer concern, not a pipeline concern.

@@ -1,0 +1,42 @@
+# RBNZ Capital Reform Phase-In Schedule (2019 reform, effective 2023-2028)
+# Source: RBNZ - https://www.rbnz.govt.nz/regulation-and-supervision/banks/capital
+#
+# CET1 minimum requirements by bank type and year.
+# Phase-in starts July 2023. Requirements rise annually.
+#
+# D-SIBs (Domestic Systemically Important Banks): ANZ, ASB, BNZ, Westpac
+# Non-D-SIBs: Kiwibank, Rabobank, TSB, SBS, and others
+
+cet1_minimum:
+  non_dsib:
+    # Pre-reform minimum (before July 2023)
+    pre_2023: 4.5
+    # Phase-in schedule (percentage CET1 / RWA)
+    2023: 5.0  # effective July 2023
+    2024: 5.5
+    2025: 6.0
+    2026: 6.5  # final minimum
+    2027: 6.5
+    2028: 6.5
+
+  dsib:
+    # D-SIB surcharge in addition to base minimum:
+    # ANZ, Westpac: +2.0% (Tier 1 surcharge); CET1 component typically +1.5%
+    # ASB, BNZ: +1.5% (Tier 1 surcharge); CET1 component typically +1.0%
+    pre_2023: 4.5  # same base, surcharge separate
+    # Phase-in (base only; surcharge added separately per bank)
+    2023: 5.0
+    2024: 5.5
+    2025: 6.0
+    2026: 6.5
+    2027: 6.5
+    2028: 6.5
+
+  # D-SIB additional CET1 surcharges (constant throughout phase-in)
+  dsib_surcharges:
+    ANZ:     1.5
+    Westpac: 1.5
+    ASB:     1.0
+    BNZ:     1.0
+
+capital_conservation_buffer: 2.5  # applies above the minimum CET1 requirement

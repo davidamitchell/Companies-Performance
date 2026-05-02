@@ -1,3 +1,13 @@
+---
+title: "ADR-0002: Directory Structure Aligned to Research Repo"
+status: accepted
+date: 2026-04-27
+authors: [davidamitchell]
+tags: [directory-structure, conventions, github-pages]
+supersedes: null
+superseded_by: null
+---
+
 # ADR-0002: Directory Structure Aligned to Research Repo
 
 Date: 2026-04-27
@@ -38,13 +48,13 @@ All other conventions (config, src, tests, backlog, progress, learnings, skills 
 ## Consequences
 
 ### Positive
-- Full alignment with Research repo reduces cognitive overhead for contributors
-- `docs/` is kept clean for GitHub Pages content only — no mixed concerns with ADRs
-- `docs-adr/` is consistent with the reference repo and familiar to contributors
+- POS-001: Full alignment with Research repo reduces cognitive overhead for contributors
+- POS-002: `docs/` is kept clean for GitHub Pages content only — no mixed concerns with ADRs
+- POS-003: `docs-adr/` is consistent with the reference repo and familiar to contributors
 
 ### Negative / Trade-offs
-- ADRs are not published on the GitHub Pages site; they live in the repo only
-- If ADRs need to be published in future, a build step or symlink strategy would be required (document via new ADR)
+- NEG-001: ADRs are not published on the GitHub Pages site; they live in the repo only
+- NEG-002: If ADRs need to be published in future, a build step or symlink strategy would be required (document via new ADR)
 
 ### Neutral
-- The `data/` directory uses `.gitkeep` for the raw subdirectory; raw XLSX files are excluded via `.gitignore`
+- NEU-001: The `data/` directory uses `.gitkeep` for the raw subdirectory; raw XLSX files are excluded via `.gitignore`

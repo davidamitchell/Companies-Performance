@@ -1,3 +1,13 @@
+---
+title: "ADR-0003: Manual Initial Load of RBNZ XLSX File"
+status: accepted
+date: 2026-04-28
+authors: [davidamitchell]
+tags: [data-ingestion, bootstrap, rbnz]
+supersedes: null
+superseded_by: null
+---
+
 # ADR-0003: Manual Initial Load of RBNZ XLSX File
 
 Date: 2026-04-28
@@ -18,15 +28,15 @@ This is a one-time bootstrapping decision. The automated fetch workflow remains 
 ## Consequences
 
 ### Positive
-- Downstream work (processing pipeline, metrics mapping, visualisation) can proceed immediately
-- No dependency on network access or workflow runner permissions to get started
-- File is version-controlled and reproducible
+- POS-001: Downstream work (processing pipeline, metrics mapping, visualisation) can proceed immediately
+- POS-002: No dependency on network access or workflow runner permissions to get started
+- POS-003: File is version-controlled and reproducible
 
 ### Negative / Trade-offs
-- The file in `data/` is a point-in-time snapshot; it will go stale without a working automated refresh
-- Manual loading is not idempotent and not auditable through GitHub Actions logs
-- The automated fetch workflow (W-0009) has not been end-to-end validated against the live RBNZ URL
+- NEG-001: The file in `data/` is a point-in-time snapshot; it will go stale without a working automated refresh
+- NEG-002: Manual loading is not idempotent and not auditable through GitHub Actions logs
+- NEG-003: The automated fetch workflow (W-0009) has not been end-to-end validated against the live RBNZ URL
 
 ### Neutral
-- The `.gitignore` currently excludes `data/raw/*.xlsx`; the manually loaded file lives at `data/` (root of the data directory), so it is not excluded
-- A future backlog item (W-0016) must validate and activate the automated fetch to replace the manual step
+- NEU-001: The `.gitignore` currently excludes `data/raw/*.xlsx`; the manually loaded file lives at `data/` (root of the data directory), so it is not excluded
+- NEU-002: A future backlog item (W-0016) must validate and activate the automated fetch to replace the manual step

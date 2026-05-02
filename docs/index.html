@@ -811,6 +811,7 @@
         const loans    = lookup[entity]?.[curr]?.['Net Loans and Advances'];
         if (currNpl != null && prevNpl != null && loans != null && loans !== 0) {
           lookup[entity][curr]['Credit Impairment Rate'] =
+            // ×100 converts ratio to %; ×1000 then /1000 rounds to 3 decimal places
             Math.round(((currNpl - prevNpl) / loans) * 100000) / 1000;
         }
       }
@@ -1063,7 +1064,7 @@
       if (params.has('range')) rangePreset = params.get('range');
       if (params.has('tab') && TABS[params.get('tab')]) activeTab = params.get('tab');
       if (params.has('mode')) chartMode = params.get('mode') === 'indexed' ? 'indexed' : 'normal';
-    } catch (_) {}
+    } catch (err) { console.warn('Failed to load state from URL hash:', err); }
   }
 
   /* ── KPI summary row ──────────────────────────────────────────────────── */
@@ -1136,7 +1137,7 @@
       if (nimSeries.length) {
         const maxNim = Math.max(...nimSeries);
         const minNim = Math.min(...nimSeries);
-        const isHighest = avg >= maxNim - 0.01;
+        const isHighest = avg >= maxNim - 0.01; // 1 bp tolerance for floating-point equality
         const isLowest  = avg <= minNim + 0.01;
         const suffix = isHighest ? ` — highest in available history` : isLowest ? ` — lowest in available history` : '';
         bullets.push(`Sector NIM averaged ${avg.toFixed(2)}%${nimNote}${suffix}.`);
@@ -1352,7 +1353,7 @@
           const firstNonNull = ds.data.findIndex(v => v != null);
           if (firstNonNull === -1) return;
           const base = ds.data[firstNonNull];
-          if (base === 0) return;
+          if (base === 0) return; // cannot index a zero-base value; skip dataset silently
           ds.data = ds.data.map(v => v != null ? Math.round((v / base) * 1000) / 10 : null);
         });
       }

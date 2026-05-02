@@ -218,3 +218,21 @@ This is not a review of the application's correctness — it is a review of the 
 - When a retrospective identifies friction, add a backlog item that eliminates the **type** of friction, not just the specific instance.
 - When a decision is made under uncertainty, open a research spike immediately rather than deferring indefinitely.
 - Use `strategy-author` when the root cause is a missing strategic direction or incoherent guiding policy — not every problem needs code; some need a decision.
+
+---
+
+## Code Review Standard
+
+Every PR that modifies production code, configuration, or data pipeline logic must pass this checklist before merging:
+
+1. **Correctness** — The output matches the stated outcome. If the task said "compute X", the code computes X. Reviewers must trace at least one concrete example end-to-end through the logic.
+
+2. **Data accuracy** — Metric values are sourced directly from official data files (RBNZ XLSX, bank PDFs) with no manual editing. Derived metrics follow formulas in `glossary.md` exactly. No rounding, normalisation, or imputation unless explicitly specified.
+
+3. **Test coverage** — Every new Python function in `src/` or `scripts/` has at least one corresponding test in `tests/`. New derived metrics must have tests that verify the formula with known inputs. Run `pytest tests/ -v` and confirm all tests pass.
+
+4. **Security** — No credentials, API keys, or access tokens are present anywhere in the diff. No raw bank disclosure data is committed to `docs/` (only processed JSON). Check `.gitignore` is adequate for any new file types introduced.
+
+5. **Idempotency** — Any workflow or script that produces output files must produce the same result when run twice on the same inputs. Commits must be guarded with `git diff --cached --quiet`. Re-running must not duplicate or corrupt data.
+
+6. **ADR compliance** — Any change that introduces a new dependency, chooses between two viable approaches, changes the build/deploy process, introduces a new file format, or makes a decision a future agent could not reconstruct from the diff alone must be accompanied by an ADR in `docs-adr/` that is indexed in `docs-adr/README.md`. Do not merge before the ADR is written.

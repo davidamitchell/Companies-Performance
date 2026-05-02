@@ -4,10 +4,13 @@ name: Fetch Data
 # it to data/raw/.  The workflow is idempotent — re-running it will
 # overwrite the existing file with the latest version.
 #
-# Trigger: manual only (workflow_dispatch from the Actions tab).
+# Triggers: workflow_dispatch (manual) and a monthly schedule on the 1st
+# of each month at 06:00 UTC, to pick up the latest RBNZ quarterly release.
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 1 * *'
 
 jobs:
   fetch:
