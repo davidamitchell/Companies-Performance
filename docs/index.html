@@ -340,7 +340,7 @@
 
   <div class="page-header">
     <h1>NZ Bank Performance</h1>
-    <p class="page-subtitle">Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
+    <p class="page-subtitle">Financial performance metrics for NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
     <div id="freshness" style="font-size:var(--text-xs);color:var(--teal);margin-top:0.25rem;"></div>
     <div style="margin-top:0.5rem;">
@@ -416,7 +416,7 @@
       <div id="narrative-body" style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;">
         <ul id="narrative-bullets" style="list-style:none;padding:0;margin:0.5rem 0;"></ul>
         <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.5rem;font-style:italic;">
-          Auto-generated from RBNZ data — verify before citing.
+          Auto-generated from RBNZ data. Verify before citing.
         </p>
       </div>
     </section>
@@ -443,7 +443,7 @@
       </div>
       <div class="table-scroll-wrap">
         <table id="snapshot-table">
-          <caption>Latest quarter performance comparison — all visible banks and key metrics</caption>
+          <caption>Latest quarter performance comparison: all visible banks and key metrics</caption>
           <thead><tr id="snapshot-head"></tr></thead>
           <tbody id="snapshot-body"></tbody>
         </table>
@@ -457,7 +457,7 @@
       </div>
       <div class="table-scroll-wrap">
         <table id="ranking-table">
-          <caption>Cross-metric ranking — latest quarter. Rank 1 = best performer. Teal = top quartile, red = bottom quartile.</caption>
+          <caption>Cross-metric ranking, latest quarter. Rank 1 = best performer. Teal = top quartile, red = bottom quartile.</caption>
           <thead><tr id="ranking-head"></tr></thead>
           <tbody id="ranking-body"></tbody>
         </table>
@@ -605,7 +605,7 @@
     'Cost to Income Ratio': {
       definition: 'Operating expenses divided by total operating income (net interest income + non-interest income).',
       source: 'Derived: Operating Expenses ÷ (Net Interest Income + Non-Interest Income). RBNZ series DBB.QIE60, QIE40, QIE50, QIE55, QIE57.',
-      note: 'Efficiency ratio — how much is spent to earn each dollar of income. Lower means more efficient.',
+      note: 'Efficiency ratio: measures how much is spent to earn each dollar of income. Lower means more efficient.',
       good: 'Below 45% is efficient. Above 55% signals cost pressure.',
     },
     'RORWA': {
@@ -635,7 +635,7 @@
     'Loan-to-Deposit Ratio': {
       definition: 'Net Loans and Advances divided by Deposits.',
       source: 'Derived: Net Loans ÷ Deposits. RBNZ series DBB.QIG30, QIG55.',
-      note: 'Funding structure. Above 100% means loans exceed deposits — bank relies on wholesale funding.',
+      note: 'Funding structure. Above 100% means loans exceed deposits; the bank relies partly on wholesale funding.',
       good: 'Closer to 100% means more stable retail-funded balance sheet.',
     },
     'Risk Density': {
@@ -659,13 +659,13 @@
     'Provisioning Coverage': {
       definition: 'Total provisions (Individual + Collective) divided by Total Non-Performing Loans.',
       source: 'Derived from RBNZ series DBB.QIC60, QIC70, QIC50.',
-      note: 'Above 100% means provisions exceed NPLs — buffer against unrecognised losses.',
+      note: 'Above 100% means provisions exceed NPLs; a buffer against unrecognised losses.',
       good: 'Above 100% is well-provisioned. NZ major banks typically 80%–150%.',
     },
     'Core Funding Ratio (CFR)': {
       definition: 'Ratio of stable funding (retail deposits + long-term wholesale) to total loans and advances. NZ-specific regulatory metric.',
       source: 'RBNZ series DBB.QIH30',
-      note: 'RBNZ minimum is 75%. Measures funding stability — reliance on short-term wholesale funding is a systemic risk.',
+      note: 'RBNZ minimum is 75%. Measures funding stability. Reliance on short-term wholesale funding is a systemic risk.',
       good: 'Higher is more stable. Regulatory minimum 75%; banks typically hold 80%–90%.',
     },
     '1-Month Mismatch Ratio': {
@@ -689,7 +689,7 @@
     'Top 5 Bank Credit Exposures': {
       definition: 'Sum of five largest interbank credit exposures as a percentage of CET1 capital.',
       source: 'RBNZ series DBB.QIJ30',
-      note: 'Interbank counterparty concentration. Relevant for systemic risk — can amplify contagion.',
+      note: 'Interbank counterparty concentration. Relevant for systemic risk and can amplify contagion.',
       good: 'Lower is better.',
     },
     'Bank Exposures ≥10% of CET1': {
@@ -911,7 +911,7 @@
       allPeriods  = [...new Set(allRows.map(r => r.period))].sort();
       allEntities = [...new Set(allRows.map(r => r.entity))].sort();
       statusEl.textContent =
-        `${allRows.length.toLocaleString()} metric rows — ` +
+        `${allRows.length.toLocaleString()} metric rows, ` +
         `${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
       buildBankSelector();
       setActiveQuickBtn('btn-top6');
@@ -921,7 +921,7 @@
       applyRangePreset(rangePreset, false);
       render();
     } catch (err) {
-      statusEl.textContent = 'No data yet — trigger the fetch-data then process-data workflows.';
+      statusEl.textContent = 'No data yet. Trigger the fetch-data then process-data workflows.';
       statusEl.style.color = '#666';
       console.warn('Data load failed:', err);
     }
@@ -1360,7 +1360,7 @@
       const note = document.createElement('div');
       note.id = 'indexed-mode-note';
       note.style.cssText = 'font-size:var(--text-xs);color:var(--text-muted);margin-bottom:0.75rem;padding:0.4rem 0.75rem;border-left:2px solid var(--teal);';
-      note.textContent = 'Indexed mode active — each bank\'s first available value = 100. Values are not comparable across metrics.';
+      note.textContent = 'Indexed mode active. Each bank\'s first available value = 100. Values are not comparable across metrics.';
       grid.parentElement.insertBefore(note, grid);
     }
 
@@ -1651,7 +1651,7 @@
     el.innerHTML = '<span class="nz-legend-hd">events:</span>' +
       visible.map(e => {
         const color = EVENT_COLORS[e.category] || '#888';
-        return `<span class="nz-legend-item"><span class="nz-legend-dash" style="background:${color}"></span><span>${escHtml(e.period)} — ${escHtml(e.label)}</span></span>`;
+        return `<span class="nz-legend-item"><span class="nz-legend-dash" style="background:${color}"></span><span>${escHtml(e.period)}: ${escHtml(e.label)}</span></span>`;
       }).join('');
   }
 
@@ -1876,7 +1876,7 @@
           let anomalyHtml = '';
           const anom = anomalies[entity]?.[metric];
           if (anom) {
-            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            const title = `${val.toFixed(1)}: ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
             anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
           }
           cells += `<td class="${cls}">${val.toFixed(1)}${trend}${anomalyHtml}</td>`;
@@ -2051,7 +2051,7 @@
               label(ctx) {
                 if (ctx.dataset.type === 'line') return null;
                 const p = ctx.raw;
-                return ` ${p.entity} — ${p.period}: OCR ${p.deltaBps > 0 ? '+' : ''}${p.deltaBps}bps → NIM ${p.y > 0 ? '+' : ''}${p.y}bps`;
+                return ` ${p.entity} (${p.period}): OCR ${p.deltaBps > 0 ? '+' : ''}${p.deltaBps}bps, NIM ${p.y > 0 ? '+' : ''}${p.y}bps`;
               },
             },
           },
@@ -2133,7 +2133,7 @@
           let anomalyHtml = '';
           const anom = anomalies[entity]?.[m];
           if (anom) {
-            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            const title = `${val.toFixed(1)}: ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
             anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
           }
           cells += `<td>${val.toFixed(1)}${anomalyHtml}</td>`;
