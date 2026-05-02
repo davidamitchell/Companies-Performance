@@ -4,6 +4,24 @@ Foundational definitions for all metrics tracked in this repository. All metric 
 
 ---
 
+## Controllability Levels
+
+Every metric in `config/metrics.yaml` carries a `controllability` classification that describes how much a bank's management can directly influence the metric's value.
+
+### High
+Management can directly influence the metric through operational and strategic decisions. Examples: Operating Expenses (headcount and spend decisions), CET1 Ratio (capital issuance and dividend policy), Cost to Income Ratio (cost management).
+
+### Hybrid
+The metric is influenced by both management decisions and external market forces in roughly equal measure. Examples: Net Interest Margin (pricing decisions by management; OCR and competitive dynamics by market), Core Funding Ratio (funding mix is strategic; deposit behaviour is customer-driven).
+
+### Medium
+The metric is influenced by management decisions but is substantially affected by external factors (economic cycle, customer behaviour, regulatory requirements). Examples: Return on Equity (profitability is strategic; leverage and rate environment are partly exogenous), Total Risk-Weighted Assets (risk appetite is strategic; risk weights and model outputs are regulatory).
+
+### Low
+The metric is primarily determined by external forces — the economic cycle, macro environment, or borrower/depositor behaviour — with limited management influence. Examples: NPL Ratio (credit quality is largely borrower-driven), Trading and Hedging Gains (market-driven), Deposits (customer-driven).
+
+---
+
 ## Financial Resilience
 
 Metrics measuring capital adequacy, liquidity, and asset quality.

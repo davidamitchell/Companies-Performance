@@ -1852,7 +1852,7 @@ All items in this phase are strictly additive. No existing tabs, charts, filters
 
 ### W-0091
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1868,7 +1868,7 @@ Controllability — how much a bank's management can directly influence a metric
 
 ### W-0092
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1884,7 +1884,7 @@ Analysts studying management execution want to focus on metrics that reflect del
 
 ### W-0093
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1900,7 +1900,7 @@ Analytical users who open the dashboard for a quick read often want a single gla
 
 ### W-0094
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1916,7 +1916,7 @@ High inter-metric correlation is a known problem in bank dashboards: if NIM and 
 
 ### W-0095
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1932,7 +1932,7 @@ NIM, funding costs, and liquidity spreads are heavily driven by the OCR cycle. W
 
 ### W-0096
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1948,7 +1948,7 @@ Strategy scorecards that map financial metrics to purpose pillars are standard i
 
 ### W-0097
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1964,7 +1964,7 @@ Board and exec audiences consume scorecards in PDF or spreadsheet form, not in b
 
 ### W-0098
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1980,7 +1980,7 @@ Dimensionality reduction reveals latent structure in bank performance data that 
 
 ### W-0099
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
@@ -1996,7 +1996,7 @@ Tooltips are the natural place to surface interpretive context without crowding 
 
 ### W-0100
 
-status: ready
+status: done
 created: 2026-05-02
 updated: 2026-05-02
 
