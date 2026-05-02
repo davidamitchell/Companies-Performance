@@ -304,6 +304,13 @@
 
     /* Snapshot entity link */
     .entity-link:hover { color: var(--teal) !important; }
+    .bank-detail-link {
+      color: var(--text-muted); text-decoration: none;
+      font-size: 0.65rem; opacity: 0.45; margin-left: 0.25rem;
+    }
+    .bank-detail-link:hover { color: var(--teal); opacity: 1; }
+    .chart-card-hd h3 a { color: inherit; text-decoration: none; }
+    .chart-card-hd h3 a:hover { color: var(--teal); }
     .rank-best  { color: var(--teal); }
     .rank-worst { color: #e05252; }
 
@@ -494,6 +501,7 @@
   <div id="pop-body"></div>
   <div class="popover-footer">
     <a id="pop-glossary-link" href="glossary.html">Glossary ↗</a>
+    <a id="pop-detail-link" href="metric.html">Metric detail →</a>
     <a href="#snapshot-section" id="pop-snapshot-link">Snapshot ↓</a>
   </div>
 </div>
@@ -545,6 +553,34 @@
     'Opex Intensity':               'Opex Intensity (bps)',
     'Capital Headroom':             'Capital Headroom (%)',
     'Credit Impairment Rate':       'Credit Impairment Rate (% loans)',
+  };
+
+  /* Metric name → URL slug for metric.html?m=<slug> */
+  const METRIC_SLUGS = {
+    'NIM':                             'nim',
+    'Return on Equity':                'return-on-equity',
+    'Return on Assets':                'return-on-assets',
+    'Cost to Income Ratio':            'cost-to-income-ratio',
+    'RORWA':                           'rorwa',
+    'CET1 Ratio':                      'cet1-ratio',
+    'Tier 1 Capital Ratio':            'tier-1-capital-ratio',
+    'Total Capital Ratio':             'total-capital-ratio',
+    'Loan-to-Deposit Ratio':           'loan-to-deposit-ratio',
+    'Risk Density':                    'risk-density',
+    'NPL Ratio':                       'npl-ratio',
+    'Total Non-Performing Loans':      'total-non-performing-loans',
+    'Provisioning Coverage':           'provisioning-coverage',
+    'Core Funding Ratio (CFR)':        'core-funding-ratio',
+    '1-Month Mismatch Ratio':          '1-month-mismatch-ratio',
+    '1-Week Mismatch Ratio':           '1-week-mismatch-ratio',
+    'Top 5 Non-Bank Credit Exposures': 'top-5-non-bank-credit-exposures',
+    'Top 5 Bank Credit Exposures':     'top-5-bank-credit-exposures',
+    'Bank Exposures ≥10% of CET1':     'bank-exposures-10pct-cet1',
+    'Capital Headroom':                'capital-headroom',
+    'Pre-Provision Profit':            'pre-provision-profit',
+    'Non-Interest Income Share':       'non-interest-income-share',
+    'Opex Intensity':                  'opex-intensity',
+    'Credit Impairment Rate':          'credit-impairment-rate',
   };
 
   const METRIC_INFO = {
@@ -925,7 +961,7 @@
       const label = document.createElement('label');
       label.className = 'bank-check-label' + (selectedEntities.has(entity) ? ' checked' : '');
       label.style.setProperty('--bank-color', bankColor(entity));
-      label.innerHTML = `<input type="checkbox" value="${escHtml(entity)}"${selectedEntities.has(entity) ? ' checked' : ''}>${escHtml(entity)}`;
+      label.innerHTML = `<input type="checkbox" value="${escHtml(entity)}"${selectedEntities.has(entity) ? ' checked' : ''}>${escHtml(entity)}<a href="bank.html?bank=${encodeURIComponent(entity)}" class="bank-detail-link" title="View ${escHtml(entity)} detail" onclick="event.stopPropagation()">↗</a>`;
       label.addEventListener('change', e => {
         if (e.target.checked) { selectedEntities.add(entity); label.classList.add('checked'); }
         else { selectedEntities.delete(entity); label.classList.remove('checked'); }
@@ -1196,7 +1232,7 @@
         const prevAvg = nimPrev.reduce((a, b) => a + b, 0) / nimPrev.length;
         const bps = Math.round((avg - prevAvg) * 100);
         const dir = bps >= 0 ? 'up' : 'down';
-        nimNote = `, ${dir} ${Math.abs(bps)} bps from the prior quarter`;
+        nimNote = `, ${dir} ${Math.abs(bps)} basis points from the prior quarter`;
       }
       const nimSeries = allPeriods.map(p => {
         const vals = standalone.map(e => lookup[e]?.[p]?.['NIM']).filter(v => v != null);
@@ -1207,10 +1243,10 @@
         const minNim = Math.min(...nimSeries);
         const isHighest = avg >= maxNim - 0.01; // 1 bp tolerance for floating-point equality
         const isLowest  = avg <= minNim + 0.01;
-        const suffix = isHighest ? ` — highest in available history` : isLowest ? ` — lowest in available history` : '';
-        bullets.push(`Sector NIM averaged ${avg.toFixed(2)}%${nimNote}${suffix}.`);
+        const suffix = isHighest ? `, the highest in the available data` : isLowest ? `, the lowest in the available data` : '';
+        bullets.push(`Sector Net Interest Margin (NIM) averaged ${avg.toFixed(2)}%${nimNote}${suffix}.`);
       } else {
-        bullets.push(`Sector NIM averaged ${avg.toFixed(2)}%${nimNote}.`);
+        bullets.push(`Sector Net Interest Margin (NIM) averaged ${avg.toFixed(2)}%${nimNote}.`);
       }
     }
 
@@ -1218,7 +1254,7 @@
     const roePairs = standalone.map(e => ({ e, v: lookup[e]?.[period]?.['Return on Equity'] })).filter(x => x.v != null);
     if (roePairs.length) {
       const top = roePairs.reduce((a, b) => a.v > b.v ? a : b);
-      bullets.push(`${top.e} posted the highest ROE at ${top.v.toFixed(1)}%.`);
+      bullets.push(`${top.e} posted the highest Return on Equity at ${top.v.toFixed(1)}%.`);
     }
 
     // CET1 direction
@@ -1234,9 +1270,9 @@
       }
       const total = improved + declined;
       if (total > 0) {
-        if (improved > declined) bullets.push(`CET1 ratios improved across ${improved} of ${total} banks quarter-on-quarter.`);
-        else if (declined > improved) bullets.push(`CET1 ratios declined across ${declined} of ${total} banks quarter-on-quarter.`);
-        else bullets.push(`CET1 ratios were mixed — ${improved} improved, ${declined} declined.`);
+        if (improved > declined) bullets.push(`CET1 capital ratios improved at ${improved} of ${total} banks quarter-on-quarter.`);
+        else if (declined > improved) bullets.push(`CET1 capital ratios declined at ${declined} of ${total} banks quarter-on-quarter.`);
+        else bullets.push(`CET1 capital ratios were mixed: ${improved} improved, ${declined} declined.`);
       }
     }
 
@@ -1251,7 +1287,7 @@
       const latest = ctiVals4[ctiVals4.length - 1];
       const oldest = ctiVals4[0];
       const trend = latest < oldest - 0.5 ? 'improving' : latest > oldest + 0.5 ? 'deteriorating' : 'stable';
-      bullets.push(`Cost-to-Income averaged ${latest.toFixed(1)}% — ${trend} over the past ${ctiVals4.length} quarters.`);
+      bullets.push(`Cost-to-Income Ratio averaged ${latest.toFixed(1)}%, ${trend} over the past ${ctiVals4.length} quarters.`);
     }
 
     // NPL trend
@@ -1261,8 +1297,8 @@
       const avg = nplVals.reduce((a, b) => a + b, 0) / nplVals.length;
       const prevAvg = nplPrev.reduce((a, b) => a + b, 0) / nplPrev.length;
       const bps = Math.round((avg - prevAvg) * 100);
-      const dir = bps > 0 ? `rose ${bps} bps` : bps < 0 ? `fell ${Math.abs(bps)} bps` : 'was flat';
-      bullets.push(`Sector average NPL Ratio ${dir} quarter-on-quarter to ${avg.toFixed(2)}%.`);
+      const dir = bps > 0 ? `rose ${bps} basis points` : bps < 0 ? `fell ${Math.abs(bps)} basis points` : 'was flat';
+      bullets.push(`The sector average Non-Performing Loan Ratio ${dir} quarter-on-quarter to ${avg.toFixed(2)}%.`);
     }
 
     bulletsEl.innerHTML = bullets.map(b => `<li style="padding:0.2rem 0;">▸ ${escHtml(b)}</li>`).join('');
@@ -1344,12 +1380,16 @@
       const metric = tabMetrics[i];
       const label  = METRIC_LABELS[metric] || metric;
       const addOcr = metric === 'NIM' && ocrRows.length > 0;
+      const mSlug  = METRIC_SLUGS[metric] || '';
+      const titleHtml = mSlug
+        ? `<a href="metric.html?m=${mSlug}" title="View ${escHtml(label)} detail">${escHtml(label)}</a>`
+        : escHtml(label);
 
       const card = document.createElement('div');
       card.className = 'chart-card';
       card.innerHTML = `
         <div class="chart-card-hd">
-          <h3>${escHtml(label)}</h3>
+          <h3>${titleHtml}</h3>
           <div class="chart-actions">
             <button class="chart-btn chart-info-btn" data-action="info" data-idx="${i}" title="Metric info">ℹ</button>
             <button class="chart-btn" data-action="download" data-idx="${i}" title="Download PNG">↓</button>
@@ -1357,7 +1397,7 @@
           </div>
         </div>
         <div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>
-        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a></div>`;
+        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a>${mSlug ? `<a href="metric.html?m=${mSlug}" class="chart-nav-link">metric detail →</a>` : ''}</div>`;
       grid.appendChild(card);
 
       card.addEventListener('click', e => {
@@ -1628,8 +1668,10 @@
     if (info.good)       html += `<div class="popover-block"><div class="popover-lbl">what good looks like</div><div class="popover-val">${escHtml(info.good)}</div></div>`;
     if (!html)           html  = `<div class="popover-block"><div class="popover-val">No additional information available.</div></div>`;
     document.getElementById('pop-body').innerHTML = html;
-    const metricSlug = meta.metric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const metricSlug = METRIC_SLUGS[meta.metric] || meta.metric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     document.getElementById('pop-glossary-link').href = `glossary.html#${metricSlug}`;
+    const detailLink = document.getElementById('pop-detail-link');
+    if (detailLink) detailLink.href = `metric.html?m=${metricSlug}`;
     const pop = document.getElementById('metric-popover');
     pop.style.display = 'block';
     // Positioning strategy: popover appears below the trigger button. If there is
@@ -1815,7 +1857,7 @@
       const tr = document.createElement('tr');
       let cells = `<td scope="row"><div class="entity-cell">
         <span class="swatch" style="background:${bankColor(entity)}"></span>
-        <a href="#charts-section" class="entity-link" data-entity="${escHtml(entity)}" style="color:inherit;text-decoration:none;">${escHtml(entity)}</a>
+        <a href="#charts-section" class="entity-link" data-entity="${escHtml(entity)}" style="color:inherit;text-decoration:none;">${escHtml(entity)}</a><a href="bank.html?bank=${encodeURIComponent(entity)}" class="bank-detail-link" title="View ${escHtml(entity)} detail">↗</a>
       </div></td>`;
       KEY_METRICS.forEach((metric, colIdx) => {
         const val  = latest[metric];
@@ -2072,7 +2114,7 @@
       const tr = document.createElement('tr');
       let cells = `<td scope="row"><div class="entity-cell">
         <span class="swatch" style="background:${bankColor(entity)}"></span>
-        ${escHtml(entity)}
+        ${escHtml(entity)}<a href="bank.html?bank=${encodeURIComponent(entity)}" class="bank-detail-link" title="View ${escHtml(entity)} detail">↗</a>
       </div></td>`;
       for (const m of activeMetrics) {
         const val = lookup[entity]?.[selPeriod]?.[m];

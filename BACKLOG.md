@@ -759,9 +759,9 @@ A sector average reference line makes individual bank outperformance or underper
 
 ### W-0038
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -775,9 +775,9 @@ The main dashboard is a cross-bank comparison view — it does not support deep 
 
 ### W-0039
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1297,9 +1297,9 @@ Anomaly flags direct analyst attention to the most significant data points witho
 
 ### W-0066
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1451,9 +1451,9 @@ The `code-review` skill defines a systematic multi-dimensional review process. T
 
 ### W-0072
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1467,9 +1467,9 @@ The `plain-language` skill applies directly here: the narrative panel and glossa
 
 ### W-0073
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
