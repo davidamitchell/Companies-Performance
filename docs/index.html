@@ -776,7 +776,7 @@
         { name: 'Cost to Income Ratio', leading_or_lagging: 'lagging' },
         { name: 'Operating Expenses',   leading_or_lagging: 'lagging' },
         { name: 'Opex Intensity',       leading_or_lagging: 'lagging' },
-        { name: 'Expenses per Employee',leading_or_lagging: 'lagging' },
+        { name: 'Expenses per Employee', leading_or_lagging: 'lagging' },
         { name: 'Pre-Provision Profit', leading_or_lagging: 'lagging' },
       ],
     },
@@ -788,7 +788,7 @@
         { name: 'Capital Headroom',        leading_or_lagging: 'leading' },
         { name: 'Total Capital Ratio',     leading_or_lagging: 'leading' },
         { name: 'Provisioning Coverage',   leading_or_lagging: 'leading' },
-        { name: 'Core Funding Ratio (CFR)',leading_or_lagging: 'leading' },
+        { name: 'Core Funding Ratio (CFR)', leading_or_lagging: 'leading' },
         { name: 'NPL Ratio',               leading_or_lagging: 'lagging' },
       ],
     },
@@ -797,7 +797,7 @@
       description: 'Metrics reflecting the bank\'s success in diversifying revenue beyond traditional interest income.',
       metrics: [
         { name: 'Non-Interest Income Share', leading_or_lagging: 'lagging' },
-        { name: 'Fees and Commission Income',leading_or_lagging: 'lagging' },
+        { name: 'Fees and Commission Income', leading_or_lagging: 'lagging' },
         { name: 'Trading and Hedging Gains', leading_or_lagging: 'lagging' },
         { name: 'Return on Assets',          leading_or_lagging: 'lagging' },
       ],
@@ -811,7 +811,7 @@
         { name: 'NIM',               leading_or_lagging: 'lagging' },
         { name: 'RORWA',             leading_or_lagging: 'lagging' },
         { name: 'Profit After Tax',  leading_or_lagging: 'lagging' },
-        { name: 'Profit per Employee',leading_or_lagging: 'lagging' },
+        { name: 'Profit per Employee', leading_or_lagging: 'lagging' },
       ],
     },
   ];
@@ -3071,7 +3071,7 @@
     }
     const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
     const url  = URL.createObjectURL(blob);
-    const period = (latestPeriod || 'unknown').replace('-', '-');
+    const period = latestPeriod || 'unknown';
     const link = document.createElement('a');
     link.download = `strategy-scorecard-${period}.csv`;
     link.href = url;
