@@ -90,7 +90,7 @@ updated: 2026-04-27
 
 ### Outcome
 
-Repository scaffold exists: `backlog.md`, `progress.md`, `learnings.md`, `glossary.md`, `.github/copilot-instructions.md`, `docs-adr/README.md`, ADR-0001, ADR-0002.
+Repository scaffold exists: `BACKLOG.md`, `PROGRESS.md`, `learnings.md`, `glossary.md`, `.github/copilot-instructions.md`, `docs-adr/README.md`, ADR-0001, ADR-0002.
 
 ### Context
 
@@ -949,7 +949,7 @@ updated: 2026-05-01
 
 ### Context
 
-The extraction approach was spike-driven (S-0004) and implementation decisions are recorded in `learnings.md` and `progress.md`. Formalising as an ADR makes the decisions discoverable and reviewable independently of the session logs. Should be completed before the disclosure integration phase (W-0024–W-0029) to avoid accumulating undocumented decisions on top of an informal foundation.
+The extraction approach was spike-driven (S-0004) and implementation decisions are recorded in `learnings.md` and `PROGRESS.md`. Formalising as an ADR makes the decisions discoverable and reviewable independently of the session logs. Should be completed before the disclosure integration phase (W-0024–W-0029) to avoid accumulating undocumented decisions on top of an informal foundation.
 
 ---
 
@@ -1333,9 +1333,9 @@ The submodule is registered in `.gitmodules` (pointing to `davidamitchell/Skills
 
 ### W-0068
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1806,3 +1806,37 @@ The period-range control on `docs/index.html` persists its selection to `localSt
 
 *Don't Make Me Think* — the system should remember user state. Analytical users compare charts across multiple visits and expect their filter state to be preserved. `localStorage` persistence is already used for the active tab (W-0042) and snapshot period (W-0043); extending it to bank selection and period range is consistent with the existing pattern. No data changes; pure JS addition to the existing event-listener block.
 
+
+---
+
+## Phase 18: Meta and Governance Improvements
+
+### W-0089
+
+status: done
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+`backlog.md` renamed to `BACKLOG.md` and `progress.md` renamed to `PROGRESS.md`, aligning with the `davidamitchell/Research` standard documented in ADR-0002 (which always specified uppercase names). All references in `README.md`, `learnings.md`, `.github/copilot-instructions.md`, and within `BACKLOG.md` itself updated.
+
+### Context
+
+ADR-0002 explicitly states the Research repo convention uses `PROGRESS.md` and `BACKLOG.md` at root, but the files were created with lowercase names. The non-conformance accumulated silently. Renaming now prevents further drift and aligns with the reference repo.
+
+---
+
+### W-0090
+
+status: done
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+`.github/copilot-instructions.md` is comprehensively updated: Skills section moved to the top; explicit Skill Chains table added; BACKLOG.md, PROGRESS.md, learnings.md, CHANGELOG.md, and ADR mandates added; Slice Completion Checklist added; `decisions` skill added to the skills table; "Root Cause Before Action" section added from `davidamitchell/Latest-developments-` review; previous "Systemic Improvement Principles" section consolidated into Continuous Improvement.
+
+### Context
+
+Review of `davidamitchell/Latest-developments-/.github/copilot-instructions.md` surfaced structural improvements applicable to this repo: explicit skill chains, mandatory changelog/progress/ADR gates on slice completion, and a root-cause-before-action methodology. These make the instructions more actionable and reduce ambiguity about agent behaviour.

@@ -13,7 +13,7 @@ This repository ingests financial data (initially from the [RBNZ Bank Financial 
 │   ├── copilot-instructions.md   # Agent and developer instructions
 │   ├── skills/                   # Submodule: davidamitchell/Skills
 │   └── workflows/                # GitHub Actions (CI, fetch-data, deploy-pages)
-├── backlog.md                    # Work items and discovery spikes
+├── BACKLOG.md                    # Work items and discovery spikes
 ├── config/
 │   ├── sources.yaml              # Data source registry
 │   └── metrics.yaml              # Raw field → canonical metric mappings
@@ -25,7 +25,8 @@ This repository ingests financial data (initially from the [RBNZ Bank Financial 
 │   └── index.html                # Static frontend (GitHub Pages)
 ├── glossary.md                   # Canonical KPI definitions
 ├── learnings.md                  # Discovery spike outputs
-├── progress.md                   # Work log
+├── PROGRESS.md                   # Work log
+├── CHANGELOG.md                  # User-facing change log
 └── src/
     ├── config.py                 # Config loader
     ├── logger.py                 # Structured logging

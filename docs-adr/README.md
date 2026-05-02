@@ -17,6 +17,7 @@ Format: [MADR (Markdown Architectural Decision Records)](https://adr.github.io/m
 | [0003](0003-manual-rbnz-file-load.md) | Manual initial load of RBNZ XLSX file | Accepted | 2026-04-28 |
 | [0004](0004-rbnz-data-contract.md) | RBNZ data contract — canonical schema and XLSX mapping | Accepted | 2026-04-28 |
 | [ADR-0005](0005-pdf-extraction-approach.md) | PDF Disclosure Extraction Strategy | Accepted | 2026-05-01 |
+| [ADR-0006](0006-agent-instructions-governance.md) | Agent Instructions Format and Governance Standards | Accepted | 2026-05-02 |
 
 ---
 

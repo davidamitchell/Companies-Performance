@@ -31,6 +31,10 @@ Adopt the Research repo structure. The only deliberate deviation is the addition
 
 All other conventions (config, src, tests, backlog, progress, learnings, skills submodule, CI via GitHub Actions) are adopted without deviation.
 
+## Amendment (2026-05-02)
+
+`backlog.md` and `progress.md` were initially created with lowercase names despite this ADR specifying `BACKLOG.md` and `PROGRESS.md`. Corrected in W-0089 — files renamed to match the standard. All references updated.
+
 ## Consequences
 
 ### Positive
