@@ -309,6 +309,9 @@
     .entity-link:hover { color: var(--teal) !important; }
     .rank-best  { color: var(--teal); }
     .rank-worst { color: #e05252; }
+
+    /* Anomaly flag */
+    .anomaly-flag { color: #f0a500; font-size: 0.7em; cursor: help; margin-left: 0.2em; }
   </style>
 </head>
 <body>
@@ -324,6 +327,7 @@
       <a href="disclosures.html">Disclosures</a>
       <a href="methodology.html">Methodology</a>
       <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
     </div>
   </div>
 </nav>
@@ -427,6 +431,7 @@
       <div class="section-title">
         latest quarter snapshot
         <span id="latest-period-label"></span>
+        <a href="snapshot.html" style="margin-left:auto;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;" id="snapshot-fullpage-link">Full snapshot →</a>
       </div>
       <div class="snapshot-controls">
         <span>period:</span>
@@ -464,6 +469,7 @@
       <a href="disclosures.html">Disclosures</a>
       <a href="methodology.html">Methodology</a>
       <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
     </nav>
     <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
   </footer>
@@ -1515,6 +1521,10 @@
       chartMeta.push({ metric, label, chartConfig, tooltipCallback });
     }
     renderNzLegend(visiblePeriods);
+    // NIM pass-through scatter panel (profitability tab only)
+    if (activeTab === 'profitability') {
+      renderNimPassThrough(lookup, visible, visiblePeriods);
+    }
   }
 
   /* ── Chart download ───────────────────────────────────────────────────── */
@@ -1702,6 +1712,41 @@
     });
   })();
 
+  /* ── Anomaly detection ────────────────────────────────────────────────── */
+  /** Returns map { [entity]: { [metric]: { sigma, mean, direction } } } for values
+   *  that deviate > 2σ from the bank's own trailing 8-quarter history. */
+  function computeAnomalies(lookup, visible) {
+    const result = {};
+    const selPeriod = getSnapshotPeriod();
+    const selIdx = allPeriods.indexOf(selPeriod);
+    if (selIdx === -1) return result;
+    // Trailing 8 quarters including the current period (using allPeriods for full history)
+    const windowStart = Math.max(0, selIdx - 7);
+    const window = allPeriods.slice(windowStart, selIdx + 1);
+    for (const entity of visible) {
+      result[entity] = {};
+      for (const metric of KEY_METRICS) {
+        const currentVal = lookup[entity]?.[selPeriod]?.[metric];
+        if (currentVal == null) continue;
+        const vals = window.map(p => lookup[entity]?.[p]?.[metric]).filter(v => v != null);
+        if (vals.length < 4) continue;
+        const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length;
+        const stddev = Math.sqrt(variance);
+        if (stddev === 0) continue;
+        const sigma = Math.abs(currentVal - mean) / stddev;
+        if (sigma > 2) {
+          result[entity][metric] = {
+            sigma: Math.round(sigma * 10) / 10,
+            mean: Math.round(mean * 10) / 10,
+            direction: currentVal > mean ? 'above' : 'below',
+          };
+        }
+      }
+    }
+    return result;
+  }
+
   /* ── Snapshot table ───────────────────────────────────────────────────── */
   function renderSnapshot(lookup, visible) {
     const selPeriod = getSnapshotPeriod();
@@ -1768,6 +1813,7 @@
     // Render body
     const body = document.getElementById('snapshot-body');
     body.innerHTML = '';
+    const anomalies = computeAnomalies(lookup, visible);
     for (const { entity, latest, prev } of rows) {
       const tr = document.createElement('tr');
       let cells = `<td scope="row"><div class="entity-cell">
@@ -1788,7 +1834,13 @@
           let cls = '';
           if (colBest[colIdx]  != null && val === colBest[colIdx])  cls = 'cell-best';
           if (colWorst[colIdx] != null && val === colWorst[colIdx]) cls = 'cell-worst';
-          cells += `<td class="${cls}">${val.toFixed(1)}${trend}</td>`;
+          let anomalyHtml = '';
+          const anom = anomalies[entity]?.[metric];
+          if (anom) {
+            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
+          }
+          cells += `<td class="${cls}">${val.toFixed(1)}${trend}${anomalyHtml}</td>`;
         }
       });
       tr.innerHTML = cells;
@@ -1810,6 +1862,177 @@
     const vals = data.slice(-TRAILING_PERIODS_FOR_SLOPE).filter(v => v != null);
     if (vals.length < 2) return null;
     return (vals[vals.length - 1] - vals[0]) / (vals.length - 1);
+  }
+
+  /* ── Quarter offset helper ────────────────────────────────────────────── */
+  /** Move a period string "YYYY-QN" by n quarters. Handles year rollover. */
+  function quarterOffset(period, n) {
+    const parts = (period || '').split('-Q');
+    if (parts.length !== 2) return period;
+    let year = parseInt(parts[0], 10);
+    let q    = parseInt(parts[1], 10);
+    q += n;
+    while (q > 4) { q -= 4; year++; }
+    while (q < 1) { q += 4; year--; }
+    return `${year}-Q${q}`;
+  }
+
+  /* ── Linear regression ────────────────────────────────────────────────── */
+  function linearRegression(points) {
+    const n = points.length;
+    if (n < 2) return null;
+    const sumX  = points.reduce((s, p) => s + p.x, 0);
+    const sumY  = points.reduce((s, p) => s + p.y, 0);
+    const sumXY = points.reduce((s, p) => s + p.x * p.y, 0);
+    const sumX2 = points.reduce((s, p) => s + p.x * p.x, 0);
+    const denom = n * sumX2 - sumX * sumX;
+    if (denom === 0) return null;
+    const m = (n * sumXY - sumX * sumY) / denom;
+    const b = (sumY - m * sumX) / n;
+    return { m, b };
+  }
+
+  /* ── NIM Pass-Through scatter chart ───────────────────────────────────── */
+  function renderNimPassThrough(lookup, visible, visiblePeriods) {
+    const grid = document.getElementById('chart-grid');
+    const card = document.createElement('div');
+    card.className = 'chart-card';
+    card.id = 'nim-passthrough-card';
+
+    if (ocrRows.length === 0) {
+      card.innerHTML = `<div class="chart-card-hd"><h3>nim pass-through analysis</h3></div>
+        <div style="padding:1.5rem 0;color:var(--text-muted);font-size:var(--text-xs);text-align:center;">
+          Load OCR data to see NIM pass-through analysis.
+        </div>`;
+      grid.appendChild(card);
+      return card;
+    }
+
+    // Identify all OCR-change events from ocrRows (|delta| >= 0.25)
+    const ocrLookup = buildOcrLookup();
+    const ocrChangeEvents = [];
+    for (let i = 1; i < allPeriods.length; i++) {
+      const prev = allPeriods[i - 1];
+      const curr = allPeriods[i];
+      const prevVal = ocrLookup[prev];
+      const currVal = ocrLookup[curr];
+      if (prevVal == null || currVal == null) continue;
+      const delta = currVal - prevVal;
+      if (Math.abs(delta) >= 0.25)
+        ocrChangeEvents.push({ period: curr, deltaBps: Math.round(delta * 100) });
+    }
+
+    // Build scatter points: one per bank per OCR-change event
+    const bankPoints = {};   // { bankName: [{ x, y, period, deltaBps }] }
+    for (const { period, deltaBps } of ocrChangeEvents) {
+      const pPlus2 = quarterOffset(period, 2);
+      const pMinus1 = quarterOffset(period, -1);
+      for (const entity of visible) {
+        const nimBefore = lookup[entity]?.[pMinus1]?.['NIM'];
+        const nimAfter  = lookup[entity]?.[pPlus2]?.['NIM'];
+        if (nimBefore == null || nimAfter == null) continue;
+        const nimChangeBps = Math.round((nimAfter - nimBefore) * 100);
+        if (!bankPoints[entity]) bankPoints[entity] = [];
+        bankPoints[entity].push({ x: deltaBps, y: nimChangeBps, period, deltaBps });
+      }
+    }
+
+    const scatterDatasets = [];
+    const trendDatasets   = [];
+
+    for (const [entity, points] of Object.entries(bankPoints)) {
+      const color = bankColor(entity);
+      scatterDatasets.push({
+        type: 'scatter',
+        label: entity,
+        data: points.map(p => ({
+          x: p.x, y: p.y,
+          period: p.period, deltaBps: p.deltaBps, entity,
+        })),
+        backgroundColor: color + 'cc',
+        borderColor: color,
+        borderWidth: 1,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      });
+
+      // Best-fit trend line
+      const reg = linearRegression(points);
+      if (reg) {
+        const xs = points.map(p => p.x);
+        const xMin = Math.min(...xs) - 5;
+        const xMax = Math.max(...xs) + 5;
+        trendDatasets.push({
+          type: 'line',
+          label: `${entity} trend`,
+          data: [{ x: xMin, y: reg.m * xMin + reg.b }, { x: xMax, y: reg.m * xMax + reg.b }],
+          borderColor: color,
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderDash: [5, 3],
+          pointRadius: 0,
+          tension: 0,
+          showLine: true,
+        });
+      }
+    }
+
+    const allDatasets = [...scatterDatasets, ...trendDatasets];
+    const canvasId = 'chart-nim-passthrough';
+
+    card.innerHTML = `
+      <div class="chart-card-hd">
+        <h3>nim pass-through analysis (ocr change vs nim +2Q)</h3>
+      </div>
+      <div class="chart-wrap" style="height:260px;"><canvas id="${canvasId}"></canvas></div>
+      <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.5rem;">
+        x = OCR change (bps) · y = NIM change 2 quarters later (bps) · dashed = per-bank trend
+      </div>`;
+    grid.appendChild(card);
+
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+      type: 'scatter',
+      data: { datasets: allDatasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: { size: 10, family: "'IBM Plex Mono', monospace" },
+              boxWidth: 10, padding: 8, color: '#666',
+              filter: item => !item.text.endsWith(' trend'),
+            },
+          },
+          tooltip: {
+            backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+            titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+            callbacks: {
+              label(ctx) {
+                if (ctx.dataset.type === 'line') return null;
+                const p = ctx.raw;
+                return ` ${p.entity} — ${p.period}: OCR ${p.deltaBps > 0 ? '+' : ''}${p.deltaBps}bps → NIM ${p.y > 0 ? '+' : ''}${p.y}bps`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'OCR change (bps)', color: '#666', font: { size: 9 } },
+            ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+            grid: { color: '#252b33' }, border: { color: '#252b33' },
+          },
+          y: {
+            title: { display: true, text: 'NIM change +2Q (bps)', color: '#666', font: { size: 9 } },
+            ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' },
+            grid: { color: '#252b33' }, border: { color: '#252b33' },
+          },
+        },
+      },
+    });
+
+    return card;
   }
 
   /* ── Ranking table ────────────────────────────────────────────────────── */
@@ -1847,6 +2070,7 @@
     }
 
     body.innerHTML = '';
+    const anomalies = computeAnomalies(lookup, visible);
     for (const entity of visible) {
       const tr = document.createElement('tr');
       let cells = `<td scope="row"><div class="entity-cell">
@@ -1867,7 +2091,13 @@
           }
           cells += `<td class="${cls}">${rank != null ? rank : '—'}</td>`;
         } else {
-          cells += `<td>${val.toFixed(1)}</td>`;
+          let anomalyHtml = '';
+          const anom = anomalies[entity]?.[m];
+          if (anom) {
+            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
+          }
+          cells += `<td>${val.toFixed(1)}${anomalyHtml}</td>`;
         }
       }
       tr.innerHTML = cells;

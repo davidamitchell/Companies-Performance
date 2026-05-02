@@ -857,9 +857,9 @@ The snapshot table currently renders in entity-name order with no sorting. For a
 
 ### W-0044
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -955,9 +955,9 @@ The extraction approach was spike-driven (S-0004) and implementation decisions a
 
 ### W-0050
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1263,9 +1263,9 @@ Power users (analysts, researchers) need raw data access to run their own calcul
 
 ### W-0064
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 
@@ -1281,9 +1281,9 @@ The snapshot table on `docs/index.html` is compact by design. A dedicated snapsh
 
 ### W-0065
 
-status: ready
+status: done
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 
 ### Outcome
 

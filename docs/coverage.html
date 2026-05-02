@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Coverage — NZ Bank Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <style>
+    section h2 {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-transform: lowercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .coverage-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+    .coverage-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-xs);
+    }
+    .coverage-table th,
+    .coverage-table td {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      text-align: center;
+    }
+    .coverage-table th {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+    .coverage-table td:first-child {
+      text-align: left;
+      color: var(--text);
+      background: var(--surface-2);
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      min-width: 140px;
+    }
+    .coverage-table th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+    }
+    /* Cell colours */
+    .cov-full   { background: #00C3A511; color: var(--teal); }
+    .cov-amber  { background: #f0a50011; color: #f0a500; }
+    .cov-low    { background: #e0505011; color: #e05050; }
+    .cov-none   { background: transparent; color: var(--text-muted); }
+
+    /* Disclosure table */
+    .disc-table { width: 100%; border-collapse: collapse; font-size: var(--text-xs); }
+    .disc-table th,
+    .disc-table td {
+      padding: 0.35rem 0.7rem;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .disc-table th {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+    .disc-table td:first-child { text-align: left; color: var(--text); font-weight: 600; }
+    .disc-tick { color: var(--teal); }
+    .disc-dash { color: var(--text-muted); }
+    .disc-note { color: #f0a500; font-size: 0.65rem; }
+
+    .footnote {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-top: 0.75rem;
+      padding: 0.65rem 0.9rem;
+      border-left: 2px solid var(--border);
+    }
+
+    #status-line {
+      font-size: var(--text-xs);
+      color: var(--teal);
+      margin-bottom: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="site-nav" aria-label="Site">
+  <div class="site-nav-inner">
+    <a class="nav-brand" href="index.html">NZ Bank Performance</a>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html" aria-current="page" class="active">Coverage</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>Data Coverage</h1>
+    <p class="page-subtitle">How completely each metric is populated across banks and quarters.</p>
+  </div>
+
+  <main id="main-content">
+
+    <div id="status-line">Loading…</div>
+
+    <!-- ── Section 1: RBNZ quarterly coverage ── -->
+    <section id="rbnz-coverage" aria-label="RBNZ quarterly metric coverage">
+      <h2>RBNZ quarterly coverage</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">
+        Each cell shows how many of the available periods contain a value for this bank × metric combination.
+        Colour: <span style="color:var(--teal)">teal = 100%</span>,
+        <span style="color:#f0a500">amber = 70–99%</span>,
+        <span style="color:#e05050">red = below 70%</span>.
+      </p>
+      <div class="coverage-table-wrap">
+        <table class="coverage-table" id="rbnz-table">
+          <thead><tr id="rbnz-head"></tr></thead>
+          <tbody id="rbnz-body"></tbody>
+        </table>
+      </div>
+      <div class="footnote" id="rbnz-footnote"></div>
+    </section>
+
+    <!-- ── Section 2: Disclosure coverage ── -->
+    <section id="disclosure-coverage" aria-label="Disclosure statement metric coverage">
+      <h2>Disclosure statement coverage</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">
+        Availability of key metrics extracted from NZ bank General Disclosure Statements.
+        ✓ = data present, — = not extracted or inaccessible.
+      </p>
+      <div class="coverage-table-wrap">
+        <table class="disc-table" id="disc-table">
+          <thead><tr id="disc-head"></tr></thead>
+          <tbody id="disc-body"></tbody>
+        </table>
+      </div>
+      <div class="footnote">
+        Westpac GDS PDFs return HTTP 403 (WAF block) — data cannot be extracted programmatically.
+        Rabobank balance-sheet figures are image-based (scanned PDF) — tabular extraction is not possible.
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <nav aria-label="Footer">
+      <a href="index.html">Dashboard</a>
+      <a href="data-sources.html">Data Sources</a>
+      <a href="glossary.html">Glossary</a>
+      <a href="disclosures.html">Disclosures</a>
+      <a href="methodology.html">Methodology</a>
+      <a href="lineage.html">Lineage</a>
+      <a href="coverage.html">Coverage</a>
+    </nav>
+    <p>Data sourced from the <a href="https://bankdashboard.rbnz.govt.nz/" target="_blank" rel="noopener">RBNZ Bank Dashboard</a> and NZ bank General Disclosure Statements.</p>
+  </footer>
+
+</div>
+
+<script>
+  const DATA_URL        = 'data/processed/metrics.json';
+  const DISCLOSURE_URL  = 'data/processed/disclosure_metrics.json';
+
+  const TOP_6 = ['ANZ', 'ASB', 'BNZ', 'Westpac', 'Kiwibank', 'Rabobank'];
+
+  // Key metrics matching TABS in index.html (abbreviated for column headings)
+  const KEY_METRICS = [
+    'NIM', 'Return on Equity', 'Return on Assets', 'Cost to Income Ratio', 'RORWA',
+    'Pre-Provision Profit', 'Non-Interest Income Share', 'Opex Intensity',
+    'CET1 Ratio', 'Tier 1 Capital Ratio', 'Total Capital Ratio',
+    'Loan-to-Deposit Ratio', 'Risk Density', 'Capital Headroom',
+    'NPL Ratio', 'Total Non-Performing Loans', 'Provisioning Coverage', 'Credit Impairment Rate',
+    'Core Funding Ratio (CFR)', '1-Month Mismatch Ratio', '1-Week Mismatch Ratio',
+    'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1',
+  ];
+
+  // Abbreviations for table headings
+  const METRIC_ABBR = {
+    'NIM':                              'NIM',
+    'Return on Equity':                 'ROE',
+    'Return on Assets':                 'ROA',
+    'Cost to Income Ratio':             'C:I',
+    'RORWA':                            'RORWA',
+    'Pre-Provision Profit':             'PPP',
+    'Non-Interest Income Share':        'NIIS',
+    'Opex Intensity':                   'OpexBps',
+    'CET1 Ratio':                       'CET1',
+    'Tier 1 Capital Ratio':             'T1',
+    'Total Capital Ratio':              'TCR',
+    'Loan-to-Deposit Ratio':            'LDR',
+    'Risk Density':                     'RD',
+    'Capital Headroom':                 'HeadR',
+    'NPL Ratio':                        'NPL',
+    'Total Non-Performing Loans':       'NPL$',
+    'Provisioning Coverage':            'ProvCov',
+    'Credit Impairment Rate':           'CIR',
+    'Core Funding Ratio (CFR)':         'CFR',
+    '1-Month Mismatch Ratio':           '1M-MM',
+    '1-Week Mismatch Ratio':            '1W-MM',
+    'Top 5 Non-Bank Credit Exposures':  'Top5NB',
+    'Top 5 Bank Credit Exposures':      'Top5B',
+    'Bank Exposures ≥10% of CET1':      'BkExp≥10',
+  };
+
+  // Derived metrics that are computed in-browser (not stored in metrics.json)
+  const DERIVED = new Set([
+    'Cost to Income Ratio', 'RORWA', 'Risk Density', 'Provisioning Coverage',
+    'Loan-to-Deposit Ratio', 'Pre-Provision Profit', 'Non-Interest Income Share',
+    'Opex Intensity', 'Capital Headroom', 'Credit Impairment Rate',
+  ]);
+
+  const DISC_BANKS   = ['ANZ', 'ASB', 'BNZ', 'Kiwibank', 'Rabobank', 'Westpac'];
+  const DISC_METRICS = [
+    'Profit After Tax', 'Operating Expenses', 'Total Assets', 'CET1 Ratio',
+  ];
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function buildLookup(rows) {
+    const lookup = {};
+    for (const r of rows) {
+      if (!lookup[r.entity]) lookup[r.entity] = {};
+      if (!lookup[r.entity][r.metric]) lookup[r.entity][r.metric] = new Set();
+      if (r.value != null) lookup[r.entity][r.metric].add(r.period);
+    }
+    return lookup;
+  }
+
+  function renderRbnzTable(rows) {
+    const allPeriods = [...new Set(rows.map(r => r.period))].sort();
+    const recentPeriods = allPeriods.slice(-12);
+    const totalPeriods = allPeriods.length;
+
+    // Build entity → metric → set of periods with data
+    const lookup = buildLookup(rows);
+
+    // Header: bank names
+    const head = document.getElementById('rbnz-head');
+    head.innerHTML = '<th>Metric</th>' +
+      TOP_6.map(b => `<th>${escHtml(b)}</th>`).join('');
+
+    // Body: one row per metric
+    const body = document.getElementById('rbnz-body');
+    body.innerHTML = '';
+    for (const metric of KEY_METRICS) {
+      if (DERIVED.has(metric)) continue; // skip derived — not in metrics.json directly
+      const tr = document.createElement('tr');
+      let cells = `<td title="${escHtml(metric)}">${escHtml(METRIC_ABBR[metric] || metric)}</td>`;
+      for (const bank of TOP_6) {
+        const present = (lookup[bank]?.[metric]?.size) || 0;
+        const total   = totalPeriods;
+        if (total === 0) {
+          cells += `<td class="cov-none">—</td>`;
+        } else {
+          const pct = present / total;
+          let cls = pct === 0 ? 'cov-none' : pct >= 1.0 ? 'cov-full' : pct >= 0.7 ? 'cov-amber' : 'cov-low';
+          const title = `${escHtml(bank)} / ${escHtml(metric)}: ${present} of ${total} quarters`;
+          cells += `<td class="${cls}" title="${title}">${present}/${total}</td>`;
+        }
+      }
+      tr.innerHTML = cells;
+      body.appendChild(tr);
+    }
+
+    const footnoteEl = document.getElementById('rbnz-footnote');
+    footnoteEl.textContent =
+      `Based on ${allPeriods.length} quarters (${allPeriods[0] || '—'} – ${allPeriods[allPeriods.length - 1] || '—'}). ` +
+      `Derived metrics (Cost to Income, RORWA, Risk Density, Provisioning Coverage, LDR, PPP, NIIS, Opex Intensity, Capital Headroom, Credit Impairment Rate) ` +
+      `are computed in-browser and are not stored in metrics.json — they are omitted from this table.`;
+  }
+
+  function renderDiscTable(discRows) {
+    if (!discRows || !discRows.length) {
+      document.getElementById('disc-table').innerHTML =
+        '<tr><td colspan="5" style="color:var(--text-muted);padding:1rem;">No disclosure data loaded.</td></tr>';
+      return;
+    }
+
+    // Build lookup: bank → metric → array of periods
+    const lookup = {};
+    for (const r of discRows) {
+      if (!lookup[r.entity]) lookup[r.entity] = {};
+      if (!lookup[r.entity][r.metric]) lookup[r.entity][r.metric] = [];
+      if (r.value != null) lookup[r.entity][r.metric].push(r.period);
+    }
+    for (const bank of Object.keys(lookup)) {
+      for (const metric of Object.keys(lookup[bank])) {
+        lookup[bank][metric].sort();
+      }
+    }
+
+    const head = document.getElementById('disc-head');
+    head.innerHTML = '<th>Bank</th>' +
+      DISC_METRICS.map(m => `<th>${escHtml(m)}</th>`).join('');
+
+    const body = document.getElementById('disc-body');
+    body.innerHTML = '';
+    for (const bank of DISC_BANKS) {
+      const tr = document.createElement('tr');
+      let cells = `<td>${escHtml(bank)}</td>`;
+      for (const metric of DISC_METRICS) {
+        const periods = lookup[bank]?.[metric];
+        if (!periods || periods.length === 0) {
+          let note = '';
+          if (bank === 'Westpac') note = `<br><span class="disc-note">WAF block</span>`;
+          if (bank === 'Rabobank' && metric === 'Total Assets') note = `<br><span class="disc-note">Image-based</span>`;
+          cells += `<td class="disc-dash">—${note}</td>`;
+        } else {
+          const title = `${periods.length} period(s): ${periods.join(', ')}`;
+          cells += `<td class="disc-tick" title="${escHtml(title)}">✓ <span style="font-size:0.65rem;color:var(--text-muted)">(${periods.length})</span></td>`;
+        }
+      }
+      tr.innerHTML = cells;
+      body.appendChild(tr);
+    }
+  }
+
+  async function loadAll() {
+    const statusEl = document.getElementById('status-line');
+    try {
+      const resp = await fetch(DATA_URL);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const rows = await resp.json();
+      renderRbnzTable(rows);
+      statusEl.textContent = `${rows.length.toLocaleString()} RBNZ metric rows loaded.`;
+    } catch (err) {
+      statusEl.textContent = 'RBNZ data not available. Run the fetch-data and process-data workflows.';
+      statusEl.style.color = '#666';
+    }
+    try {
+      const discResp = await fetch(DISCLOSURE_URL);
+      if (discResp.ok) {
+        const discRows = await discResp.json();
+        renderDiscTable(discRows);
+      } else {
+        renderDiscTable([]);
+      }
+    } catch (_) {
+      renderDiscTable([]);
+    }
+  }
+
+  loadAll();
+</script>
+</body>
+</html>

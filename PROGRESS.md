@@ -416,3 +416,17 @@ Five items implemented in a single session.
 - **W-0059**: Added `--batch` flag to `scripts/download_disclosures.py` (existing batch behaviour is now explicitly invoked via this flag). Created `.github/workflows/download-disclosures.yml` with `workflow_dispatch` inputs for `bank` and `force`. Added 6 tests for the `--batch` flag covering: acceptance, all-banks processing, bank filter, force pass-through, partial failure exit code, and non-abort behaviour on single failure.
 
 **Tests:** 198 passed (no regressions). Lint clean.
+
+## 2026-05-02 — Batch 3: W-0044, W-0050, W-0064, W-0065
+
+### W-0044 — NIM Pass-Through Analysis Panel
+Added `quarterOffset()`, `linearRegression()`, and `renderNimPassThrough()` to `docs/index.html`. The scatter chart (OCR change vs NIM change 2Q later, per bank) appends to the profitability tab chart grid when OCR data is loaded. Shows per-bank trend lines via linear regression. Falls back to a placeholder card when OCR data is absent.
+
+### W-0050 — Coverage Page
+Created `docs/coverage.html` with two sections: (1) RBNZ quarterly coverage table — rows = RBNZ-stored KEY_METRICS, columns = Top 6 banks, cells = present/total periods colour-coded teal/amber/red; (2) Disclosure coverage table — rows = banks, columns = key disclosure metrics, shows ✓/— with WAF and image-based notes. Coverage nav link added to all existing pages (index, glossary, disclosures, methodology, lineage, data-sources).
+
+### W-0064 — Snapshot Page
+Created `docs/snapshot.html` — 3-column bar-chart grid (one chart per KEY_METRIC, all standalone banks side-by-side) with a quarter selector dropdown. Duplicates the derived-metrics logic from index.html for client-side computation. "Full snapshot →" link added to snapshot section title in `docs/index.html`.
+
+### W-0065 — Anomaly Flags
+Added `computeAnomalies()` which computes trailing 8Q mean and stddev per bank/metric and flags values > 2σ. Anomaly ⚠ icons (amber, with tooltip showing σ distance and trailing average) applied to snapshot table and ranking table value view. CSS `.anomaly-flag` added.
