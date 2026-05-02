@@ -489,3 +489,32 @@ User requested: "Keep going — I want those efficiency metrics."
 - `.github/workflows/compute-productivity.yml` (new)
 - `docs/index.html` (Productivity tab + PRODUCTIVITY_URL + metric labels + state var)
 - `CHANGELOG.md`, `BACKLOG.md`, `PROGRESS.md`, `learnings.md`
+
+---
+
+## 2026-05-02 — Phase 20 backlog decomposition (W-0091–W-0100)
+
+### What changed
+
+`BACKLOG.md` extended with a new **Phase 20: Advanced Analytics and Strategy Alignment (Additive)** section containing ten new backlog items (W-0091 through W-0100). The Priority Stack was also updated to list Phase 20 items and their recommended sequencing.
+
+All ten items are strictly additive — no existing tabs, charts, filters, or exports are modified. All new features default to off or hidden on first load.
+
+### Item summary
+
+| Item | Title | Status |
+|---|---|---|
+| W-0091 | Controllability metadata in config and glossary | ready |
+| W-0092 | Metric Grouping filter (additive dropdown) | ready |
+| W-0093 | Golden Metrics panel (collapsible) | ready |
+| W-0094 | Correlations tab with interactive heatmap | ready |
+| W-0095 | Market-Adjusted Comparison view | ready |
+| W-0096 | Strategy Scorecard tab (purpose pillars) | ready |
+| W-0097 | Vision Alignment Report (exportable CSV) | ready |
+| W-0098 | Dimensionality Reduction tab (PCA, lazy loaded) | ready |
+| W-0099 | Enhanced tooltips (controllability + strategy notes) | ready |
+| W-0100 | Analysis Tools navigation entry | ready |
+
+### Why
+
+Issue requested: decompose and refine the Phase 20 feature set into clean, coherent, additive backlog items. Items are sequenced by dependency (W-0091 config unblocks W-0092, W-0096, W-0099; W-0096 unblocks W-0097; W-0094/W-0095/W-0096/W-0098 unblock W-0100).

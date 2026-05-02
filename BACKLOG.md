@@ -78,6 +78,9 @@ Recommended sequencing for open items. Reflects: (1) items that unblock other it
 **Later — polish and depth:**
 37–onwards: drill-downs (W-0038, W-0039), advanced analytics (W-0044, W-0065), export (W-0041, W-0063), pipeline automation (W-0059, W-0061)
 
+**Phase 20 — advanced analytics and strategy alignment (additive, default-off):**
+Prerequisite order: W-0091 (controllability config) → W-0092 (metric grouping) → W-0093 (golden metrics) → W-0094 (correlations) → W-0095 (market context) → W-0096 (strategy scorecard) → W-0097 (vision alignment export) → W-0098 (PCA tab) → W-0099 (enhanced tooltips) → W-0100 (analysis tools nav)
+
 ---
 
 ## Phase 1: Standardisation and Governance
@@ -1840,3 +1843,163 @@ updated: 2026-05-02
 ### Context
 
 Review of `davidamitchell/Latest-developments-/.github/copilot-instructions.md` surfaced structural improvements applicable to this repo: explicit skill chains, mandatory changelog/progress/ADR gates on slice completion, and a root-cause-before-action methodology. These make the instructions more actionable and reduce ambiguity about agent behaviour.
+
+---
+
+## Phase 20: Advanced Analytics and Strategy Alignment (Additive)
+
+All items in this phase are strictly additive. No existing tabs, charts, filters, overlays, or export functionality are modified or removed. All new features default to off or hidden so the original dashboard experience is identical on first load. Backward compatibility is a hard constraint: a user who never interacts with any new control sees zero change.
+
+### W-0091
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+`config/metrics.yaml` is extended with a `controllability` field on every metric entry. Valid values are `High`, `Medium`, `Low`, and `Hybrid`. `config/metric_groups.yaml` (new file) lists three curated groups — `Management Controllable`, `Market-Driven`, and `Productivity-Focused` — with the canonical metric names that belong to each. `glossary.md` is updated with a short definition of each controllability level. No pipeline output files change; this is config and documentation only.
+
+### Context
+
+Controllability — how much a bank's management can directly influence a metric — is the analytical lens that distinguishes operational performance from macro-driven outcomes. Cost-to-Income is High (management chooses headcount and spend); Net Interest Margin is Hybrid (set partly by management pricing decisions, partly by the OCR). Without this classification, analysts cannot separate a bank's strategic execution from passive market tailwinds or headwinds. This item establishes the authoritative mapping in config; downstream items (W-0092, W-0096, W-0099) read from it rather than duplicating the classification inline.
+
+---
+
+### W-0092
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+A new "Group" dropdown is added to the sticky control bar on `docs/index.html`, positioned after the existing Period and Overlays fieldsets. Options: `All Metrics` (default), `Management Controllable`, `Market-Driven`, `Productivity-Focused`. These groups are loaded from `config/metric_groups.yaml` (W-0091). When a group other than "All Metrics" is selected, only metrics in that group are rendered across all existing chart tabs; metrics outside the group are hidden (their `<canvas>` wrappers are set to `display: none`). The default is `All Metrics`, so the page looks exactly as today on first load. Selection is persisted to `localStorage["metricGroup"]`. Existing charts, filters, period controls, overlays, and bank selectors are completely unchanged; this filter acts as a visibility layer only.
+
+### Context
+
+Analysts studying management execution want to focus on metrics that reflect deliberate strategy (Cost-to-Income, CTI efficiency trend, RORWA) without wading through rate-cycle metrics (NIM, funding costs) that move with the OCR. The grouping filter surfaces this view without requiring a new page or tab. Per the phase constraint, all existing metrics remain in `metrics.json`; no data is removed. Depends on W-0091 for the group definitions.
+
+---
+
+### W-0093
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+A collapsible "Golden Metrics" panel is inserted between the KPI summary row and the tab-chart section on `docs/index.html`. The panel contains six curated metric sparklines: CET1 Ratio, Return on Equity, Cost-to-Income Ratio, Net Interest Margin, NPL Ratio, and Core Funding Ratio. Each sparkline is a small 120×40 px inline Chart.js line chart showing the last 8 quarters for all selected banks. The panel is collapsed by default; a "▸ Golden Metrics" toggle button expands it. Collapsed/expanded state is persisted to `localStorage["goldenMetricsOpen"]`. The six metrics and their labels are defined in a small `const GOLDEN_METRICS` array in the JS block. No existing charts, tabs, or controls are modified. The panel is an additive DOM insertion only.
+
+### Context
+
+Analytical users who open the dashboard for a quick read often want a single glance at the six most diagnostic metrics before drilling into tabs. The KPI row (W-0080) provides point-in-time sector averages; the Golden Metrics panel complements it with short trend sparklines for each bank. Collapsible-by-default satisfies the phase constraint that the original experience is unchanged on first load. All six metrics are already present in `metrics.json` — no data changes required.
+
+---
+
+### W-0094
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+A new "Correlations" tab is appended after the four existing category tabs (Profitability, Capital, Asset Quality, Liquidity) in the `TABS` constant on `docs/index.html`. The tab renders a Pearson correlation matrix for all currently-selected metrics over the active period, computed client-side from `metrics.json`. The matrix is rendered as an HTML `<table>` with cell background colours interpolated from a diverging palette (red = −1, neutral white = 0, teal = +1). Cells where |r| > 0.85 are highlighted with a 2 px border and bold text. A list below the matrix enumerates all "highly-correlated pairs" (|r| > 0.85) with their r value. Computation is lazy: triggered only on the first activation of the Correlations tab and re-triggered whenever bank selection or period range changes. The result is cached in a module-level variable to avoid redundant work. The existing four tabs and all their charts are completely unchanged.
+
+### Context
+
+High inter-metric correlation is a known problem in bank dashboards: if NIM and Net Interest Income move in lockstep for a given bank, showing both adds noise rather than signal. The heatmap lets analysts identify redundant metrics at a glance and focus on independent dimensions. |r| > 0.85 is the conventional "strong" threshold in financial analytics. Vanilla JS Pearson correlation is ~15 lines; no external library is required. All input data is already in `metrics.json`.
+
+---
+
+### W-0095
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+A new collapsible "Market Context" section is added at the bottom of `docs/index.html`, below the snapshot table and above the footer. The section is hidden by default and revealed by a "▸ Show Market Context" toggle button. When revealed, it contains a single multi-line Chart.js chart: a user-selected metric's time series for all selected banks (left y-axis, same colours as the main charts) with the OCR rate overlaid as a dashed grey line on a right y-axis. The metric selector is a `<select>` dropdown populated with the currently-visible metrics. OCR data is sourced from the existing `events.yaml` infrastructure already used by W-0035/W-0036. The "Show Market Context" toggle is separate from the existing Overlays fieldset — it controls this new section only, not the existing chart overlays. Expanded/collapsed state persists to `localStorage["marketContextOpen"]`. No existing charts or overlays are modified.
+
+### Context
+
+NIM, funding costs, and liquidity spreads are heavily driven by the OCR cycle. Without a macro reference line, analysts cannot distinguish a bank's idiosyncratic spread management from a passive rate-cycle tailwind. The Market Context panel makes this comparison explicit without polluting the main chart tabs with a permanent secondary axis. The OCR data is already committed to the repo (W-0035 confirmed); no new data source is required. Depends on W-0035/W-0036 infrastructure being in place (both are `status: done`).
+
+---
+
+### W-0096
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+A new `config/strategy_pillars.yaml` file defines five purpose pillars — Customer, Efficiency, Resilience, Innovation, Returns — each with: a short description, a list of mapped canonical metric names from `config/metrics.yaml`, and a `leading_or_lagging` tag per metric. A new "Strategy Scorecard" tab is appended after the Correlations tab in `docs/index.html`. The tab renders five pillar cards (one per pillar). Each card lists the pillar's metrics with: latest-quarter value, a trend arrow (▲ ▼ —) comparing to the prior quarter, and a mini peer-comparison bar showing all selected banks. Bank selection and period range from the main controls apply. The tab is completely separate; no existing tabs are modified.
+
+### Context
+
+Strategy scorecards that map financial metrics to purpose pillars are standard in board reporting for NZ banks (ANZ, ASB, and BNZ all publish purpose-linked performance scorecards in their annual reports). The dashboard currently has no way to see metrics through a strategic lens — only through regulatory categories (Profitability, Capital, etc.). The pillar-to-metric mapping is a config file rather than hardcoded JS, making it maintainable without code changes. Depends on W-0091 (controllability field in `config/metrics.yaml`) to provide consistent metric references.
+
+---
+
+### W-0097
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+An "Export Scorecard (CSV)" button is added inside the Strategy Scorecard tab (W-0096). Clicking it generates and downloads a CSV file with columns: `bank | pillar | metric | latest_value | prior_value | trend | leading_or_lagging`. The export covers all selected banks, all five pillars, and all metrics for the active period. Export is entirely client-side: the CSV is constructed as a string, wrapped in a `Blob`, and downloaded via `URL.createObjectURL`. The filename is `strategy-scorecard-{YYYY-QQ}.csv` where `{YYYY-QQ}` is the latest available quarter. A second "Print / Save as PDF" button triggers `window.print()` with a print stylesheet that hides the nav, controls, and all tabs except the scorecard, producing a clean printable page. No server interaction. No changes to existing export buttons or CSV exports elsewhere in the dashboard. Depends on W-0096.
+
+### Context
+
+Board and exec audiences consume scorecards in PDF or spreadsheet form, not in browser tabs. A one-click export from the Strategy Scorecard tab makes the new view useful in reporting workflows without requiring manual copy-paste. `window.print()` with a targeted print stylesheet is the zero-dependency pattern already used in similar static dashboards. Per phase constraint: this is a new button inside a new tab — it does not touch any existing export functionality.
+
+---
+
+### W-0098
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+A new "Dimensionality Reduction" tab is appended after the Strategy Scorecard tab in `docs/index.html`. The tab contains two charts rendered client-side: (1) a **scree plot** — a bar chart of variance explained (%) by each principal component (PC1 through PC6, or fewer if fewer metrics are selected), and (2) a **2D projection** — a scatter plot of selected banks as points in PC1 vs PC2 space, with each bank's name labelled at its point. PCA is implemented in ~60 lines of vanilla JS using the power iteration method (covariance matrix → dominant eigenvectors) — no external library is introduced. Computation is lazy: triggered only on first tab activation and re-triggered when bank selection, period range, or metric group changes. A requirement notice is shown in place of the charts if fewer than 3 banks or fewer than 4 metrics are selected. The existing four category tabs and all their charts are completely unchanged.
+
+### Context
+
+Dimensionality reduction reveals latent structure in bank performance data that is invisible from individual metric charts. A PCA projection might show that two banks are nearly identical across all metrics (overlapping points) while a third bank is an outlier — insight that requires scanning 19 charts to detect manually. The scree plot tells analysts how much information is captured in 2D (if PC1+PC2 explain >80% of variance, the projection is reliable). Power-iteration PCA for ≤20 metrics and ≤10 banks converges in <50ms on any modern laptop — lazy loading prevents any perceived performance impact on the existing dashboard. No new dependencies are introduced.
+
+---
+
+### W-0099
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+Chart tooltip callbacks in `docs/index.html` are extended to append two new lines when controllability and/or strategy pillar data is available (loaded from `config/metric_groups.yaml` and `config/strategy_pillars.yaml`): `Controllability: High` (or Medium / Low / Hybrid) and `Pillar: Efficiency` (or whichever pillar the metric belongs to). The tooltip data is loaded as a static `const` derived from the config files at page-render time (inlined as a small JS object in the HTML, or fetched as a JSON sidecar — whichever is simpler). On `docs/glossary.html`, each metric definition block gains a small badge row showing the controllability level (colour-coded: green = High, amber = Hybrid, grey = Low/Medium) and the strategy pillar, inserted between the metric name and the definition text. No chart rendering logic is changed; only `tooltipCallback` functions and the glossary HTML are extended. Depends on W-0091 (controllability config) and W-0096 (strategy pillar config).
+
+### Context
+
+Tooltips are the natural place to surface interpretive context without crowding chart labels. An analyst hovering over a Cost-to-Income data point who sees "Controllability: High | Pillar: Efficiency" immediately has the framing they need to interpret the number. The glossary enhancement makes the same information discoverable for users who want definitions before drilling into charts. Per phase constraint: no existing tooltip data (metric name, value, date) is removed — the new lines are append-only.
+
+---
+
+### W-0100
+
+status: ready
+created: 2026-05-02
+updated: 2026-05-02
+
+### Outcome
+
+A new "Analysis ▾" entry is added to the `<nav>` on `docs/index.html` only (not on inner pages where the new views do not exist). On desktop, the entry is a button that toggles a dropdown panel listing: Correlations, Dimensionality Reduction, Strategy Scorecard, and Market Context. Clicking a list item activates the corresponding tab (or expands the corresponding section) and scrolls to it. On viewports narrower than 768 px, the dropdown items are rendered as a flat stacked list within the nav without nesting. The existing nav links (Dashboard, Data Sources, Glossary, Disclosures) are unchanged. The new nav entry is appended after the existing links. The dropdown uses no external library; it is implemented as a `<details>`/`<summary>` element or a `button` + `aria-expanded` pattern consistent with the existing nav structure. Depends on W-0094, W-0095, W-0096, and W-0098 being in place so the linked views exist.
