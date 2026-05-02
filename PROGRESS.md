@@ -449,3 +449,43 @@ Created `docs/snapshot.html` — 3-column bar-chart grid (one chart per KEY_METR
 
 ### W-0065 — Anomaly Flags
 Added `computeAnomalies()` which computes trailing 8Q mean and stddev per bank/metric and flags values > 2σ. Anomaly ⚠ icons (amber, with tooltip showing σ distance and trailing average) applied to snapshot table and ranking table value view. CSS `.anomaly-flag` added.
+
+---
+
+## 2026-05-02 — Productivity metrics pipeline (W-0075 through W-0078)
+
+### What changed
+
+Implemented the full Phase 18 Labour and Customer Productivity Metrics chain.
+
+**Reference data (S-0012/S-0013/W-0075):** Created `data/reference/employees.csv` and `data/reference/customers.csv` with annual FTE and active customer estimates for ANZ, ASB, BNZ, Westpac, Kiwibank, and Rabobank from 2018 to 2024. FTE data sourced from KPMG FIPS (exact for 2022/2023) and triangulated from bank annual reports for earlier years. Customer data estimated from market share proxies and NZBA Retail Banking Insights. Confidence field (`exact` / `triangulated` / `estimated`) propagated through to outputs. Schema documented in `config/reference.yaml`.
+
+**Processing module (W-0076):** `src/processing/compute_productivity.py` computes six metrics:
+- Profit per Employee (NZD/FTE, annualised)
+- Gross Income per Employee (NZD/FTE, annualised)
+- Expenses per Employee (NZD/FTE, annualised)
+- Profit per Customer (NZD, annualised)
+- Gross Income per Customer (NZD, annualised)
+- Expenses per Customer (NZD, annualised)
+
+Quarterly NZDm P&L values are annualised ×4 before dividing by the reference denominator. Reference lookup uses the most recent annual data point at or before the quarter end date — this correctly handles mid-year quarters for Sep-year-end banks (e.g. 2023-Q1 uses the 2022-09-30 FTE figure). Group entities are excluded. Missing denominators produce WARNING logs and no output row. `scripts/compute_productivity.py` entry point writes `data/processed/productivity.csv` and `docs/data/processed/productivity.json`. 20 tests in `tests/test_compute_productivity.py`.
+
+**Workflow (W-0077):** `.github/workflows/compute-productivity.yml` runs after Process Data and commits output files idempotently using `git diff --cached --quiet` guard.
+
+**Frontend (W-0078):** `Productivity` tab added to `docs/index.html`. Six line charts rendered from `productivity.json` via `renderProductivityCharts()`. NZD values formatted with `Intl.NumberFormat`. Confidence badges (🔵 🟡 🔴) appear in tooltips. If `productivity.json` is absent, the tab shows a plain-language message directing the user to run the workflow. Graceful degradation: banks without reference data are silently omitted from that metric's chart.
+
+### Why
+
+User requested: "Keep going — I want those efficiency metrics."
+
+### Files changed
+
+- `data/reference/employees.csv` (new)
+- `data/reference/customers.csv` (new)
+- `config/reference.yaml` (new)
+- `src/processing/compute_productivity.py` (new)
+- `scripts/compute_productivity.py` (new)
+- `tests/test_compute_productivity.py` (new, 20 tests)
+- `.github/workflows/compute-productivity.yml` (new)
+- `docs/index.html` (Productivity tab + PRODUCTIVITY_URL + metric labels + state var)
+- `CHANGELOG.md`, `BACKLOG.md`, `PROGRESS.md`, `learnings.md`

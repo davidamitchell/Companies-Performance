@@ -172,3 +172,30 @@ _No spikes completed yet. See `BACKLOG.md` for open spikes (S-0001, S-0002, S-00
 - Rabobank 2022 partial values: flag in the coverage page (W-0050) rather than filtering them out; let the user see which values are present.
 
 **Resulting updates:** W-0024 → done. New item needed for ASB loan regex fix (add to backlog as W-0074).
+
+---
+
+## 2026-05-02 — Productivity metrics: reference data design patterns
+
+### Pattern: annual reference data joined to quarterly pipeline output
+
+When reference data (FTE, customers) is annual but pipeline output is quarterly, use a "most recent at or before" lookup: find the latest reference row whose `period_end` is at or before the quarter-end date. This correctly assigns the 2022-09-30 FTE figure to 2023-Q1 (March 31) for Sep-year-end banks — no interpolation required.
+
+### Pattern: confidence field propagation
+
+The confidence tier (`exact` / `triangulated` / `estimated`) from the reference data row should be propagated to every output row. This lets the frontend display data quality badges without requiring a separate lookup. When both employee and customer denominators are used in the same metric, propagate the worst-quality confidence of the two.
+
+### Pattern: annualisation of quarterly NZDm values
+
+RBNZ quarterly P&L values (PAT, Operating Expenses, NII) are in NZDm for the quarter. To get an annual figure for per-employee/per-customer productivity: multiply by 4 (quarters per annum), then divide by the denominator, then multiply by 1,000,000 (NZDm → NZD). The RBNZ does not report cumulative YTD figures, so ×4 is the correct annualisation for all quarters.
+
+### Pattern: group entity exclusion
+
+The `entity_type` field in `metrics.csv` distinguishes standalone from group entities. Always check whether this field is populated before filtering — if absent (e.g. in a minimal test fixture), use the employees reference keys as the entity set. Do not default to "group = exclude" when the field is absent.
+
+### FTE data quality notes
+
+- KPMG FIPS is the most reliable public source; publishes ~March-April for the prior calendar year.
+- ANZ/BNZ/Westpac fiscal year ends 30 September; ASB/Kiwibank 30 June; Rabobank 31 December.
+- Rabobank NZ is primarily agricultural/business banking; per-customer metrics should be interpreted as business-customer metrics, not retail.
+- 2022 and 2023 FTE values have `confidence: exact` (KPMG FIPS published figures). Earlier years are triangulated estimates.

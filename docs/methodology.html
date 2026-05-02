@@ -246,6 +246,34 @@
       </p>
     </section>
 
+    <section id="productivity" aria-label="Productivity metrics methodology">
+      <h2>Productivity Metrics</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;">
+        Per-employee and per-customer productivity metrics are computed by the
+        <code>compute-productivity</code> GitHub Actions workflow from two sources:
+      </p>
+      <ul style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;padding-left:1.5rem;">
+        <li><strong>RBNZ quarterly data</strong>: Profit After Tax, Operating Expenses, and income components
+            (already in <code>metrics.json</code>). Quarterly values are annualised by multiplying by 4.</li>
+        <li><strong>Reference data</strong> (<code>data/reference/</code>): Annual FTE employee counts
+            and active retail customer estimates, manually maintained from KPMG FIPS, bank annual
+            reports, and the NZBA Retail Banking Insights report.</li>
+      </ul>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
+        <strong>Confidence tiers:</strong> Each reference data point carries a confidence flag:
+        🔵 <em>Exact</em> (published in annual report or KPMG FIPS), 🟡 <em>Triangulated</em>
+        (derived from multiple sources, e.g. Kiwibank's disclosed ">1M customers"), or
+        🔴 <em>Estimated</em> (modelled from market share proxies). These badges appear in chart
+        tooltips on the Productivity tab. Customer data for Rabobank should be interpreted as
+        business customers, not retail.
+      </p>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
+        <strong>Denominator lookup:</strong> For a quarter ending on date D, the most recent annual
+        reference data point with a period_end on or before D is used. This avoids extrapolating
+        beyond the last known data point.
+      </p>
+    </section>
+
   </main>
 
   <footer>

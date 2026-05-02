@@ -516,6 +516,7 @@
   /* ── Configuration ─────────────────────────────────────────────────────── */
   const DATA_URL = 'data/processed/metrics.json';
   const OCR_URL  = 'data/processed/ocr.json';
+  const PRODUCTIVITY_URL = 'data/processed/productivity.json';
 
   const TABS = {
     profitability:   ['NIM', 'Return on Equity', 'Return on Assets', 'Cost to Income Ratio', 'RORWA',
@@ -524,6 +525,8 @@
     'asset quality': ['NPL Ratio', 'Total Non-Performing Loans', 'Provisioning Coverage', 'Credit Impairment Rate'],
     liquidity:       ['Core Funding Ratio (CFR)', '1-Month Mismatch Ratio', '1-Week Mismatch Ratio',
                       'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1'],
+    productivity:    ['Profit per Employee', 'Gross Income per Employee', 'Expenses per Employee',
+                      'Profit per Customer', 'Gross Income per Customer', 'Expenses per Customer'],
   };
 
   const KEY_METRICS = Object.values(TABS).flat();
@@ -553,6 +556,12 @@
     'Opex Intensity':               'Opex Intensity (bps)',
     'Capital Headroom':             'Capital Headroom (%)',
     'Credit Impairment Rate':       'Credit Impairment Rate (% loans)',
+    'Profit per Employee':          'Profit per Employee (NZD/FTE)',
+    'Gross Income per Employee':    'Gross Income per Employee (NZD/FTE)',
+    'Expenses per Employee':        'Expenses per Employee (NZD/FTE)',
+    'Profit per Customer':          'Profit per Customer (NZD)',
+    'Gross Income per Customer':    'Gross Income per Customer (NZD)',
+    'Expenses per Customer':        'Expenses per Customer (NZD)',
   };
 
   /* Metric name → URL slug for metric.html?m=<slug> */
@@ -761,6 +770,7 @@
   let allRows      = [];
   let allPeriods   = [];
   let allEntities  = [];
+  let productivityRows = [];
   const savedBanks = localStorage.getItem('selectedBanks');
   let selectedEntities = savedBanks ? new Set(JSON.parse(savedBanks)) : new Set(TOP_6_BANKS);
   let charts       = [];
@@ -933,6 +943,15 @@
       }
     } catch (err) {
       console.warn('OCR data load failed:', err);
+    }
+    try {
+      const prodResp = await fetch(PRODUCTIVITY_URL);
+      if (prodResp.ok) {
+        productivityRows = await prodResp.json();
+        if (activeTab === 'productivity') render();
+      }
+    } catch (err) {
+      console.warn('Productivity data load failed:', err);
     }
     const freshEl = document.getElementById('freshness');
     const rbnzLatest = allPeriods.length ? allPeriods[allPeriods.length - 1] : null;
@@ -1364,6 +1383,12 @@
       grid.parentElement.insertBefore(note, grid);
     }
 
+    // Productivity tab uses its own data source and renderer
+    if (activeTab === 'productivity') {
+      renderProductivityCharts(grid, visible, visiblePeriods);
+      return;
+    }
+
     const tabMetrics    = TABS[activeTab] || [];
     const ocrLookup     = buildOcrLookup();
     const ocrEvents     = getOcrEvents(visiblePeriods);
@@ -1562,6 +1587,119 @@
     if (activeTab === 'profitability') {
       renderNimPassThrough(lookup, visible, visiblePeriods);
     }
+  }
+
+  /* ── Productivity charts ──────────────────────────────────────────────── */
+  function renderProductivityCharts(grid, visible, visiblePeriods) {
+    const metrics = TABS['productivity'] || [];
+
+    if (!productivityRows.length) {
+      grid.innerHTML = `<p style="color:var(--text-muted);padding:2rem 0;">
+        Productivity data not yet available. Run the <code>compute-productivity</code>
+        workflow, or run <code>python scripts/compute_productivity.py</code> locally
+        after <code>python scripts/process_data.py</code>.
+      </p>`;
+      return;
+    }
+
+    // Build lookup: entity → metric → period → { value, confidence }
+    const prodLookup = {};
+    for (const row of productivityRows) {
+      if (!visible.includes(row.entity)) continue;
+      if (!prodLookup[row.entity]) prodLookup[row.entity] = {};
+      if (!prodLookup[row.entity][row.metric]) prodLookup[row.entity][row.metric] = {};
+      prodLookup[row.entity][row.metric][row.period] = {
+        value: row.value,
+        confidence: row.confidence,
+      };
+    }
+
+    // Unique periods available in productivity data, filtered to visiblePeriods
+    const prodPeriods = [...new Set(productivityRows.map(r => r.period))].sort()
+      .filter(p => visiblePeriods.includes(p));
+
+    const CONFIDENCE_BADGE = { exact: '🔵', triangulated: '🟡', estimated: '🔴' };
+
+    metrics.forEach((metric, i) => {
+      const label = METRIC_LABELS[metric] || metric;
+      const card = document.createElement('div');
+      card.className = 'chart-card';
+      card.innerHTML = `
+        <div class="chart-card-hd">
+          <h3>${escHtml(label)}</h3>
+          <div class="chart-actions">
+            <button class="chart-btn" data-prod-download="${i}" title="Download PNG">↓</button>
+            <button class="chart-btn" data-prod-fullscreen="${i}" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="prod-chart-${i}"></canvas></div>
+        <p style="font-size:var(--text-xs);color:var(--text-muted);margin:0.25rem 0 0;">
+          🔵 Exact &nbsp; 🟡 Triangulated &nbsp; 🔴 Estimated &nbsp;
+          <a href="methodology.html#productivity" style="color:var(--teal);">Methodology</a>
+        </p>`;
+      grid.appendChild(card);
+
+      const datasets = visible
+        .filter(e => prodLookup[e]?.[metric])
+        .map(entity => {
+          const points = prodPeriods.map(p => {
+            const entry = prodLookup[entity]?.[metric]?.[p];
+            return entry != null ? entry.value : null;
+          });
+          return {
+            label: entity,
+            data: points,
+            borderColor: bankColor(entity),
+            backgroundColor: bankColor(entity) + '33',
+            borderWidth: 2,
+            pointRadius: 3,
+            tension: 0.2,
+            spanGaps: true,
+          };
+        });
+
+      const ctx = document.getElementById(`prod-chart-${i}`);
+      const cfg = {
+        type: 'line',
+        data: { labels: prodPeriods, datasets },
+        options: {
+          responsive: true,
+          animation: false,
+          plugins: {
+            legend: { display: true, position: 'top',
+              labels: { color: '#999', font: { family: 'IBM Plex Mono', size: 11 } } },
+            tooltip: {
+              backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+              titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+              callbacks: {
+                label(ctx) {
+                  const entity = ctx.dataset.label;
+                  const period = ctx.label;
+                  const entry = prodLookup[entity]?.[metric]?.[period];
+                  const badge = entry ? (CONFIDENCE_BADGE[entry.confidence] || '') : '';
+                  const val = ctx.parsed.y != null
+                    ? new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD', maximumFractionDigits: 0 }).format(ctx.parsed.y)
+                    : '—';
+                  return ` ${entity}: ${val} ${badge}`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: { ticks: { color: '#666', font: { family: 'IBM Plex Mono', size: 10 } },
+                 grid: { color: '#252b33' } },
+            y: { ticks: { color: '#666', font: { family: 'IBM Plex Mono', size: 10 },
+                          callback: v => new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD',
+                                         maximumFractionDigits: 0, notation: 'compact' }).format(v) },
+                 grid: { color: '#252b33' } },
+          },
+        },
+      };
+
+      const chart = new Chart(ctx, cfg);
+      charts.push(chart);
+      chartMeta.push({ metric, label, chartConfig: cfg, tooltipCallback: null });
+    });
   }
 
   /* ── Chart download ───────────────────────────────────────────────────── */

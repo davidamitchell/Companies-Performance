@@ -1,0 +1,58 @@
+name: Compute Productivity
+
+# Reads canonical metrics.csv and reference data files, computes
+# per-employee and per-customer productivity metrics, and commits:
+#   - data/processed/productivity.csv
+#   - docs/data/processed/productivity.json
+#
+# Triggers:
+#   - Manually via workflow_dispatch
+#   - Automatically after a successful Process Data run
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Process Data"]
+    types: [completed]
+
+jobs:
+  compute:
+    name: Compute Productivity Metrics
+    runs-on: ubuntu-latest
+
+    # Skip if triggered by a failed process run
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Compute productivity metrics
+        run: python scripts/compute_productivity.py
+
+      - name: Commit productivity data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/processed/productivity.csv docs/data/processed/productivity.json
+          if git diff --cached --quiet; then
+            echo "INFO No changes — productivity data is already up to date"
+          else
+            git commit -m "data: compute productivity metrics [skip ci]"
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push
+          fi

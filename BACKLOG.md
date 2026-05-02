@@ -1497,7 +1497,7 @@ End-to-end run (W-0024, 2026-05-01) showed ASB "Net Loans and Advances" absent f
 
 ### S-0012
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1520,7 +1520,7 @@ Must result in: `data/reference/employees.csv`, `learnings.md` update, backlog u
 
 ### S-0013
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1544,7 +1544,7 @@ Must result in: `data/reference/customers.csv`, `learnings.md` update, backlog u
 
 ### W-0075
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1564,7 +1564,7 @@ Depends on S-0012 and S-0013. Reference files are static inputs to the processin
 
 ### W-0076
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1589,7 +1589,7 @@ Depends on W-0075 (reference files populated), W-0010 (metrics.csv present), and
 
 ### W-0077
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
@@ -1605,7 +1605,7 @@ Depends on W-0076. Follows the same idempotent commit pattern as `process-data.y
 
 ### W-0078
 
-status: open
+status: done
 created: 2026-05-01
 updated: 2026-05-01
 
