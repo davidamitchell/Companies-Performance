@@ -307,6 +307,8 @@
 
     /* Snapshot entity link */
     .entity-link:hover { color: var(--teal) !important; }
+    .rank-best  { color: var(--teal); }
+    .rank-worst { color: #e05252; }
   </style>
 </head>
 <body>
@@ -370,6 +372,14 @@
           <input type="checkbox" id="chk-sector-avg" style="cursor:pointer;">
           Sector avg
         </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-range-band" style="cursor:pointer;">
+          Band (min/max)
+        </label>
+        <label style="display:flex;align-items:center;gap:0.3rem;font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0.05em;cursor:pointer;">
+          <input type="checkbox" id="chk-trend-flags" style="cursor:pointer;">
+          Trend flags
+        </label>
       </fieldset>
       <fieldset class="ctrl-group">
         <legend>Chart mode</legend>
@@ -427,6 +437,20 @@
           <caption>Latest quarter performance comparison — all visible banks and key metrics</caption>
           <thead><tr id="snapshot-head"></tr></thead>
           <tbody id="snapshot-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="ranking-section" aria-label="Cross-metric ranking">
+      <div class="section-title">
+        performance ranking
+        <button id="rank-view-toggle" class="quick-btn" title="Toggle rank/value view">Value view</button>
+      </div>
+      <div class="table-scroll-wrap">
+        <table id="ranking-table">
+          <caption>Cross-metric ranking — latest quarter. Rank 1 = best performer. Teal = top quartile, red = bottom quartile.</caption>
+          <thead><tr id="ranking-head"></tr></thead>
+          <tbody id="ranking-body"></tbody>
         </table>
       </div>
     </section>
@@ -683,6 +707,13 @@
   };
   function bankColor(name) { return BANK_COLORS[name] || '#636e72'; }
 
+  /* ── Good-direction set for ranking and trend flags ────────────────────── */
+  const HIGHER_IS_BETTER = new Set([
+    'NIM', 'Return on Equity', 'Return on Assets', 'CET1 Ratio', 'Tier 1 Capital Ratio',
+    'Total Capital Ratio', 'Core Funding Ratio (CFR)', 'RORWA', 'Provisioning Coverage',
+    'Non-Interest Income Share', 'Capital Headroom', 'Pre-Provision Profit',
+  ]);
+
   /* ── State ─────────────────────────────────────────────────────────────── */
   let allRows      = [];
   let allPeriods   = [];
@@ -704,6 +735,9 @@
   let sortState       = { col: -1, dir: 1 };
   let lastLookup      = {};
   let lastVisible     = [];
+  let showRangeBand   = localStorage.getItem('showRangeBand')   === 'true';
+  let showTrendFlags  = localStorage.getItem('showTrendFlags')  === 'true';
+  let rankingViewMode = localStorage.getItem('rankingViewMode') || 'rank';
 
   // NZ/global events inlined for static-site delivery.
   const NZ_EVENTS = [
@@ -1001,6 +1035,26 @@
     });
   })();
 
+  (function initRangeBandToggle() {
+    const chk = document.getElementById('chk-range-band');
+    chk.checked = showRangeBand;
+    chk.addEventListener('change', () => {
+      showRangeBand = chk.checked;
+      localStorage.setItem('showRangeBand', showRangeBand);
+      renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+    });
+  })();
+
+  (function initTrendFlagsToggle() {
+    const chk = document.getElementById('chk-trend-flags');
+    chk.checked = showTrendFlags;
+    chk.addEventListener('change', () => {
+      showTrendFlags = chk.checked;
+      localStorage.setItem('showTrendFlags', showTrendFlags);
+      renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+    });
+  })();
+
   /* ── Snapshot period selector ─────────────────────────────────────────── */
   function buildSnapshotPeriodSelector() {
     const sel = document.getElementById('snapshot-period-sel');
@@ -1042,6 +1096,7 @@
     renderNarrative(lookup, visible);
     renderCharts(lookup, visible, visiblePeriods);
     renderSnapshot(lookup, visible);
+    renderRankingTable(lookup, visible);
     document.getElementById('period-range').textContent =
       visiblePeriods.length
         ? `${visiblePeriods[0]} – ${visiblePeriods[visiblePeriods.length - 1]}`
@@ -1312,8 +1367,23 @@
           const v = lookup[entity]?.[p]?.[metric];
           return (v != null) ? v : null;
         });
+        let lbl = entity;
+        if (showTrendFlags) {
+          const slope = trailingSlope(data);
+          if (slope !== null) {
+            const nonNull = data.filter(v => v != null);
+            const meanVal = nonNull.reduce((a, b) => a + b, 0) / nonNull.length;
+            const variance = nonNull.reduce((a, b) => a + (b - meanVal) ** 2, 0) / nonNull.length;
+            const stdDev = Math.sqrt(variance);
+            const threshold = stdDev > 0 ? 0.05 * stdDev : 0.1;
+            const higherBetter = HIGHER_IS_BETTER.has(metric);
+            const improving    = higherBetter ? slope > threshold  : slope < -threshold;
+            const deteriorating = higherBetter ? slope < -threshold : slope > threshold;
+            lbl += improving ? ' ▲' : deteriorating ? ' ▼' : ' →';
+          }
+        }
         return {
-          label: entity, data,
+          label: lbl, data,
           borderColor: bankColor(entity), backgroundColor: bankColor(entity) + '22',
           borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
           tension: 0.3, spanGaps: false, yAxisID: 'y',
@@ -1335,6 +1405,22 @@
             borderWidth: 1.5, borderDash: [5, 3],
             pointRadius: 0, tension: 0.3, spanGaps: false, yAxisID: 'y',
           });
+        }
+      }
+
+      // Range band overlay (min/max across standalone visible banks)
+      if (showRangeBand && standaloneVisible.length >= 2) {
+        const minData = visiblePeriods.map(p => {
+          const vals = standaloneVisible.map(e => lookup[e]?.[p]?.[metric]).filter(v => v != null);
+          return vals.length >= 2 ? Math.min(...vals) : null;
+        });
+        const maxData = visiblePeriods.map(p => {
+          const vals = standaloneVisible.map(e => lookup[e]?.[p]?.[metric]).filter(v => v != null);
+          return vals.length >= 2 ? Math.max(...vals) : null;
+        });
+        if (minData.some(v => v != null) && maxData.some(v => v != null)) {
+          datasets.push({ label: '_band_min', data: minData, borderColor: 'transparent', backgroundColor: 'transparent', borderWidth: 0, pointRadius: 0, spanGaps: false, yAxisID: 'y', fill: false });
+          datasets.push({ label: '_band_max', data: maxData, borderColor: 'transparent', backgroundColor: '#00C3A508', borderWidth: 0, pointRadius: 0, spanGaps: false, yAxisID: 'y', fill: '-1' });
         }
       }
 
@@ -1405,6 +1491,7 @@
               labels: {
                 font: { size: 10, family: "'IBM Plex Mono', monospace" },
                 boxWidth: 10, padding: 8, color: '#666',
+                filter: item => !item.text.startsWith('_band_'),
               },
             },
             tooltip: {
@@ -1712,6 +1799,88 @@
       });
     });
   }
+
+  /* ── Trailing slope helper ────────────────────────────────────────────── */
+  function trailingSlope(data) {
+    const vals = data.slice(-4).filter(v => v != null);
+    if (vals.length < 2) return null;
+    return (vals[vals.length - 1] - vals[0]) / (vals.length - 1);
+  }
+
+  /* ── Ranking table ────────────────────────────────────────────────────── */
+  function renderRankingTable(lookup, visible) {
+    const selPeriod = getSnapshotPeriod();
+    const head = document.getElementById('ranking-head');
+    const body = document.getElementById('ranking-body');
+    if (!head || !body) return;
+
+    // Only include KEY_METRICS that have at least one non-null value in selPeriod
+    const activeMetrics = KEY_METRICS.filter(m =>
+      visible.some(e => lookup[e]?.[selPeriod]?.[m] != null)
+    );
+
+    // Header
+    head.innerHTML = '<th scope="col">Bank</th>' +
+      activeMetrics.map(m => `<th scope="col">${escHtml(METRIC_LABELS[m] || m)}</th>`).join('');
+
+    const isRankView = rankingViewMode === 'rank';
+    const N = visible.length;
+    const topQ  = Math.ceil(N / 4);
+    const botQ  = Math.ceil(N / 4);
+
+    // Pre-compute ranks per metric
+    const metricRanks = {};
+    for (const m of activeMetrics) {
+      const higherBetter = HIGHER_IS_BETTER.has(m);
+      const vals = visible
+        .map(e => ({ e, v: lookup[e]?.[selPeriod]?.[m] }))
+        .filter(x => x.v != null);
+      // Sort: rank 1 = best
+      vals.sort((a, b) => higherBetter ? b.v - a.v : a.v - b.v);
+      metricRanks[m] = {};
+      vals.forEach((x, i) => { metricRanks[m][x.e] = i + 1; });
+    }
+
+    body.innerHTML = '';
+    for (const entity of visible) {
+      const tr = document.createElement('tr');
+      let cells = `<td scope="row"><div class="entity-cell">
+        <span class="swatch" style="background:${bankColor(entity)}"></span>
+        ${escHtml(entity)}
+      </div></td>`;
+      for (const m of activeMetrics) {
+        const val = lookup[entity]?.[selPeriod]?.[m];
+        if (val == null) {
+          cells += `<td class="val-null">—</td>`;
+        } else if (isRankView) {
+          const rank = metricRanks[m][entity];
+          const nRanked = Object.keys(metricRanks[m]).length;
+          let cls = '';
+          if (rank != null) {
+            if (rank <= topQ) cls = 'rank-best';
+            else if (rank > nRanked - botQ) cls = 'rank-worst';
+          }
+          cells += `<td class="${cls}">${rank != null ? rank : '—'}</td>`;
+        } else {
+          cells += `<td>${val.toFixed(1)}</td>`;
+        }
+      }
+      tr.innerHTML = cells;
+      body.appendChild(tr);
+    }
+  }
+
+  (function initRankViewToggle() {
+    const btn = document.getElementById('rank-view-toggle');
+    if (!btn) return;
+    btn.textContent = rankingViewMode === 'rank' ? 'Value view' : 'Rank view';
+    btn.addEventListener('click', () => {
+      rankingViewMode = rankingViewMode === 'rank' ? 'value' : 'rank';
+      localStorage.setItem('rankingViewMode', rankingViewMode);
+      btn.textContent = rankingViewMode === 'rank' ? 'Value view' : 'Rank view';
+      renderRankingTable(lastLookup, lastVisible);
+    });
+  })();
 
   /* ── Utilities ────────────────────────────────────────────────────────── */
   function escHtml(str) {

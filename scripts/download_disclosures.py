@@ -19,7 +19,7 @@ time.
 
 Usage::
 
-    python scripts/download_disclosures.py [--force] [--bank <bank_id>]
+    python scripts/download_disclosures.py --batch [--force] [--bank <bank_id>]
     python scripts/download_disclosures.py --backfill-metadata [--bank <bank_id>]
 
 Exit codes
@@ -295,6 +295,14 @@ def main(argv: list[str] | None = None) -> int:
         One or more downloads failed.
     """
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--batch",
+        action="store_true",
+        help=(
+            "Download all confirmed reports for all banks in config/sources.yaml. "
+            "A failed URL is logged as WARNING and does not abort the batch."
+        ),
+    )
     parser.add_argument(
         "--force",
         action="store_true",

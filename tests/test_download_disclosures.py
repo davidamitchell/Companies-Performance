@@ -582,3 +582,128 @@ def test_main_backfill_with_bank_filter() -> None:
         main(["--backfill-metadata", "--bank", "anz"])
 
     assert calls == ["anz"]
+
+
+# ---------------------------------------------------------------------------
+# --batch flag
+# ---------------------------------------------------------------------------
+
+
+def test_main_batch_flag_is_accepted() -> None:
+    """main() accepts --batch flag without error."""
+    with patch("scripts.download_disclosures.load_banks", return_value=[]):
+        assert main(["--batch"]) == 0
+
+
+def test_main_batch_downloads_all_confirmed_banks() -> None:
+    """main() --batch processes all banks from config."""
+    bank_a = _make_bank("anz")
+    bank_b = _make_bank("asb")
+    calls: list[str] = []
+
+    def _fake_download_bank(bank: dict, *, force: bool = False) -> tuple[int, int]:
+        calls.append(bank["id"])
+        return 1, 0
+
+    with (
+        patch("scripts.download_disclosures.load_banks", return_value=[bank_a, bank_b]),
+        patch(
+            "scripts.download_disclosures.download_bank",
+            side_effect=_fake_download_bank,
+        ),
+    ):
+        result = main(["--batch"])
+
+    assert result == 0
+    assert calls == ["anz", "asb"]
+
+
+def test_main_batch_with_bank_filter() -> None:
+    """main() --batch respects the --bank filter."""
+    bank_a = _make_bank("anz")
+    bank_b = _make_bank("asb")
+    calls: list[str] = []
+
+    def _fake_download_bank(bank: dict, *, force: bool = False) -> tuple[int, int]:
+        calls.append(bank["id"])
+        return 1, 0
+
+    with (
+        patch("scripts.download_disclosures.load_banks", return_value=[bank_a, bank_b]),
+        patch(
+            "scripts.download_disclosures.download_bank",
+            side_effect=_fake_download_bank,
+        ),
+    ):
+        result = main(["--batch", "--bank", "anz"])
+
+    assert result == 0
+    assert calls == ["anz"]
+
+
+def test_main_batch_with_force() -> None:
+    """main() --batch --force passes force=True to download_bank."""
+    bank = _make_bank()
+    received_force: list[bool] = []
+
+    def _fake_download_bank(b: dict, *, force: bool = False) -> tuple[int, int]:
+        received_force.append(force)
+        return 1, 0
+
+    with (
+        patch("scripts.download_disclosures.load_banks", return_value=[bank]),
+        patch(
+            "scripts.download_disclosures.download_bank",
+            side_effect=_fake_download_bank,
+        ),
+    ):
+        main(["--batch", "--force"])
+
+    assert received_force == [True]
+
+
+def test_main_batch_partial_failure_returns_1() -> None:
+    """main() --batch returns 1 when at least one download fails."""
+    bank_a = _make_bank("anz")
+    bank_b = _make_bank("asb")
+
+    def _fake_download_bank(bank: dict, *, force: bool = False) -> tuple[int, int]:
+        if bank["id"] == "anz":
+            return 1, 0
+        return 0, 1
+
+    with (
+        patch("scripts.download_disclosures.load_banks", return_value=[bank_a, bank_b]),
+        patch(
+            "scripts.download_disclosures.download_bank",
+            side_effect=_fake_download_bank,
+        ),
+    ):
+        result = main(["--batch"])
+
+    assert result == 1
+
+
+def test_main_batch_single_failure_does_not_abort_batch() -> None:
+    """main() --batch continues processing after a failed bank."""
+    bank_a = _make_bank("anz")
+    bank_b = _make_bank("asb")
+    calls: list[str] = []
+
+    def _fake_download_bank(bank: dict, *, force: bool = False) -> tuple[int, int]:
+        calls.append(bank["id"])
+        if bank["id"] == "anz":
+            return 0, 1  # anz fails
+        return 1, 0  # asb succeeds
+
+    with (
+        patch("scripts.download_disclosures.load_banks", return_value=[bank_a, bank_b]),
+        patch(
+            "scripts.download_disclosures.download_bank",
+            side_effect=_fake_download_bank,
+        ),
+    ):
+        main(["--batch"])
+
+    # Both banks must have been processed despite anz failure
+    assert calls == ["anz", "asb"]
