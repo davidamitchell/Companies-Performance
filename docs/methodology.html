@@ -138,7 +138,7 @@
       </div>
 
       <div class="metric-section">
-        <div class="metric-name">Return on Risk-Weighted Assets — RORWA (%)</div>
+        <div class="metric-name">Return on Risk-Weighted Assets (RORWA, %)</div>
         <div class="formula-block">Profit After Tax ÷ Total Risk-Weighted Assets × 100</div>
         <div class="metric-desc">Annualised equivalent when Profit After Tax is a quarterly figure.</div>
       </div>
@@ -158,11 +158,11 @@
       <div class="metric-section">
         <div class="metric-name">Loan-to-Deposit Ratio (%)</div>
         <div class="formula-block">Net Loans and Advances ÷ Deposits × 100</div>
-        <div class="metric-desc">Above 100% means loans exceed deposits — bank relies on wholesale funding.</div>
+        <div class="metric-desc">Above 100% means loans exceed deposits. The bank relies partly on wholesale funding.</div>
       </div>
 
       <div class="metric-section">
-        <div class="metric-name">Pre-Provision Profit — PPP (NZDm)</div>
+        <div class="metric-name">Pre-Provision Profit (PPP, NZDm)</div>
         <div class="formula-block">NII + Trading + Fees + Other Income − Operating Expenses</div>
         <div class="metric-desc">Profit before credit impairment charges and tax. Measures core earnings power independent of credit cycle.</div>
       </div>
@@ -243,6 +243,34 @@
       <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
         The "freshness" indicator on the dashboard homepage shows the latest period available in each data source.
         If the indicator is more than one quarter old, the fetch workflow may need to be triggered manually.
+      </p>
+    </section>
+
+    <section id="productivity" aria-label="Productivity metrics methodology">
+      <h2>Productivity Metrics</h2>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;">
+        Per-employee and per-customer productivity metrics are computed by the
+        <code>compute-productivity</code> GitHub Actions workflow from two sources:
+      </p>
+      <ul style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;padding-left:1.5rem;">
+        <li><strong>RBNZ quarterly data</strong>: Profit After Tax, Operating Expenses, and income components
+            (already in <code>metrics.json</code>). Quarterly values are annualised by multiplying by 4.</li>
+        <li><strong>Reference data</strong> (<code>data/reference/</code>): Annual FTE employee counts
+            and active retail customer estimates, manually maintained from KPMG FIPS, bank annual
+            reports, and the NZBA Retail Banking Insights report.</li>
+      </ul>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
+        <strong>Confidence tiers:</strong> Each reference data point carries a confidence flag:
+        🔵 <em>Exact</em> (published in annual report or KPMG FIPS), 🟡 <em>Triangulated</em>
+        (derived from multiple sources, e.g. Kiwibank's disclosed ">1M customers"), or
+        🔴 <em>Estimated</em> (modelled from market share proxies). These badges appear in chart
+        tooltips on the Productivity tab. Customer data for Rabobank should be interpreted as
+        business customers, not retail.
+      </p>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">
+        <strong>Denominator lookup:</strong> For a quarter ending on date D, the most recent annual
+        reference data point with a period_end on or before D is used. This avoids extrapolating
+        beyond the last known data point.
       </p>
     </section>
 

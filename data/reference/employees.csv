@@ -1,0 +1,43 @@
+bank_id,period_end,fte,source,confidence
+ANZ,2018-09-30,8800,KPMG FIPS 2018 / ANZ Annual Report,triangulated
+ANZ,2019-09-30,8600,KPMG FIPS 2019 / ANZ Annual Report,triangulated
+ANZ,2020-09-30,8200,KPMG FIPS 2020 / ANZ Annual Report,triangulated
+ANZ,2021-09-30,7800,KPMG FIPS 2021 / ANZ Annual Report,triangulated
+ANZ,2022-09-30,7470,KPMG FIPS 2022,exact
+ANZ,2023-09-30,7300,KPMG FIPS 2023,exact
+ANZ,2024-09-30,7100,KPMG FIPS 2024 estimate,triangulated
+ASB,2018-06-30,5300,KPMG FIPS 2018 / ASB Annual Report,triangulated
+ASB,2019-06-30,5200,KPMG FIPS 2019 / ASB Annual Report,triangulated
+ASB,2020-06-30,5000,KPMG FIPS 2020 / ASB Annual Report,triangulated
+ASB,2021-06-30,4950,KPMG FIPS 2021 / ASB Annual Report,triangulated
+ASB,2022-06-30,4900,KPMG FIPS 2022,exact
+ASB,2023-06-30,4700,KPMG FIPS 2023,exact
+ASB,2024-06-30,4600,KPMG FIPS 2024 estimate,triangulated
+BNZ,2018-09-30,5200,KPMG FIPS 2018 / BNZ Annual Report,triangulated
+BNZ,2019-09-30,5100,KPMG FIPS 2019 / BNZ Annual Report,triangulated
+BNZ,2020-09-30,5000,KPMG FIPS 2020 / BNZ Annual Report,triangulated
+BNZ,2021-09-30,5000,KPMG FIPS 2021 / BNZ Annual Report,triangulated
+BNZ,2022-09-30,4950,KPMG FIPS 2022,exact
+BNZ,2023-09-30,4800,KPMG FIPS 2023,exact
+BNZ,2024-09-30,4700,KPMG FIPS 2024 estimate,triangulated
+Westpac,2018-09-30,5000,KPMG FIPS 2018 / Westpac NZ Annual Report,triangulated
+Westpac,2019-09-30,4900,KPMG FIPS 2019 / Westpac NZ Annual Report,triangulated
+Westpac,2020-09-30,4700,KPMG FIPS 2020 / Westpac NZ Annual Report,triangulated
+Westpac,2021-09-30,4700,KPMG FIPS 2021 / Westpac NZ Annual Report,triangulated
+Westpac,2022-09-30,4600,KPMG FIPS 2022,exact
+Westpac,2023-09-30,4400,KPMG FIPS 2023,exact
+Westpac,2024-09-30,4300,KPMG FIPS 2024 estimate,triangulated
+Kiwibank,2018-06-30,2700,KPMG FIPS 2018 / Kiwibank Annual Report,triangulated
+Kiwibank,2019-06-30,2650,KPMG FIPS 2019 / Kiwibank Annual Report,triangulated
+Kiwibank,2020-06-30,2600,KPMG FIPS 2020 / Kiwibank Annual Report,triangulated
+Kiwibank,2021-06-30,2600,KPMG FIPS 2021 / Kiwibank Annual Report,triangulated
+Kiwibank,2022-06-30,2600,KPMG FIPS 2022,exact
+Kiwibank,2023-06-30,2500,KPMG FIPS 2023,exact
+Kiwibank,2024-06-30,2500,KPMG FIPS 2024 estimate,triangulated
+Rabobank,2018-12-31,420,Rabobank NZ Annual Report estimate,estimated
+Rabobank,2019-12-31,430,Rabobank NZ Annual Report estimate,estimated
+Rabobank,2020-12-31,430,Rabobank NZ Annual Report estimate,estimated
+Rabobank,2021-12-31,440,Rabobank NZ Annual Report estimate,estimated
+Rabobank,2022-12-31,450,KPMG FIPS 2022,exact
+Rabobank,2023-12-31,440,KPMG FIPS 2023,exact
+Rabobank,2024-12-31,440,KPMG FIPS 2024 estimate,estimated

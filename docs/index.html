@@ -304,6 +304,13 @@
 
     /* Snapshot entity link */
     .entity-link:hover { color: var(--teal) !important; }
+    .bank-detail-link {
+      color: var(--text-muted); text-decoration: none;
+      font-size: 0.65rem; opacity: 0.45; margin-left: 0.25rem;
+    }
+    .bank-detail-link:hover { color: var(--teal); opacity: 1; }
+    .chart-card-hd h3 a { color: inherit; text-decoration: none; }
+    .chart-card-hd h3 a:hover { color: var(--teal); }
     .rank-best  { color: var(--teal); }
     .rank-worst { color: #e05252; }
 
@@ -333,7 +340,7 @@
 
   <div class="page-header">
     <h1>NZ Bank Performance</h1>
-    <p class="page-subtitle">Financial performance metrics — NZ banks and companies, sourced from public disclosures.</p>
+    <p class="page-subtitle">Financial performance metrics for NZ banks and companies, sourced from public disclosures.</p>
     <div id="status">Loading data…</div>
     <div id="freshness" style="font-size:var(--text-xs);color:var(--teal);margin-top:0.25rem;"></div>
     <div style="margin-top:0.5rem;">
@@ -409,7 +416,7 @@
       <div id="narrative-body" style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;">
         <ul id="narrative-bullets" style="list-style:none;padding:0;margin:0.5rem 0;"></ul>
         <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.5rem;font-style:italic;">
-          Auto-generated from RBNZ data — verify before citing.
+          Auto-generated from RBNZ data. Verify before citing.
         </p>
       </div>
     </section>
@@ -436,7 +443,7 @@
       </div>
       <div class="table-scroll-wrap">
         <table id="snapshot-table">
-          <caption>Latest quarter performance comparison — all visible banks and key metrics</caption>
+          <caption>Latest quarter performance comparison: all visible banks and key metrics</caption>
           <thead><tr id="snapshot-head"></tr></thead>
           <tbody id="snapshot-body"></tbody>
         </table>
@@ -450,7 +457,7 @@
       </div>
       <div class="table-scroll-wrap">
         <table id="ranking-table">
-          <caption>Cross-metric ranking — latest quarter. Rank 1 = best performer. Teal = top quartile, red = bottom quartile.</caption>
+          <caption>Cross-metric ranking, latest quarter. Rank 1 = best performer. Teal = top quartile, red = bottom quartile.</caption>
           <thead><tr id="ranking-head"></tr></thead>
           <tbody id="ranking-body"></tbody>
         </table>
@@ -494,6 +501,7 @@
   <div id="pop-body"></div>
   <div class="popover-footer">
     <a id="pop-glossary-link" href="glossary.html">Glossary ↗</a>
+    <a id="pop-detail-link" href="metric.html">Metric detail →</a>
     <a href="#snapshot-section" id="pop-snapshot-link">Snapshot ↓</a>
   </div>
 </div>
@@ -508,6 +516,7 @@
   /* ── Configuration ─────────────────────────────────────────────────────── */
   const DATA_URL = 'data/processed/metrics.json';
   const OCR_URL  = 'data/processed/ocr.json';
+  const PRODUCTIVITY_URL = 'data/processed/productivity.json';
 
   const TABS = {
     profitability:   ['NIM', 'Return on Equity', 'Return on Assets', 'Cost to Income Ratio', 'RORWA',
@@ -516,6 +525,8 @@
     'asset quality': ['NPL Ratio', 'Total Non-Performing Loans', 'Provisioning Coverage', 'Credit Impairment Rate'],
     liquidity:       ['Core Funding Ratio (CFR)', '1-Month Mismatch Ratio', '1-Week Mismatch Ratio',
                       'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1'],
+    productivity:    ['Profit per Employee', 'Gross Income per Employee', 'Expenses per Employee',
+                      'Profit per Customer', 'Gross Income per Customer', 'Expenses per Customer'],
   };
 
   const KEY_METRICS = Object.values(TABS).flat();
@@ -545,6 +556,40 @@
     'Opex Intensity':               'Opex Intensity (bps)',
     'Capital Headroom':             'Capital Headroom (%)',
     'Credit Impairment Rate':       'Credit Impairment Rate (% loans)',
+    'Profit per Employee':          'Profit per Employee (NZD/FTE)',
+    'Gross Income per Employee':    'Gross Income per Employee (NZD/FTE)',
+    'Expenses per Employee':        'Expenses per Employee (NZD/FTE)',
+    'Profit per Customer':          'Profit per Customer (NZD)',
+    'Gross Income per Customer':    'Gross Income per Customer (NZD)',
+    'Expenses per Customer':        'Expenses per Customer (NZD)',
+  };
+
+  /* Metric name → URL slug for metric.html?m=<slug> */
+  const METRIC_SLUGS = {
+    'NIM':                             'nim',
+    'Return on Equity':                'return-on-equity',
+    'Return on Assets':                'return-on-assets',
+    'Cost to Income Ratio':            'cost-to-income-ratio',
+    'RORWA':                           'rorwa',
+    'CET1 Ratio':                      'cet1-ratio',
+    'Tier 1 Capital Ratio':            'tier-1-capital-ratio',
+    'Total Capital Ratio':             'total-capital-ratio',
+    'Loan-to-Deposit Ratio':           'loan-to-deposit-ratio',
+    'Risk Density':                    'risk-density',
+    'NPL Ratio':                       'npl-ratio',
+    'Total Non-Performing Loans':      'total-non-performing-loans',
+    'Provisioning Coverage':           'provisioning-coverage',
+    'Core Funding Ratio (CFR)':        'core-funding-ratio',
+    '1-Month Mismatch Ratio':          '1-month-mismatch-ratio',
+    '1-Week Mismatch Ratio':           '1-week-mismatch-ratio',
+    'Top 5 Non-Bank Credit Exposures': 'top-5-non-bank-credit-exposures',
+    'Top 5 Bank Credit Exposures':     'top-5-bank-credit-exposures',
+    'Bank Exposures ≥10% of CET1':     'bank-exposures-10pct-cet1',
+    'Capital Headroom':                'capital-headroom',
+    'Pre-Provision Profit':            'pre-provision-profit',
+    'Non-Interest Income Share':       'non-interest-income-share',
+    'Opex Intensity':                  'opex-intensity',
+    'Credit Impairment Rate':          'credit-impairment-rate',
   };
 
   const METRIC_INFO = {
@@ -569,7 +614,7 @@
     'Cost to Income Ratio': {
       definition: 'Operating expenses divided by total operating income (net interest income + non-interest income).',
       source: 'Derived: Operating Expenses ÷ (Net Interest Income + Non-Interest Income). RBNZ series DBB.QIE60, QIE40, QIE50, QIE55, QIE57.',
-      note: 'Efficiency ratio — how much is spent to earn each dollar of income. Lower means more efficient.',
+      note: 'Efficiency ratio: measures how much is spent to earn each dollar of income. Lower means more efficient.',
       good: 'Below 45% is efficient. Above 55% signals cost pressure.',
     },
     'RORWA': {
@@ -599,7 +644,7 @@
     'Loan-to-Deposit Ratio': {
       definition: 'Net Loans and Advances divided by Deposits.',
       source: 'Derived: Net Loans ÷ Deposits. RBNZ series DBB.QIG30, QIG55.',
-      note: 'Funding structure. Above 100% means loans exceed deposits — bank relies on wholesale funding.',
+      note: 'Funding structure. Above 100% means loans exceed deposits; the bank relies partly on wholesale funding.',
       good: 'Closer to 100% means more stable retail-funded balance sheet.',
     },
     'Risk Density': {
@@ -623,13 +668,13 @@
     'Provisioning Coverage': {
       definition: 'Total provisions (Individual + Collective) divided by Total Non-Performing Loans.',
       source: 'Derived from RBNZ series DBB.QIC60, QIC70, QIC50.',
-      note: 'Above 100% means provisions exceed NPLs — buffer against unrecognised losses.',
+      note: 'Above 100% means provisions exceed NPLs; a buffer against unrecognised losses.',
       good: 'Above 100% is well-provisioned. NZ major banks typically 80%–150%.',
     },
     'Core Funding Ratio (CFR)': {
       definition: 'Ratio of stable funding (retail deposits + long-term wholesale) to total loans and advances. NZ-specific regulatory metric.',
       source: 'RBNZ series DBB.QIH30',
-      note: 'RBNZ minimum is 75%. Measures funding stability — reliance on short-term wholesale funding is a systemic risk.',
+      note: 'RBNZ minimum is 75%. Measures funding stability. Reliance on short-term wholesale funding is a systemic risk.',
       good: 'Higher is more stable. Regulatory minimum 75%; banks typically hold 80%–90%.',
     },
     '1-Month Mismatch Ratio': {
@@ -653,7 +698,7 @@
     'Top 5 Bank Credit Exposures': {
       definition: 'Sum of five largest interbank credit exposures as a percentage of CET1 capital.',
       source: 'RBNZ series DBB.QIJ30',
-      note: 'Interbank counterparty concentration. Relevant for systemic risk — can amplify contagion.',
+      note: 'Interbank counterparty concentration. Relevant for systemic risk and can amplify contagion.',
       good: 'Lower is better.',
     },
     'Bank Exposures ≥10% of CET1': {
@@ -725,6 +770,7 @@
   let allRows      = [];
   let allPeriods   = [];
   let allEntities  = [];
+  let productivityRows = [];
   const savedBanks = localStorage.getItem('selectedBanks');
   let selectedEntities = savedBanks ? new Set(JSON.parse(savedBanks)) : new Set(TOP_6_BANKS);
   let charts       = [];
@@ -875,7 +921,7 @@
       allPeriods  = [...new Set(allRows.map(r => r.period))].sort();
       allEntities = [...new Set(allRows.map(r => r.entity))].sort();
       statusEl.textContent =
-        `${allRows.length.toLocaleString()} metric rows — ` +
+        `${allRows.length.toLocaleString()} metric rows, ` +
         `${allPeriods[0]} to ${allPeriods[allPeriods.length - 1]}.`;
       buildBankSelector();
       setActiveQuickBtn('btn-top6');
@@ -885,7 +931,7 @@
       applyRangePreset(rangePreset, false);
       render();
     } catch (err) {
-      statusEl.textContent = 'No data yet — trigger the fetch-data then process-data workflows.';
+      statusEl.textContent = 'No data yet. Trigger the fetch-data then process-data workflows.';
       statusEl.style.color = '#666';
       console.warn('Data load failed:', err);
     }
@@ -897,6 +943,15 @@
       }
     } catch (err) {
       console.warn('OCR data load failed:', err);
+    }
+    try {
+      const prodResp = await fetch(PRODUCTIVITY_URL);
+      if (prodResp.ok) {
+        productivityRows = await prodResp.json();
+        if (activeTab === 'productivity') render();
+      }
+    } catch (err) {
+      console.warn('Productivity data load failed:', err);
     }
     const freshEl = document.getElementById('freshness');
     const rbnzLatest = allPeriods.length ? allPeriods[allPeriods.length - 1] : null;
@@ -925,7 +980,7 @@
       const label = document.createElement('label');
       label.className = 'bank-check-label' + (selectedEntities.has(entity) ? ' checked' : '');
       label.style.setProperty('--bank-color', bankColor(entity));
-      label.innerHTML = `<input type="checkbox" value="${escHtml(entity)}"${selectedEntities.has(entity) ? ' checked' : ''}>${escHtml(entity)}`;
+      label.innerHTML = `<input type="checkbox" value="${escHtml(entity)}"${selectedEntities.has(entity) ? ' checked' : ''}>${escHtml(entity)}<a href="bank.html?bank=${encodeURIComponent(entity)}" class="bank-detail-link" title="View ${escHtml(entity)} detail" onclick="event.stopPropagation()">↗</a>`;
       label.addEventListener('change', e => {
         if (e.target.checked) { selectedEntities.add(entity); label.classList.add('checked'); }
         else { selectedEntities.delete(entity); label.classList.remove('checked'); }
@@ -1196,7 +1251,7 @@
         const prevAvg = nimPrev.reduce((a, b) => a + b, 0) / nimPrev.length;
         const bps = Math.round((avg - prevAvg) * 100);
         const dir = bps >= 0 ? 'up' : 'down';
-        nimNote = `, ${dir} ${Math.abs(bps)} bps from the prior quarter`;
+        nimNote = `, ${dir} ${Math.abs(bps)} basis points from the prior quarter`;
       }
       const nimSeries = allPeriods.map(p => {
         const vals = standalone.map(e => lookup[e]?.[p]?.['NIM']).filter(v => v != null);
@@ -1207,10 +1262,10 @@
         const minNim = Math.min(...nimSeries);
         const isHighest = avg >= maxNim - 0.01; // 1 bp tolerance for floating-point equality
         const isLowest  = avg <= minNim + 0.01;
-        const suffix = isHighest ? ` — highest in available history` : isLowest ? ` — lowest in available history` : '';
-        bullets.push(`Sector NIM averaged ${avg.toFixed(2)}%${nimNote}${suffix}.`);
+        const suffix = isHighest ? `, the highest in the available data` : isLowest ? `, the lowest in the available data` : '';
+        bullets.push(`Sector Net Interest Margin (NIM) averaged ${avg.toFixed(2)}%${nimNote}${suffix}.`);
       } else {
-        bullets.push(`Sector NIM averaged ${avg.toFixed(2)}%${nimNote}.`);
+        bullets.push(`Sector Net Interest Margin (NIM) averaged ${avg.toFixed(2)}%${nimNote}.`);
       }
     }
 
@@ -1218,7 +1273,7 @@
     const roePairs = standalone.map(e => ({ e, v: lookup[e]?.[period]?.['Return on Equity'] })).filter(x => x.v != null);
     if (roePairs.length) {
       const top = roePairs.reduce((a, b) => a.v > b.v ? a : b);
-      bullets.push(`${top.e} posted the highest ROE at ${top.v.toFixed(1)}%.`);
+      bullets.push(`${top.e} posted the highest Return on Equity at ${top.v.toFixed(1)}%.`);
     }
 
     // CET1 direction
@@ -1234,9 +1289,9 @@
       }
       const total = improved + declined;
       if (total > 0) {
-        if (improved > declined) bullets.push(`CET1 ratios improved across ${improved} of ${total} banks quarter-on-quarter.`);
-        else if (declined > improved) bullets.push(`CET1 ratios declined across ${declined} of ${total} banks quarter-on-quarter.`);
-        else bullets.push(`CET1 ratios were mixed — ${improved} improved, ${declined} declined.`);
+        if (improved > declined) bullets.push(`CET1 capital ratios improved at ${improved} of ${total} banks quarter-on-quarter.`);
+        else if (declined > improved) bullets.push(`CET1 capital ratios declined at ${declined} of ${total} banks quarter-on-quarter.`);
+        else bullets.push(`CET1 capital ratios were mixed: ${improved} improved, ${declined} declined.`);
       }
     }
 
@@ -1251,7 +1306,7 @@
       const latest = ctiVals4[ctiVals4.length - 1];
       const oldest = ctiVals4[0];
       const trend = latest < oldest - 0.5 ? 'improving' : latest > oldest + 0.5 ? 'deteriorating' : 'stable';
-      bullets.push(`Cost-to-Income averaged ${latest.toFixed(1)}% — ${trend} over the past ${ctiVals4.length} quarters.`);
+      bullets.push(`Cost-to-Income Ratio averaged ${latest.toFixed(1)}%, ${trend} over the past ${ctiVals4.length} quarters.`);
     }
 
     // NPL trend
@@ -1261,8 +1316,8 @@
       const avg = nplVals.reduce((a, b) => a + b, 0) / nplVals.length;
       const prevAvg = nplPrev.reduce((a, b) => a + b, 0) / nplPrev.length;
       const bps = Math.round((avg - prevAvg) * 100);
-      const dir = bps > 0 ? `rose ${bps} bps` : bps < 0 ? `fell ${Math.abs(bps)} bps` : 'was flat';
-      bullets.push(`Sector average NPL Ratio ${dir} quarter-on-quarter to ${avg.toFixed(2)}%.`);
+      const dir = bps > 0 ? `rose ${bps} basis points` : bps < 0 ? `fell ${Math.abs(bps)} basis points` : 'was flat';
+      bullets.push(`The sector average Non-Performing Loan Ratio ${dir} quarter-on-quarter to ${avg.toFixed(2)}%.`);
     }
 
     bulletsEl.innerHTML = bullets.map(b => `<li style="padding:0.2rem 0;">▸ ${escHtml(b)}</li>`).join('');
@@ -1324,8 +1379,14 @@
       const note = document.createElement('div');
       note.id = 'indexed-mode-note';
       note.style.cssText = 'font-size:var(--text-xs);color:var(--text-muted);margin-bottom:0.75rem;padding:0.4rem 0.75rem;border-left:2px solid var(--teal);';
-      note.textContent = 'Indexed mode active — each bank\'s first available value = 100. Values are not comparable across metrics.';
+      note.textContent = 'Indexed mode active. Each bank\'s first available value = 100. Values are not comparable across metrics.';
       grid.parentElement.insertBefore(note, grid);
+    }
+
+    // Productivity tab uses its own data source and renderer
+    if (activeTab === 'productivity') {
+      renderProductivityCharts(grid, visible, visiblePeriods);
+      return;
     }
 
     const tabMetrics    = TABS[activeTab] || [];
@@ -1344,12 +1405,16 @@
       const metric = tabMetrics[i];
       const label  = METRIC_LABELS[metric] || metric;
       const addOcr = metric === 'NIM' && ocrRows.length > 0;
+      const mSlug  = METRIC_SLUGS[metric] || '';
+      const titleHtml = mSlug
+        ? `<a href="metric.html?m=${mSlug}" title="View ${escHtml(label)} detail">${escHtml(label)}</a>`
+        : escHtml(label);
 
       const card = document.createElement('div');
       card.className = 'chart-card';
       card.innerHTML = `
         <div class="chart-card-hd">
-          <h3>${escHtml(label)}</h3>
+          <h3>${titleHtml}</h3>
           <div class="chart-actions">
             <button class="chart-btn chart-info-btn" data-action="info" data-idx="${i}" title="Metric info">ℹ</button>
             <button class="chart-btn" data-action="download" data-idx="${i}" title="Download PNG">↓</button>
@@ -1357,7 +1422,7 @@
           </div>
         </div>
         <div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>
-        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a></div>`;
+        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a>${mSlug ? `<a href="metric.html?m=${mSlug}" class="chart-nav-link">metric detail →</a>` : ''}</div>`;
       grid.appendChild(card);
 
       card.addEventListener('click', e => {
@@ -1524,6 +1589,119 @@
     }
   }
 
+  /* ── Productivity charts ──────────────────────────────────────────────── */
+  function renderProductivityCharts(grid, visible, visiblePeriods) {
+    const metrics = TABS['productivity'] || [];
+
+    if (!productivityRows.length) {
+      grid.innerHTML = `<p style="color:var(--text-muted);padding:2rem 0;">
+        Productivity data not yet available. Run the <code>compute-productivity</code>
+        workflow, or run <code>python scripts/compute_productivity.py</code> locally
+        after <code>python scripts/process_data.py</code>.
+      </p>`;
+      return;
+    }
+
+    // Build lookup: entity → metric → period → { value, confidence }
+    const prodLookup = {};
+    for (const row of productivityRows) {
+      if (!visible.includes(row.entity)) continue;
+      if (!prodLookup[row.entity]) prodLookup[row.entity] = {};
+      if (!prodLookup[row.entity][row.metric]) prodLookup[row.entity][row.metric] = {};
+      prodLookup[row.entity][row.metric][row.period] = {
+        value: row.value,
+        confidence: row.confidence,
+      };
+    }
+
+    // Unique periods available in productivity data, filtered to visiblePeriods
+    const prodPeriods = [...new Set(productivityRows.map(r => r.period))].sort()
+      .filter(p => visiblePeriods.includes(p));
+
+    const CONFIDENCE_BADGE = { exact: '🔵', triangulated: '🟡', estimated: '🔴' };
+
+    metrics.forEach((metric, i) => {
+      const label = METRIC_LABELS[metric] || metric;
+      const card = document.createElement('div');
+      card.className = 'chart-card';
+      card.innerHTML = `
+        <div class="chart-card-hd">
+          <h3>${escHtml(label)}</h3>
+          <div class="chart-actions">
+            <button class="chart-btn" data-prod-download="${i}" title="Download PNG">↓</button>
+            <button class="chart-btn" data-prod-fullscreen="${i}" title="Fullscreen">⛶</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="prod-chart-${i}"></canvas></div>
+        <p style="font-size:var(--text-xs);color:var(--text-muted);margin:0.25rem 0 0;">
+          🔵 Exact &nbsp; 🟡 Triangulated &nbsp; 🔴 Estimated &nbsp;
+          <a href="methodology.html#productivity" style="color:var(--teal);">Methodology</a>
+        </p>`;
+      grid.appendChild(card);
+
+      const datasets = visible
+        .filter(e => prodLookup[e]?.[metric])
+        .map(entity => {
+          const points = prodPeriods.map(p => {
+            const entry = prodLookup[entity]?.[metric]?.[p];
+            return entry != null ? entry.value : null;
+          });
+          return {
+            label: entity,
+            data: points,
+            borderColor: bankColor(entity),
+            backgroundColor: bankColor(entity) + '33',
+            borderWidth: 2,
+            pointRadius: 3,
+            tension: 0.2,
+            spanGaps: true,
+          };
+        });
+
+      const ctx = document.getElementById(`prod-chart-${i}`);
+      const cfg = {
+        type: 'line',
+        data: { labels: prodPeriods, datasets },
+        options: {
+          responsive: true,
+          animation: false,
+          plugins: {
+            legend: { display: true, position: 'top',
+              labels: { color: '#999', font: { family: 'IBM Plex Mono', size: 11 } } },
+            tooltip: {
+              backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+              titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+              callbacks: {
+                label(ctx) {
+                  const entity = ctx.dataset.label;
+                  const period = ctx.label;
+                  const entry = prodLookup[entity]?.[metric]?.[period];
+                  const badge = entry ? (CONFIDENCE_BADGE[entry.confidence] || '') : '';
+                  const val = ctx.parsed.y != null
+                    ? new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD', maximumFractionDigits: 0 }).format(ctx.parsed.y)
+                    : '—';
+                  return ` ${entity}: ${val} ${badge}`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: { ticks: { color: '#666', font: { family: 'IBM Plex Mono', size: 10 } },
+                 grid: { color: '#252b33' } },
+            y: { ticks: { color: '#666', font: { family: 'IBM Plex Mono', size: 10 },
+                          callback: v => new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD',
+                                         maximumFractionDigits: 0, notation: 'compact' }).format(v) },
+                 grid: { color: '#252b33' } },
+          },
+        },
+      };
+
+      const chart = new Chart(ctx, cfg);
+      charts.push(chart);
+      chartMeta.push({ metric, label, chartConfig: cfg, tooltipCallback: null });
+    });
+  }
+
   /* ── Chart download ───────────────────────────────────────────────────── */
   function downloadChart(idx) {
     const isModal = (idx === -1);
@@ -1611,7 +1789,7 @@
     el.innerHTML = '<span class="nz-legend-hd">events:</span>' +
       visible.map(e => {
         const color = EVENT_COLORS[e.category] || '#888';
-        return `<span class="nz-legend-item"><span class="nz-legend-dash" style="background:${color}"></span><span>${escHtml(e.period)} — ${escHtml(e.label)}</span></span>`;
+        return `<span class="nz-legend-item"><span class="nz-legend-dash" style="background:${color}"></span><span>${escHtml(e.period)}: ${escHtml(e.label)}</span></span>`;
       }).join('');
   }
 
@@ -1628,8 +1806,10 @@
     if (info.good)       html += `<div class="popover-block"><div class="popover-lbl">what good looks like</div><div class="popover-val">${escHtml(info.good)}</div></div>`;
     if (!html)           html  = `<div class="popover-block"><div class="popover-val">No additional information available.</div></div>`;
     document.getElementById('pop-body').innerHTML = html;
-    const metricSlug = meta.metric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const metricSlug = METRIC_SLUGS[meta.metric] || meta.metric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     document.getElementById('pop-glossary-link').href = `glossary.html#${metricSlug}`;
+    const detailLink = document.getElementById('pop-detail-link');
+    if (detailLink) detailLink.href = `metric.html?m=${metricSlug}`;
     const pop = document.getElementById('metric-popover');
     pop.style.display = 'block';
     // Positioning strategy: popover appears below the trigger button. If there is
@@ -1815,7 +1995,7 @@
       const tr = document.createElement('tr');
       let cells = `<td scope="row"><div class="entity-cell">
         <span class="swatch" style="background:${bankColor(entity)}"></span>
-        <a href="#charts-section" class="entity-link" data-entity="${escHtml(entity)}" style="color:inherit;text-decoration:none;">${escHtml(entity)}</a>
+        <a href="#charts-section" class="entity-link" data-entity="${escHtml(entity)}" style="color:inherit;text-decoration:none;">${escHtml(entity)}</a><a href="bank.html?bank=${encodeURIComponent(entity)}" class="bank-detail-link" title="View ${escHtml(entity)} detail">↗</a>
       </div></td>`;
       KEY_METRICS.forEach((metric, colIdx) => {
         const val  = latest[metric];
@@ -1834,7 +2014,7 @@
           let anomalyHtml = '';
           const anom = anomalies[entity]?.[metric];
           if (anom) {
-            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            const title = `${val.toFixed(1)}: ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
             anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
           }
           cells += `<td class="${cls}">${val.toFixed(1)}${trend}${anomalyHtml}</td>`;
@@ -2009,7 +2189,7 @@
               label(ctx) {
                 if (ctx.dataset.type === 'line') return null;
                 const p = ctx.raw;
-                return ` ${p.entity} — ${p.period}: OCR ${p.deltaBps > 0 ? '+' : ''}${p.deltaBps}bps → NIM ${p.y > 0 ? '+' : ''}${p.y}bps`;
+                return ` ${p.entity} (${p.period}): OCR ${p.deltaBps > 0 ? '+' : ''}${p.deltaBps}bps, NIM ${p.y > 0 ? '+' : ''}${p.y}bps`;
               },
             },
           },
@@ -2072,7 +2252,7 @@
       const tr = document.createElement('tr');
       let cells = `<td scope="row"><div class="entity-cell">
         <span class="swatch" style="background:${bankColor(entity)}"></span>
-        ${escHtml(entity)}
+        ${escHtml(entity)}<a href="bank.html?bank=${encodeURIComponent(entity)}" class="bank-detail-link" title="View ${escHtml(entity)} detail">↗</a>
       </div></td>`;
       for (const m of activeMetrics) {
         const val = lookup[entity]?.[selPeriod]?.[m];
@@ -2091,7 +2271,7 @@
           let anomalyHtml = '';
           const anom = anomalies[entity]?.[m];
           if (anom) {
-            const title = `${val.toFixed(1)} — ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
+            const title = `${val.toFixed(1)}: ${anom.sigma}σ ${anom.direction} trailing 8Q average of ${anom.mean}`;
             anomalyHtml = `<span class="anomaly-flag" title="${escHtml(title)}" aria-label="${escHtml(title)}">⚠</span>`;
           }
           cells += `<td>${val.toFixed(1)}${anomalyHtml}</td>`;

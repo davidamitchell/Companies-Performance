@@ -1,0 +1,43 @@
+bank_id,period_end,active_customers,unique_customers,estimation_method,confidence
+ANZ,2018-09-30,2600000,2900000,market share proxy (NZBA + Stats NZ),estimated
+ANZ,2019-09-30,2650000,2950000,market share proxy (NZBA + Stats NZ),estimated
+ANZ,2020-09-30,2700000,3000000,market share proxy (NZBA + Stats NZ),estimated
+ANZ,2021-09-30,2750000,3050000,market share proxy (NZBA + Stats NZ),estimated
+ANZ,2022-09-30,2800000,3100000,market share proxy (NZBA + Stats NZ),estimated
+ANZ,2023-09-30,2800000,3100000,market share proxy (NZBA + Stats NZ),estimated
+ANZ,2024-09-30,2800000,3100000,market share proxy (NZBA + Stats NZ),estimated
+ASB,2018-06-30,2000000,2200000,market share proxy (NZBA + Stats NZ),estimated
+ASB,2019-06-30,2050000,2250000,market share proxy (NZBA + Stats NZ),estimated
+ASB,2020-06-30,2050000,2250000,market share proxy (NZBA + Stats NZ),estimated
+ASB,2021-06-30,2075000,2300000,market share proxy (NZBA + Stats NZ),estimated
+ASB,2022-06-30,2100000,2350000,market share proxy (NZBA + Stats NZ),estimated
+ASB,2023-06-30,2100000,2350000,market share proxy (NZBA + Stats NZ),estimated
+ASB,2024-06-30,2100000,2350000,market share proxy (NZBA + Stats NZ),estimated
+BNZ,2018-09-30,1600000,1800000,market share proxy (NZBA + Stats NZ),estimated
+BNZ,2019-09-30,1625000,1825000,market share proxy (NZBA + Stats NZ),estimated
+BNZ,2020-09-30,1650000,1850000,market share proxy (NZBA + Stats NZ),estimated
+BNZ,2021-09-30,1675000,1875000,market share proxy (NZBA + Stats NZ),estimated
+BNZ,2022-09-30,1700000,1900000,market share proxy (NZBA + Stats NZ),estimated
+BNZ,2023-09-30,1700000,1900000,market share proxy (NZBA + Stats NZ),estimated
+BNZ,2024-09-30,1700000,1900000,market share proxy (NZBA + Stats NZ),estimated
+Westpac,2018-09-30,1550000,1700000,market share proxy (NZBA + Stats NZ),estimated
+Westpac,2019-09-30,1550000,1700000,market share proxy (NZBA + Stats NZ),estimated
+Westpac,2020-09-30,1550000,1700000,market share proxy (NZBA + Stats NZ),estimated
+Westpac,2021-09-30,1575000,1725000,market share proxy (NZBA + Stats NZ),estimated
+Westpac,2022-09-30,1600000,1750000,market share proxy (NZBA + Stats NZ),estimated
+Westpac,2023-09-30,1600000,1750000,market share proxy (NZBA + Stats NZ),estimated
+Westpac,2024-09-30,1600000,1750000,market share proxy (NZBA + Stats NZ),estimated
+Kiwibank,2018-06-30,950000,1050000,Kiwibank Annual Report (>1M disclosed),triangulated
+Kiwibank,2019-06-30,980000,1080000,Kiwibank Annual Report (>1M disclosed),triangulated
+Kiwibank,2020-06-30,1000000,1100000,Kiwibank Annual Report (>1M disclosed),triangulated
+Kiwibank,2021-06-30,1000000,1100000,Kiwibank Annual Report (>1M disclosed),triangulated
+Kiwibank,2022-06-30,1050000,1150000,Kiwibank Annual Report (>1M disclosed),triangulated
+Kiwibank,2023-06-30,1050000,1150000,Kiwibank Annual Report (>1M disclosed),triangulated
+Kiwibank,2024-06-30,1050000,1150000,Kiwibank Annual Report (>1M disclosed),triangulated
+Rabobank,2018-12-31,45000,55000,Rabobank NZ agricultural focus; estimated from GDS,estimated
+Rabobank,2019-12-31,46000,56000,Rabobank NZ agricultural focus; estimated from GDS,estimated
+Rabobank,2020-12-31,46000,56000,Rabobank NZ agricultural focus; estimated from GDS,estimated
+Rabobank,2021-12-31,47000,58000,Rabobank NZ agricultural focus; estimated from GDS,estimated
+Rabobank,2022-12-31,48000,60000,Rabobank NZ agricultural focus; estimated from GDS,estimated
+Rabobank,2023-12-31,48000,60000,Rabobank NZ agricultural focus; estimated from GDS,estimated
+Rabobank,2024-12-31,48000,60000,Rabobank NZ agricultural focus; estimated from GDS,estimated

@@ -90,7 +90,7 @@
         <div class="schema-field">
           <span class="field-name">metric</span>
           <span class="field-type">string</span>
-          <span class="field-desc">Canonical metric name as defined in <a href="glossary.html" style="color:var(--teal);">glossary.md</a>. Must match exactly — no synonyms or abbreviations.</span>
+          <span class="field-desc">Canonical metric name as defined in <a href="glossary.html" style="color:var(--teal);">glossary.md</a>. Must match exactly. No synonyms or abbreviations.</span>
         </div>
         <div class="schema-field">
           <span class="field-name">value</span>
@@ -129,7 +129,7 @@
               Downloads raw source files from public URLs. No transformation is performed.
               Output is committed to <span class="code-ref">data/raw/</span>.<br>
               Script: <span class="code-ref">scripts/fetch_data.py</span><br>
-              Workflow: <span class="code-ref">.github/workflows/fetch-data.yml</span> — runs monthly on the 1st and on manual dispatch.
+              Workflow: <span class="code-ref">.github/workflows/fetch-data.yml</span>; runs monthly on the 1st and on manual dispatch.
             </div>
           </div>
         </div>
@@ -151,7 +151,7 @@
           <div class="step-body">
             <div class="step-title">Publish (Presentation)</div>
             <div class="step-desc">
-              The <span class="code-ref">docs/</span> directory is published via GitHub Pages. No build step — all files are static HTML, CSS, and JS.
+              The <span class="code-ref">docs/</span> directory is published via GitHub Pages. No build step. All files are static HTML, CSS, and JS.
               The frontend fetches <span class="code-ref">data/processed/metrics.json</span> at runtime and computes derived metrics client-side.
             </div>
           </div>
@@ -204,7 +204,7 @@
       <h2>disclosure pipeline</h2>
       <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;">
         In addition to the RBNZ XLSX pipeline, this repository includes a supplementary disclosure pipeline
-        that extracts financial metrics from bank General Disclosure Statements (GDS) — quarterly PDF reports
+        that extracts financial metrics from bank General Disclosure Statements (GDS): quarterly PDF reports
         published by each bank on their own website.
       </p>
       <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:1.7;max-width:720px;margin-top:0.75rem;">

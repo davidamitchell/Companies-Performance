@@ -1,0 +1,58 @@
+# Reference data configuration
+# Documents static reference files committed to data/reference/.
+# These files contain data that cannot be fetched automatically.
+
+reference_files:
+
+  employees:
+    path: data/reference/employees.csv
+    description: >
+      Annual FTE employee counts per bank. Used to compute per-employee
+      productivity metrics (Profit per Employee, Gross Income per Employee,
+      Expenses per Employee). Sourced primarily from KPMG Financial
+      Institutions Performance Survey (FIPS) and individual bank annual
+      reports. Update annually after new bank annual reports are published
+      (typically Oct-Nov for Sep year-end banks, Aug-Sep for Jun year-end).
+    schema:
+      bank_id: "Entity name matching the canonical entity field in metrics.csv (e.g. ANZ, ASB)"
+      period_end: "Fiscal year-end date in YYYY-MM-DD format"
+      fte: "Full-time equivalent employee count (integer)"
+      source: "Source document or survey name"
+      confidence: "Data quality: exact=published in annual report, triangulated=derived from multiple sources, estimated=modelled estimate"
+    update_cadence: annual
+    sources:
+      - "KPMG Financial Institutions Performance Survey (FIPS) — annual, published Mar-Apr"
+      - "Bank annual reports (linked from bank websites)"
+      - "NZBA benchmarks — aggregate sanity check"
+    fiscal_year_ends:
+      ANZ: "30 September"
+      ASB: "30 June"
+      BNZ: "30 September"
+      Westpac: "30 September"
+      Kiwibank: "30 June"
+      Rabobank: "31 December"
+
+  customers:
+    path: data/reference/customers.csv
+    description: >
+      Active retail customer estimates per bank. Used to compute per-customer
+      productivity metrics. No authoritative public source exists; values are
+      triangulated from disclosed figures, market share proxies, and the NZBA
+      Retail Banking Insights report. All values should be treated as estimates
+      unless a bank has explicitly disclosed the figure.
+    schema:
+      bank_id: "Entity name matching the canonical entity field in metrics.csv"
+      period_end: "Fiscal year-end date in YYYY-MM-DD format"
+      active_customers: "Active retail customers (transacted within ~90 days)"
+      unique_customers: "Unique customer relationships (broader than active)"
+      estimation_method: "Free-text description of how the estimate was derived"
+      confidence: "Data quality: exact, triangulated, or estimated"
+    update_cadence: annual
+    sources:
+      - "NZBA Retail Banking Insights — industry-level unique retail customers (~10M as at H2 2024)"
+      - "Individual bank annual reports and GDS (where customer counts are disclosed)"
+      - "Market share proxy: deposit market share × estimated total depositor base"
+    notes: >
+      Rabobank is primarily agricultural/business banking. Its retail customer
+      count is much smaller than the major retail banks. Per-customer metrics
+      for Rabobank should be interpreted as business-customer metrics.

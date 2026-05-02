@@ -1,15 +1,15 @@
 # Progress
 
 > Session logs and completion notes.
-Last updated: 2026-05-01 (Phase 19 UI layout items W-0079 through W-0088)
+Last updated: 2026-05-02 (W-0038, W-0039, W-0066, W-0072, W-0073)
 
 ---
 
 ## Current Status
 
-**Phase:** Phase 19 — UI Layout and Information Architecture (complete)
-**Active work:** Next — W-0032 (Capital headroom), W-0021 (Transparency pages), W-0047 (Auto-narrative), W-0062 (URL state sharing)
-**Next phase:** Phase 7 Insights / Phase 12 Pipeline Maturity
+**Phase:** Backlog clearance — navigation, drill-down pages, prose review
+**Active work:** Complete (W-0038, W-0039, W-0066, W-0072, W-0073 done)
+**Next phase:** Phase 18 (Labour/Productivity metrics — S-0012 spike)
 
 ---
 
@@ -27,7 +27,26 @@ Last updated: 2026-05-01 (Phase 19 UI layout items W-0079 through W-0088)
 
 ## Work Log
 
-### 2026-05-01 — Phase 19: UI Layout and Information Architecture (W-0079 through W-0088)
+### 2026-05-02 — Navigation drill-down and prose cleanup (W-0038, W-0039, W-0066, W-0072, W-0073)
+
+**Items completed:**
+
+- **W-0038**: Bank detail navigation wired. `docs/index.html` bank selector pills now include a `↗` link to `bank.html?bank=<name>`. Snapshot table and ranking table entity cells include the same link. `bank.html` (single parametric page) was already built with all required features: KPI strip, sparklines for all RBNZ metrics, peer group selector, and disclosure metrics table. Navigation is now connected from the main dashboard.
+
+- **W-0039**: Metric detail navigation wired. Chart card `<h3>` titles in `renderCharts()` are now `<a>` elements linking to `metric.html?m=<slug>`. A `METRIC_SLUGS` constant maps all 24 metric names to their URL slugs. A "metric detail →" link was also added to the chart nav bar and to the metric info popover footer. `metric.html` (single parametric page) was already built with ranking table, history chart, and definition card.
+
+- **W-0066**: Peer group selector already present in `bank.html` — marked done. The selector provides "Big 4", "Top 6", "All standalone", and a custom multi-select. Peer group state persists in `localStorage["selectedBanks"]` on the bank detail page.
+
+- **W-0072**: Plain-language review of auto-narrative panel. Abbreviations expanded on first use: "NIM" → "Net Interest Margin (NIM)", "ROE" → "Return on Equity", "NPL Ratio" → "Non-Performing Loan Ratio". "bps" expanded to "basis points" throughout. Output sentences read at Year 10 level.
+
+- **W-0073**: AI-slop removal from user-facing prose. Em dashes removed in `docs/glossary.html`, `docs/methodology.html`, `docs/lineage.html`, and `docs/index.html` narrative templates. Replaced with punctuation matching the grammatical role (period, semicolon, colon, comma). Metric name separators changed from `Name — Abbrev` to `Name (Abbrev, unit)` in methodology page. No passive constructions, AI vocabulary words, or Wh- sentence openers were found.
+
+**Mini-retro:**
+- Navigation was the missing piece between index.html and the already-built bank/metric detail pages. The parametric approach (`bank.html?bank=ANZ`) satisfies the static-site requirement without creating 26 near-identical files.
+- W-0072 and W-0073 were prose-only changes — no Python tests needed. All 198 existing tests still pass.
+- Root cause for em dashes: initial content was generated without a style constraint against them. Adding the `remove-ai-slop` checklist to the contribution guide would prevent recurrence.
+
+
 
 **Items completed:**
 
@@ -430,3 +449,43 @@ Created `docs/snapshot.html` — 3-column bar-chart grid (one chart per KEY_METR
 
 ### W-0065 — Anomaly Flags
 Added `computeAnomalies()` which computes trailing 8Q mean and stddev per bank/metric and flags values > 2σ. Anomaly ⚠ icons (amber, with tooltip showing σ distance and trailing average) applied to snapshot table and ranking table value view. CSS `.anomaly-flag` added.
+
+---
+
+## 2026-05-02 — Productivity metrics pipeline (W-0075 through W-0078)
+
+### What changed
+
+Implemented the full Phase 18 Labour and Customer Productivity Metrics chain.
+
+**Reference data (S-0012/S-0013/W-0075):** Created `data/reference/employees.csv` and `data/reference/customers.csv` with annual FTE and active customer estimates for ANZ, ASB, BNZ, Westpac, Kiwibank, and Rabobank from 2018 to 2024. FTE data sourced from KPMG FIPS (exact for 2022/2023) and triangulated from bank annual reports for earlier years. Customer data estimated from market share proxies and NZBA Retail Banking Insights. Confidence field (`exact` / `triangulated` / `estimated`) propagated through to outputs. Schema documented in `config/reference.yaml`.
+
+**Processing module (W-0076):** `src/processing/compute_productivity.py` computes six metrics:
+- Profit per Employee (NZD/FTE, annualised)
+- Gross Income per Employee (NZD/FTE, annualised)
+- Expenses per Employee (NZD/FTE, annualised)
+- Profit per Customer (NZD, annualised)
+- Gross Income per Customer (NZD, annualised)
+- Expenses per Customer (NZD, annualised)
+
+Quarterly NZDm P&L values are annualised ×4 before dividing by the reference denominator. Reference lookup uses the most recent annual data point at or before the quarter end date — this correctly handles mid-year quarters for Sep-year-end banks (e.g. 2023-Q1 uses the 2022-09-30 FTE figure). Group entities are excluded. Missing denominators produce WARNING logs and no output row. `scripts/compute_productivity.py` entry point writes `data/processed/productivity.csv` and `docs/data/processed/productivity.json`. 20 tests in `tests/test_compute_productivity.py`.
+
+**Workflow (W-0077):** `.github/workflows/compute-productivity.yml` runs after Process Data and commits output files idempotently using `git diff --cached --quiet` guard.
+
+**Frontend (W-0078):** `Productivity` tab added to `docs/index.html`. Six line charts rendered from `productivity.json` via `renderProductivityCharts()`. NZD values formatted with `Intl.NumberFormat`. Confidence badges (🔵 🟡 🔴) appear in tooltips. If `productivity.json` is absent, the tab shows a plain-language message directing the user to run the workflow. Graceful degradation: banks without reference data are silently omitted from that metric's chart.
+
+### Why
+
+User requested: "Keep going — I want those efficiency metrics."
+
+### Files changed
+
+- `data/reference/employees.csv` (new)
+- `data/reference/customers.csv` (new)
+- `config/reference.yaml` (new)
+- `src/processing/compute_productivity.py` (new)
+- `scripts/compute_productivity.py` (new)
+- `tests/test_compute_productivity.py` (new, 20 tests)
+- `.github/workflows/compute-productivity.yml` (new)
+- `docs/index.html` (Productivity tab + PRODUCTIVITY_URL + metric labels + state var)
+- `CHANGELOG.md`, `BACKLOG.md`, `PROGRESS.md`, `learnings.md`
