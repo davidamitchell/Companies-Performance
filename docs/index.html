@@ -626,6 +626,9 @@
   for (const pillar of STRATEGY_PILLARS) {
     for (const m of pillar.metrics) PILLAR_BY_METRIC[m.name] = pillar.name;
   }
+  // Note: pillar metrics intentionally include metrics not present in the regular
+  // chart tabs (e.g. 'Net Loans and Advances', 'Deposits') — those metrics are only
+  // shown in the scorecard view, not in chart tabs. KEY_METRICS only covers tab metrics.
 
   const KEY_METRICS = Object.values(TABS).filter(Boolean).flat();
 
@@ -2486,7 +2489,8 @@
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     // Period is already 'YYYY-QN' format (e.g. '2024-Q3') — use directly for the filename.
-    const q = latestPeriod || 'latest';
+    // Fallback 'no-data' is used only when no data has loaded (latestPeriod is empty string).
+    const q = latestPeriod || 'no-data';
     a.download = `strategy-scorecard-${q}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);

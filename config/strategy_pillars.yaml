@@ -4,8 +4,15 @@
 #
 # Canonical metric names must match glossary.md exactly.
 # This file is the authoritative source; the JS constant STRATEGY_PILLARS in
-# docs/index.html is inlined from this file for static-site delivery and must
-# be kept in sync when this file changes.
+# docs/index.html is inlined from this file for static-site delivery (the site
+# has no build step and cannot parse YAML at runtime).
+#
+# Sync procedure: when you change this file, update the STRATEGY_PILLARS constant
+# in docs/index.html to match. The JS structure mirrors this YAML:
+#   YAML 'pillars[].name'              → JS pillar.name
+#   YAML 'pillars[].description'       → JS pillar.description (multiline collapsed to string)
+#   YAML 'pillars[].metrics[].name'    → JS metric.name
+#   YAML 'pillars[].metrics[].leading_or_lagging' → JS metric.leading_or_lagging
 
 pillars:
   - name: Customer
