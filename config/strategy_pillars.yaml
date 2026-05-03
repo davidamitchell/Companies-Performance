@@ -4,86 +4,95 @@
 #   leading  — forward-looking indicator (predicts future performance)
 #   lagging  — backward-looking result (measures past performance)
 #
-# This file is consumed by docs/index.html (inlined as STRATEGY_PILLARS const).
+# This file is the authoritative source; the JS constant STRATEGY_PILLARS in
+# docs/index.html is inlined from this file for static-site delivery (the site
+# has no build step and cannot parse YAML at runtime).
+#
+# Sync procedure: when you change this file, update the STRATEGY_PILLARS constant
+# in docs/index.html to match. The JS structure mirrors this YAML:
+#   YAML 'pillars[].name'              → JS pillar.name
+#   YAML 'pillars[].description'       → JS pillar.description (multiline collapsed to string)
+#   YAML 'pillars[].metrics[].name'    → JS metric.name
+#   YAML 'pillars[].metrics[].leading_or_lagging' → JS metric.leading_or_lagging
 
 pillars:
-  Customer:
+  - name: Customer
     description: >
-      Metrics reflecting the quality of customer outcomes and the bank's
-      ability to serve customers reliably over the long term.
+      Metrics reflecting the quality of customer outcomes and the bank's ability
+      to serve customers reliably over the long term.
     metrics:
-      - name: "NPL Ratio"
-        leading_or_lagging: "lagging"
-      - name: "Core Funding Ratio (CFR)"
-        leading_or_lagging: "leading"
-      - name: "Net Loans and Advances"
-        leading_or_lagging: "lagging"
-      - name: "Deposits"
-        leading_or_lagging: "leading"
-      - name: "Gross Income per Customer"
-        leading_or_lagging: "lagging"
+      - name: NPL Ratio
+        leading_or_lagging: lagging
+      - name: Core Funding Ratio (CFR)
+        leading_or_lagging: leading
+      - name: Net Loans and Advances
+        leading_or_lagging: lagging
+      - name: Deposits
+        leading_or_lagging: leading
+      - name: Gross Income per Customer
+        leading_or_lagging: lagging
 
-  Efficiency:
+  - name: Efficiency
     description: >
-      Metrics measuring how effectively the bank translates revenue into
-      profit by managing its operating cost base.
+      Metrics measuring how effectively the bank translates revenue into profit
+      by managing its operating cost base.
     metrics:
-      - name: "Cost to Income Ratio"
-        leading_or_lagging: "lagging"
-      - name: "Operating Expenses"
-        leading_or_lagging: "lagging"
-      - name: "Opex Intensity"
-        leading_or_lagging: "lagging"
-      - name: "Expenses per Employee"
-        leading_or_lagging: "lagging"
-      - name: "Pre-Provision Profit"
-        leading_or_lagging: "lagging"
+      - name: Cost to Income Ratio
+        leading_or_lagging: lagging
+      - name: Operating Expenses
+        leading_or_lagging: lagging
+      - name: Opex Intensity
+        leading_or_lagging: lagging
+      - name: Expenses per Employee
+        leading_or_lagging: lagging
+      - name: Pre-Provision Profit
+        leading_or_lagging: lagging
 
-  Resilience:
+  - name: Resilience
     description: >
-      Metrics measuring balance sheet strength, capital adequacy, and the
-      bank's capacity to absorb shocks.
+      Metrics measuring balance sheet strength, capital adequacy, and the bank's
+      capacity to absorb shocks.
     metrics:
-      - name: "CET1 Ratio"
-        leading_or_lagging: "leading"
-      - name: "Capital Headroom"
-        leading_or_lagging: "leading"
-      - name: "Total Capital Ratio"
-        leading_or_lagging: "leading"
-      - name: "Provisioning Coverage"
-        leading_or_lagging: "leading"
-      - name: "Core Funding Ratio (CFR)"
-        leading_or_lagging: "leading"
-      - name: "NPL Ratio"
-        leading_or_lagging: "lagging"
+      - name: CET1 Ratio
+        leading_or_lagging: leading
+      - name: Capital Headroom
+        leading_or_lagging: leading
+      - name: Total Capital Ratio
+        leading_or_lagging: leading
+      - name: Provisioning Coverage
+        leading_or_lagging: leading
+      - name: Core Funding Ratio (CFR)
+        leading_or_lagging: leading
+      - name: NPL Ratio
+        leading_or_lagging: lagging
 
-  Innovation:
+  - name: Innovation
     description: >
       Metrics reflecting the bank's success in diversifying revenue beyond
       traditional interest income and growing non-interest income streams.
     metrics:
-      - name: "Non-Interest Income Share"
-        leading_or_lagging: "lagging"
-      - name: "Fees and Commission Income"
-        leading_or_lagging: "lagging"
-      - name: "Trading and Hedging Gains"
-        leading_or_lagging: "lagging"
-      - name: "Return on Assets"
-        leading_or_lagging: "lagging"
+      - name: Non-Interest Income Share
+        leading_or_lagging: lagging
+      - name: Fees and Commission Income
+        leading_or_lagging: lagging
+      - name: Trading and Hedging Gains
+        leading_or_lagging: lagging
+      - name: Return on Assets
+        leading_or_lagging: lagging
 
-  Returns:
+  - name: Returns
     description: >
       Metrics measuring value creation for shareholders and capital efficiency.
     metrics:
-      - name: "Return on Equity"
-        leading_or_lagging: "lagging"
-      - name: "Return on Assets"
-        leading_or_lagging: "lagging"
-      - name: "NIM"
-        leading_or_lagging: "lagging"
-      - name: "RORWA"
-        leading_or_lagging: "lagging"
-      - name: "Profit After Tax"
-        leading_or_lagging: "lagging"
-      - name: "Profit per Employee"
-        leading_or_lagging: "lagging"
+      - name: Return on Equity
+        leading_or_lagging: lagging
+      - name: Return on Assets
+        leading_or_lagging: lagging
+      - name: NIM
+        leading_or_lagging: lagging
+      - name: RORWA
+        leading_or_lagging: lagging
+      - name: Profit After Tax
+        leading_or_lagging: lagging
+      - name: Profit per Employee
+        leading_or_lagging: lagging

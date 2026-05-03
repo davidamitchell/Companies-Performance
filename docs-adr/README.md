@@ -18,6 +18,7 @@ Format: [MADR (Markdown Architectural Decision Records)](https://adr.github.io/m
 | [0004](0004-rbnz-data-contract.md) | RBNZ data contract — canonical schema and XLSX mapping | Accepted | 2026-04-28 |
 | [ADR-0005](0005-pdf-extraction-approach.md) | PDF Disclosure Extraction Strategy | Accepted | 2026-05-01 |
 | [ADR-0006](0006-agent-instructions-governance.md) | Agent Instructions Format and Governance Standards | Accepted | 2026-05-02 |
+| [ADR-0007](0007-scorecard-per-bank-comparison.md) | Strategy Scorecard — Per-Bank Comparison over Sector Average | Accepted | 2026-05-03 |
 
 ---
 

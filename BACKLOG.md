@@ -1934,7 +1934,7 @@ NIM, funding costs, and liquidity spreads are heavily driven by the OCR cycle. W
 
 status: done
 created: 2026-05-02
-updated: 2026-05-02
+updated: 2026-05-03
 
 ### Outcome
 
@@ -1950,7 +1950,7 @@ Strategy scorecards that map financial metrics to purpose pillars are standard i
 
 status: done
 created: 2026-05-02
-updated: 2026-05-02
+updated: 2026-05-03
 
 ### Outcome
 

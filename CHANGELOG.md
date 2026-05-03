@@ -15,11 +15,12 @@ New entries go under `## [Unreleased]` at the top. On release, move them to a da
 - **W-0093**: Collapsible "Golden Metrics" sparkline panel added to `docs/index.html`. Renders 8-quarter sparklines for CET1, ROE, CTI, NIM, NPL Ratio, and CFR.
 - **W-0094**: "Correlations" tab added to `docs/index.html`. Renders a Pearson correlation heatmap across selected banks and periods. Highly-correlated pairs (|r| > 0.85) listed below the matrix.
 - **W-0095**: Collapsible "Market Context" section added to `docs/index.html`. User-selected metric vs OCR overlay (OCR on right Y-axis). Accessible from Analysis ▾ nav dropdown.
-- **W-0096**: `config/strategy_pillars.yaml` (new file) defines five strategy pillars: Customer, Efficiency, Resilience, Innovation, Returns. "Strategy Scorecard" tab added to `docs/index.html` rendering pillar cards with sector-average values, QoQ trend arrows, peer percentile bars, and leading/lagging badges.
-- **W-0097**: Export CSV and Print buttons added to Strategy Scorecard tab. CSV: `strategy-scorecard-{period}.csv` with bank|pillar|metric|latest_value|prior_value|trend|leading_or_lagging. Print: `window.print()` with a print stylesheet that hides nav/controls/tabs.
+- **W-0096**: `config/strategy_pillars.yaml` (new file) defines five strategy pillars: Customer, Efficiency, Resilience, Innovation, Returns. "Strategy Scorecard" tab added to `docs/index.html`. Per-bank comparison mode: when multiple banks are selected, each metric shows one row per bank with individual value, QoQ trend arrow, and colour-coded proportional bar — no averaging across organisations. Single-bank mode shows peer-percentile bar relative to all banks in the dataset. Design decision documented in ADR-0007.
+- **W-0097**: Export CSV and Print buttons added to Strategy Scorecard tab. CSV: `strategy-scorecard-{period}.csv` with bank|pillar|metric|latest_value|prior_value|trend|leading_or_lagging (per-bank rows). Print: `window.print()` with a print stylesheet that hides nav/controls/tabs.
 - **W-0098**: "Dimensionality Reduction" tab added to `docs/index.html`. Vanilla-JS power-iteration PCA with scree plot and 2D PC1 vs PC2 projection. Respects metric group filter.
 - **W-0099**: Chart tooltips in `docs/index.html` extended with controllability and pillar context. `docs/glossary.html` gains controllability (colour-coded) and pillar badges on each metric term via a JS injection.
 - **W-0100**: "Analysis ▾" `<details>/<summary>` dropdown added to site nav on `docs/index.html`. Links to Correlations, Dimensionality Reduction, Strategy Scorecard, and Market Context.
+- ADR-0007: Strategy Scorecard — Per-Bank Comparison over Sector Average.
 
 ### Changed
 - `backlog.md` renamed to `BACKLOG.md` and `progress.md` renamed to `PROGRESS.md` to align with `davidamitchell/Research` conventions (ADR-0002).

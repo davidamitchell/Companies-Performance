@@ -354,20 +354,32 @@
     .corr-high { outline: 2px solid var(--teal); font-weight: 700; }
 
     /* ── Strategy Scorecard (W-0096) ────────────────────────────────────── */
-    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; margin-top: 1rem; }
     .pillar-card { background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.15rem; }
     .pillar-card-title { font-size: var(--text-xs); font-weight: 600; color: var(--teal); letter-spacing: 0.08em; text-transform: lowercase; margin-bottom: 0.3rem; }
     .pillar-card-desc  { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.55; }
+    /* Single-bank metric row */
     .pillar-metric-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem; font-size: var(--text-xs); }
-    .pillar-metric-name { flex: 1; color: var(--text-muted); }
-    .pillar-trend { font-size: 0.65rem; }
+    .pillar-metric-name { flex: 1; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pillar-trend { font-size: 0.65rem; flex-shrink: 0; }
     .pillar-bar-wrap { width: 80px; height: 6px; background: var(--border); position: relative; flex-shrink: 0; }
     .pillar-bar      { height: 6px; background: var(--teal); position: absolute; left: 0; top: 0; }
+    /* Multi-bank metric section */
+    .pillar-metric-section { margin-bottom: 0.65rem; }
+    .pillar-metric-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem; font-size: var(--text-xs); border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; }
+    .pillar-metric-header-name { flex: 1; color: var(--text); font-weight: 500; }
+    .pillar-bank-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.15rem; font-size: var(--text-xs); padding-left: 0.5rem; }
+    .pillar-bank-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .pillar-bank-name { min-width: 56px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pillar-bank-val { min-width: 38px; text-align: right; color: var(--text); flex-shrink: 0; }
+    .pillar-bar-wrap-sm { width: 60px; height: 5px; background: var(--border); position: relative; flex-shrink: 0; }
+    .pillar-bar-sm { height: 5px; position: absolute; left: 0; top: 0; }
     .lag-badge {
       font-size: 9px; padding: 1px 4px; letter-spacing: 0.04em;
-      border: 1px solid var(--border); color: var(--text-muted);
+      border: 1px solid var(--border); color: var(--text-muted); flex-shrink: 0;
     }
     .scorecard-actions { margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .scorecard-mode-note { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 0.75rem; padding: 0.35rem 0.65rem; border-left: 2px solid var(--teal); }
 
     /* ── Market Context section (W-0095) ────────────────────────────────── */
     .market-context-toggle {
@@ -756,7 +768,9 @@
     ],
   };
 
-  /* ── Strategy pillars (from config/strategy_pillars.yaml) ───────────────── */
+  /* ── Strategy pillars (inlined from config/strategy_pillars.yaml) ────── */
+  // If you update strategy_pillars.yaml, update this constant too. See the YAML
+  // file's "Sync procedure" comment for the field mapping.
   const STRATEGY_PILLARS = [
     {
       name: 'Customer',
@@ -816,10 +830,12 @@
     },
   ];
 
-  /* Build pillar lookup: metric name → pillar name */
-  const METRIC_PILLAR = {};
+  /* Build reverse lookup: metric name → pillar name (e.g. 'NIM' → 'Returns').
+     Note: pillar metrics intentionally include metrics not in regular chart tabs
+     (e.g. 'Net Loans and Advances', 'Deposits'). KEY_METRICS only covers tab metrics. */
+  const PILLAR_BY_METRIC = {};
   for (const pillar of STRATEGY_PILLARS) {
-    for (const m of pillar.metrics) METRIC_PILLAR[m.name] = pillar.name;
+    for (const m of pillar.metrics) PILLAR_BY_METRIC[m.name] = pillar.name;
   }
 
   /* ── Golden metrics config (W-0093) ─────────────────────────────────────── */
@@ -1882,7 +1898,7 @@
         let line = ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`;
         // W-0099: append controllability and pillar context
         const ctrl   = CONTROLLABILITY[metric];
-        const pillar = METRIC_PILLAR[metric];
+        const pillar = PILLAR_BY_METRIC[metric];
         if (ctrl || pillar) {
           const parts = [];
           if (ctrl)   parts.push(`controllability: ${ctrl}`);
@@ -2979,6 +2995,8 @@
   }
 
   /* ── Strategy Scorecard tab (W-0096 / W-0097) ─────────────────────────── */
+  // STRATEGY_PILLARS is inlined from config/strategy_pillars.yaml for static-site delivery.
+  // If you update strategy_pillars.yaml, update the STRATEGY_PILLARS constant above too.
   function renderScorecard(lookup, visible, visiblePeriods) {
     charts.forEach(c => c.destroy());
     charts = [];
@@ -2993,6 +3011,8 @@
       return;
     }
 
+    const multiBank = visible.length > 1;
+
     // Export button bar
     const actions = document.createElement('div');
     actions.className = 'scorecard-actions';
@@ -3000,6 +3020,14 @@
       <button class="range-btn" id="sc-export-csv">↓ Export CSV</button>
       <button class="range-btn" id="sc-print">🖨 Print / Save as PDF</button>`;
     grid.appendChild(actions);
+
+    // Mode note for multi-bank
+    if (multiBank) {
+      const note = document.createElement('div');
+      note.className = 'scorecard-mode-note';
+      note.textContent = `Showing individual values for ${visible.length} selected banks. Bars show position relative to the min–max range across selected banks.`;
+      grid.appendChild(note);
+    }
 
     // Pillar cards
     const pillarGrid = document.createElement('div');
@@ -3009,48 +3037,111 @@
     for (const pillar of STRATEGY_PILLARS) {
       const card = document.createElement('div');
       card.className = 'pillar-card';
-      let rows = '';
-      for (const { name: metric, leading_or_lagging: lag } of pillar.metrics) {
-        const vals = visible.map(e => lookup[e]?.[latestPeriod]?.[metric]).filter(v => v != null);
-        const prevVals = prevPeriod ? visible.map(e => lookup[e]?.[prevPeriod]?.[metric]).filter(v => v != null) : [];
-        if (!vals.length) continue;
-        const avg     = vals.reduce((a, b) => a + b, 0) / vals.length;
-        const prevAvg = prevVals.length ? prevVals.reduce((a, b) => a + b, 0) / prevVals.length : null;
-        const trend   = prevAvg == null ? '—'
-                      : avg > prevAvg + 0.01 ? '▲'
-                      : avg < prevAvg - 0.01 ? '▼'
-                      : '→';
-        const trendColor = trend === '▲'
-          ? (HIGHER_IS_BETTER.has(metric) ? 'var(--teal)' : '#e05252')
-          : trend === '▼'
-          ? (HIGHER_IS_BETTER.has(metric) ? '#e05252' : 'var(--teal)')
-          : 'var(--text-muted)';
 
-        // Peer bar: position relative to visible-bank range
-        const allVals = visible.map(e => lookup[e]?.[latestPeriod]?.[metric]).filter(v => v != null);
-        const min = allVals.length ? Math.min(...allVals) : 0;
-        const max = allVals.length ? Math.max(...allVals) : 1;
-        const pct = max > min ? Math.round(((avg - min) / (max - min)) * 100) : 50;
-
-        rows += `<div class="pillar-metric-row">
-          <span class="pillar-metric-name">${escHtml(metric)}</span>
-          <span class="pillar-trend" style="color:${trendColor}">${trend}</span>
-          <span style="font-size:var(--text-xs);color:var(--text-muted);min-width:38px;text-align:right;">${avg.toFixed(1)}</span>
-          <div class="pillar-bar-wrap"><div class="pillar-bar" style="width:${pct}%;"></div></div>
-          <span class="lag-badge">${lag === 'leading' ? 'lead' : 'lag'}</span>
-        </div>`;
-      }
-      if (!rows) continue;
-      card.innerHTML = `
+      let innerHtml = `
         <div class="pillar-card-title">${escHtml(pillar.name)}</div>
-        <div class="pillar-card-desc">${escHtml(pillar.description)}</div>
-        ${rows}`;
+        <div class="pillar-card-desc">${escHtml(pillar.description)}</div>`;
+
+      let hasAnyData = false;
+
+      for (const { name: metric, leading_or_lagging: lag } of pillar.metrics) {
+        const lagBadge = `<span class="lag-badge">${lag === 'leading' ? 'lead' : 'lag'}</span>`;
+
+        if (multiBank) {
+          // ── Multi-bank view: one row per bank per metric ─────────────────
+          const bankVals = visible.map(e => ({
+            entity: e,
+            val:  lookup[e]?.[latestPeriod]?.[metric],
+            prev: prevPeriod ? lookup[e]?.[prevPeriod]?.[metric] : null,
+          }));
+          const defined = bankVals.filter(b => b.val != null);
+          if (!defined.length) continue;
+          hasAnyData = true;
+
+          const allVals = defined.map(b => b.val);
+          const rangeMin = Math.min(...allVals);
+          const rangeMax = Math.max(...allVals);
+
+          let bankRows = '';
+          for (const { entity, val, prev } of bankVals) {
+            if (val == null) continue;
+            const trend = prev == null ? '—'
+              : val > prev + 0.005 ? '▲'
+              : val < prev - 0.005 ? '▼'
+              : '→';
+            const trendColor = trend === '▲'
+              ? (HIGHER_IS_BETTER.has(metric) ? 'var(--teal)' : '#e05252')
+              : trend === '▼'
+              ? (HIGHER_IS_BETTER.has(metric) ? '#e05252' : 'var(--teal)')
+              : 'var(--text-muted)';
+            const pct = rangeMax > rangeMin
+              ? Math.round(((val - rangeMin) / (rangeMax - rangeMin)) * 100)
+              : 50;
+            const color = bankColor(entity);
+            bankRows += `
+              <div class="pillar-bank-row">
+                <span class="pillar-bank-swatch" style="background:${color};"></span>
+                <span class="pillar-bank-name">${escHtml(entity)}</span>
+                <span class="pillar-bank-val">${val.toFixed(1)}</span>
+                <span class="pillar-trend" style="color:${trendColor}">${trend}</span>
+                <div class="pillar-bar-wrap-sm"><div class="pillar-bar-sm" style="width:${pct}%;background:${color};"></div></div>
+              </div>`;
+          }
+
+          innerHtml += `
+            <div class="pillar-metric-section">
+              <div class="pillar-metric-header">
+                <span class="pillar-metric-header-name">${escHtml(metric)}</span>
+                ${lagBadge}
+              </div>
+              ${bankRows}
+            </div>`;
+
+        } else {
+          // ── Single-bank view: value + trend + peer percentile bar ────────
+          const entity = visible[0];
+          const val  = lookup[entity]?.[latestPeriod]?.[metric];
+          const prev = prevPeriod ? lookup[entity]?.[prevPeriod]?.[metric] : null;
+          if (val == null) continue;
+          hasAnyData = true;
+
+          const trend = prev == null ? '—'
+            : val > prev + 0.005 ? '▲'
+            : val < prev - 0.005 ? '▼'
+            : '→';
+          const trendColor = trend === '▲'
+            ? (HIGHER_IS_BETTER.has(metric) ? 'var(--teal)' : '#e05252')
+            : trend === '▼'
+            ? (HIGHER_IS_BETTER.has(metric) ? '#e05252' : 'var(--teal)')
+            : 'var(--text-muted)';
+
+          // Peer bar: position relative to ALL entities in the dataset
+          const peerVals = allEntities
+            .map(e => lookup[e]?.[latestPeriod]?.[metric])
+            .filter(v => v != null);
+          const pMin = peerVals.length ? Math.min(...peerVals) : val;
+          const pMax = peerVals.length ? Math.max(...peerVals) : val;
+          const pct  = pMax > pMin ? Math.round(((val - pMin) / (pMax - pMin)) * 100) : 50;
+
+          innerHtml += `
+            <div class="pillar-metric-row">
+              <span class="pillar-metric-name">${escHtml(metric)}</span>
+              <span class="pillar-trend" style="color:${trendColor}">${trend}</span>
+              <span style="font-size:var(--text-xs);color:var(--text-muted);min-width:38px;text-align:right;">${val.toFixed(1)}</span>
+              <div class="pillar-bar-wrap"><div class="pillar-bar" style="width:${pct}%;"></div></div>
+              ${lagBadge}
+            </div>`;
+        }
+      }
+
+      if (!hasAnyData) continue;
+      card.innerHTML = innerHtml;
       pillarGrid.appendChild(card);
     }
 
     // Wire export buttons
-    document.getElementById('sc-export-csv')?.addEventListener('click', () => exportScorecardCsv(lookup, visible));
-    document.getElementById('sc-print')?.addEventListener('click', () => window.print());
+    grid.querySelector('#sc-export-csv')?.addEventListener('click', () => exportScorecardCsv(lookup, visible));
+    grid.querySelector('#sc-print')?.addEventListener('click', () => window.print());
   }
 
   function exportScorecardCsv(lookup, visible) {
@@ -3063,7 +3154,7 @@
           const cur  = lookup[entity]?.[latestPeriod]?.[metric];
           const prev = prevPeriod ? lookup[entity]?.[prevPeriod]?.[metric] : null;
           if (cur == null) continue;
-          const trend = prev == null ? '' : cur > prev + 0.01 ? '▲' : cur < prev - 0.01 ? '▼' : '→';
+          const trend = prev == null ? '' : cur > prev + 0.005 ? '▲' : cur < prev - 0.005 ? '▼' : '→';
           const safe = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
           rows.push(`${safe(entity)},${safe(pillar.name)},${safe(metric)},${cur},${prev ?? ''},${trend},${lag}`);
         }
