@@ -621,10 +621,10 @@
     },
   ];
 
-  /* Build reverse lookup: metric name → pillar name */
-  const METRIC_PILLAR = {};
+  /* Build reverse lookup: metric name → pillar name (e.g. 'NIM' → 'Returns') */
+  const PILLAR_BY_METRIC = {};
   for (const pillar of STRATEGY_PILLARS) {
-    for (const m of pillar.metrics) METRIC_PILLAR[m.name] = pillar.name;
+    for (const m of pillar.metrics) PILLAR_BY_METRIC[m.name] = pillar.name;
   }
 
   const KEY_METRICS = Object.values(TABS).filter(Boolean).flat();
@@ -2317,6 +2317,10 @@
   }
 
   /* ── Strategy Scorecard (W-0096 / W-0097) ──────────────────────────────── */
+  // STRATEGY_PILLARS is inlined from config/strategy_pillars.yaml for static-site delivery
+  // (the site has no build step and cannot parse YAML). If you update strategy_pillars.yaml,
+  // update this constant too. They are authoritative together; the YAML is the human-editable
+  // source and the JS constant is the runtime copy.
   function renderScorecard(lookup, visible, grid) {
     const latestPeriod = allPeriods[allPeriods.length - 1];
     const prevPeriod   = allPeriods.length >= 2 ? allPeriods[allPeriods.length - 2] : null;
@@ -2481,7 +2485,8 @@
     const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    const q = latestPeriod ? latestPeriod.replace('-', '-Q').replace(/Q(\d)/, 'Q$1') : 'latest';
+    // Period is already 'YYYY-QN' format (e.g. '2024-Q3') — use directly for the filename.
+    const q = latestPeriod || 'latest';
     a.download = `strategy-scorecard-${q}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
