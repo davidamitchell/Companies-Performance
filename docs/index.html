@@ -203,6 +203,15 @@
       .chart-grid { grid-template-columns: 1fr; }
     }
 
+    @media print {
+      .site-nav, .sticky-controls, #kpi-summary, #golden-metrics-section,
+      #narrative-section, #snapshot-section, #ranking-section,
+      #market-context-section, .tab-bar, .chart-nav,
+      .scorecard-actions, footer { display: none !important; }
+      #charts-section { display: block !important; }
+      .pillar-grid { grid-template-columns: 1fr 1fr; }
+    }
+
     /* ── Controls bar ────────────────────────────────────────────────────── */
     .sticky-controls {
       background: var(--bg);
@@ -317,6 +326,33 @@
     /* Anomaly flag */
     .anomaly-flag { color: #f0a500; font-size: 0.7em; cursor: help; margin-left: 0.2em; }
 
+    /* ── Golden Metrics panel (W-0093) ─────────────────────────────────── */
+    .golden-metrics-toggle {
+      font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.08em;
+      cursor: pointer; user-select: none; padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border); margin-bottom: 1rem;
+      display: flex; align-items: baseline; gap: 0.5rem;
+    }
+    .golden-metrics-toggle:hover { color: var(--teal); }
+    #golden-metrics-body { margin-bottom: 1.25rem; }
+    .golden-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .golden-card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+    }
+    .golden-card .g-label { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+    .golden-card .g-wrap  { position: relative; height: 40px; }
+
+    /* ── Correlation matrix (W-0094) ────────────────────────────────────── */
+    .corr-wrap { overflow-x: auto; }
+    .corr-table { border-collapse: collapse; font-size: 10px; font-family: 'IBM Plex Mono', monospace; }
+    .corr-table th, .corr-table td { padding: 3px 5px; text-align: center; white-space: nowrap; border: 1px solid #252b33; }
+    .corr-table th { color: var(--text-muted); font-weight: 500; }
+    .corr-high { outline: 2px solid var(--teal); font-weight: 700; }
+
     /* ── Strategy Scorecard (W-0096) ────────────────────────────────────── */
     .pillar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; margin-top: 1rem; }
     .pillar-card { background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.15rem; }
@@ -344,13 +380,60 @@
     }
     .scorecard-actions { margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .scorecard-mode-note { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 0.75rem; padding: 0.35rem 0.65rem; border-left: 2px solid var(--teal); }
-    @media print {
-      .site-nav, .sticky-controls, #kpi-summary, #narrative-section,
-      #snapshot-section, #ranking-section, .tab-bar, .chart-nav,
-      .scorecard-actions, footer { display: none !important; }
-      #charts-section { display: block !important; }
-      .pillar-grid { grid-template-columns: 1fr 1fr; }
+
+    /* ── Market Context section (W-0095) ────────────────────────────────── */
+    .market-context-toggle {
+      font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.08em;
+      cursor: pointer; user-select: none; padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border); margin-top: 1.5rem; margin-bottom: 0.75rem;
+      display: flex; align-items: baseline; gap: 0.5rem;
     }
+    .market-context-toggle:hover { color: var(--teal); }
+    #market-context-body { margin-bottom: 1.5rem; }
+    .market-ctx-controls { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; font-size: var(--text-xs); color: var(--text-muted); }
+    .market-ctx-sel {
+      background: #0d0d0d; border: 1px solid var(--border); color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace; font-size: var(--text-xs);
+      padding: 0.15rem 0.5rem; cursor: pointer; outline: none;
+    }
+    .market-ctx-sel:hover, .market-ctx-sel:focus { border-color: var(--teal); }
+    .market-ctx-chart-wrap { position: relative; height: 260px; }
+
+    /* ── PCA tab (W-0098) ───────────────────────────────────────────────── */
+    .pca-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 900px) { .pca-grid { grid-template-columns: 1fr; } }
+    .pca-card { background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.15rem; }
+    .pca-card h3 { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .pca-chart-wrap { position: relative; height: 240px; }
+
+    /* ── Analysis nav dropdown (W-0100) ─────────────────────────────────── */
+    .analysis-nav { position: relative; }
+    .analysis-nav summary {
+      list-style: none; cursor: pointer; font-size: var(--text-xs);
+      color: var(--text-muted); letter-spacing: 0.04em;
+      padding: 0.1rem 0;
+    }
+    .analysis-nav summary::-webkit-details-marker { display: none; }
+    .analysis-nav summary:hover { color: var(--teal); }
+    .analysis-nav[open] summary { color: var(--teal); }
+    .analysis-dropdown {
+      position: absolute; top: calc(100% + 4px); right: 0;
+      background: var(--surface-2); border: 1px solid var(--border);
+      min-width: 180px; z-index: 400;
+      display: flex; flex-direction: column;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    .analysis-dropdown a, .analysis-dropdown button {
+      background: none; border: none; border-bottom: 1px solid var(--border);
+      padding: 0.45rem 0.85rem; font-size: var(--text-xs); color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.04em;
+      text-align: left; cursor: pointer; text-decoration: none;
+      display: block; width: 100%;
+    }
+    .analysis-dropdown a:last-child,
+    .analysis-dropdown button:last-child { border-bottom: none; }
+    .analysis-dropdown a:hover,
+    .analysis-dropdown button:hover { color: var(--teal); background: var(--surface); }
   </style>
 </head>
 <body>
@@ -367,6 +450,15 @@
       <a href="methodology.html">Methodology</a>
       <a href="lineage.html">Lineage</a>
       <a href="coverage.html">Coverage</a>
+      <details class="analysis-nav" id="analysis-nav">
+        <summary aria-haspopup="true">Analysis ▾</summary>
+        <div class="analysis-dropdown">
+          <button onclick="activateAnalysisTab('correlations')">Correlations</button>
+          <button onclick="activateAnalysisTab('pca')">Dimensionality Reduction</button>
+          <button onclick="activateAnalysisTab('scorecard')">Strategy Scorecard</button>
+          <button onclick="toggleMarketContext()">Market Context</button>
+        </div>
+      </details>
     </div>
   </div>
 </nav>
@@ -433,6 +525,15 @@
         <button class="range-btn" id="btn-copy-link">📋 Copy link</button>
         <span id="copy-link-feedback" style="font-size:var(--text-xs);color:var(--teal);display:none;margin-left:0.4rem;">Copied!</span>
       </fieldset>
+      <fieldset class="ctrl-group">
+        <legend>Group</legend>
+        <select class="snapshot-period-sel" id="metric-group-sel" aria-label="Metric group filter">
+          <option value="All Metrics">All Metrics</option>
+          <option value="Management Controllable">Management Controllable</option>
+          <option value="Market-Driven">Market-Driven</option>
+          <option value="Productivity-Focused">Productivity-Focused</option>
+        </select>
+      </fieldset>
     </div>
   </div>
 
@@ -440,6 +541,17 @@
     <section id="kpi-summary" aria-label="Sector KPI summary">
       <div class="kpi-row" id="kpi-row">
         <!-- filled by JS -->
+      </div>
+    </section>
+
+    <section id="golden-metrics-section" aria-label="Golden Metrics">
+      <div class="golden-metrics-toggle" id="golden-metrics-toggle">
+        <span id="golden-metrics-toggle-icon">▸</span> golden metrics
+      </div>
+      <div id="golden-metrics-body" style="display:none;">
+        <div class="golden-grid" id="golden-grid">
+          <!-- filled by JS -->
+        </div>
       </div>
     </section>
 
@@ -496,6 +608,24 @@
           <thead><tr id="ranking-head"></tr></thead>
           <tbody id="ranking-body"></tbody>
         </table>
+      </div>
+    </section>
+
+    <section id="market-context-section" aria-label="Market Context">
+      <div class="market-context-toggle" id="market-context-toggle">
+        <span id="market-ctx-icon">▸</span> market context
+      </div>
+      <div id="market-context-body" style="display:none;">
+        <div class="market-ctx-controls">
+          <label for="market-ctx-metric-sel">Metric:</label>
+          <select class="market-ctx-sel" id="market-ctx-metric-sel"></select>
+        </div>
+        <div class="market-ctx-chart-wrap">
+          <canvas id="market-ctx-canvas"></canvas>
+        </div>
+        <p style="font-size:var(--text-xs);color:var(--text-muted);margin-top:0.4rem;">
+          Left axis: selected metric per bank. Right axis: OCR rate (dashed grey).
+        </p>
       </div>
     </section>
   </main>
@@ -562,20 +692,95 @@
                       'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1'],
     productivity:    ['Profit per Employee', 'Gross Income per Employee', 'Expenses per Employee',
                       'Profit per Customer', 'Gross Income per Customer', 'Expenses per Customer'],
+    correlations:    null,   // special tab — rendered by renderCorrelations()
     scorecard:       null,   // special tab — rendered by renderScorecard()
+    pca:             null,   // special tab — rendered by renderPca()
+  };
+
+  /* ── Controllability classifications (from config/metrics.yaml) ─────────── */
+  const CONTROLLABILITY = {
+    'CET1 Ratio':                      'High',
+    'Tier 1 Capital Ratio':            'High',
+    'Total Capital Ratio':             'High',
+    'Total Risk-Weighted Assets':      'Medium',
+    'Capital Headroom':                'High',
+    'Risk Density':                    'Medium',
+    'NPL Ratio':                       'Low',
+    'Total Non-Performing Loans':      'Low',
+    'Individual Provisions':           'Medium',
+    'Collective Provisions':           'Medium',
+    'Provisioning Coverage':           'Medium',
+    'Credit Impairment Rate':          'Low',
+    'Return on Assets':                'Medium',
+    'Return on Equity':                'Medium',
+    'NIM':                             'Hybrid',
+    'Net Interest Income':             'Hybrid',
+    'Trading and Hedging Gains':       'Low',
+    'Fees and Commission Income':      'High',
+    'Other Income':                    'Medium',
+    'Operating Expenses':              'High',
+    'Profit After Tax':                'Medium',
+    'Cost to Income Ratio':            'High',
+    'RORWA':                           'Medium',
+    'Pre-Provision Profit':            'Medium',
+    'Non-Interest Income Share':       'Medium',
+    'Opex Intensity':                  'High',
+    'Total Assets':                    'Medium',
+    'Cash Position':                   'Medium',
+    'Net Loans and Advances':          'Medium',
+    'Deposits':                        'Low',
+    'Equity':                          'High',
+    'Loan-to-Deposit Ratio':           'Medium',
+    'Core Funding Ratio (CFR)':        'Medium',
+    '1-Month Mismatch Ratio':          'Low',
+    '1-Week Mismatch Ratio':           'Low',
+    'Top 5 Non-Bank Credit Exposures': 'High',
+    'Top 5 Bank Credit Exposures':     'High',
+    'Bank Exposures ≥10% of CET1':     'High',
+    'Profit per Employee':             'Medium',
+    'Gross Income per Employee':       'Medium',
+    'Expenses per Employee':           'High',
+    'Profit per Customer':             'Medium',
+    'Gross Income per Customer':       'Medium',
+    'Expenses per Customer':           'High',
+  };
+
+  /* ── Metric groups (from config/metric_groups.yaml) ─────────────────────── */
+  const METRIC_GROUPS = {
+    'All Metrics': null,
+    'Management Controllable': [
+      'Cost to Income Ratio', 'Operating Expenses', 'Opex Intensity',
+      'CET1 Ratio', 'Tier 1 Capital Ratio', 'Total Capital Ratio', 'Capital Headroom',
+      'Fees and Commission Income', 'Core Funding Ratio (CFR)',
+      'Top 5 Non-Bank Credit Exposures', 'Top 5 Bank Credit Exposures', 'Bank Exposures ≥10% of CET1',
+      'RORWA', 'Expenses per Employee', 'Expenses per Customer',
+    ],
+    'Market-Driven': [
+      'NIM', 'Net Interest Income', 'Trading and Hedging Gains',
+      'NPL Ratio', 'Total Non-Performing Loans', 'Credit Impairment Rate',
+      '1-Month Mismatch Ratio', '1-Week Mismatch Ratio', 'Deposits',
+    ],
+    'Productivity-Focused': [
+      'Return on Assets', 'Return on Equity', 'Pre-Provision Profit', 'Non-Interest Income Share',
+      'Profit per Employee', 'Gross Income per Employee', 'Expenses per Employee',
+      'Profit per Customer', 'Gross Income per Customer', 'Expenses per Customer',
+      'Cost to Income Ratio', 'RORWA',
+    ],
   };
 
   /* ── Strategy pillars (inlined from config/strategy_pillars.yaml) ────── */
+  // If you update strategy_pillars.yaml, update this constant too. See the YAML
+  // file's "Sync procedure" comment for the field mapping.
   const STRATEGY_PILLARS = [
     {
       name: 'Customer',
       description: 'Metrics reflecting the quality of customer outcomes and the bank\'s ability to serve customers reliably over the long term.',
       metrics: [
-        { name: 'NPL Ratio',                leading_or_lagging: 'lagging' },
-        { name: 'Core Funding Ratio (CFR)', leading_or_lagging: 'leading' },
-        { name: 'Net Loans and Advances',   leading_or_lagging: 'lagging' },
-        { name: 'Deposits',                 leading_or_lagging: 'leading' },
-        { name: 'Gross Income per Customer',leading_or_lagging: 'lagging' },
+        { name: 'NPL Ratio',                 leading_or_lagging: 'lagging' },
+        { name: 'Core Funding Ratio (CFR)',   leading_or_lagging: 'leading' },
+        { name: 'Net Loans and Advances',     leading_or_lagging: 'lagging' },
+        { name: 'Deposits',                   leading_or_lagging: 'leading' },
+        { name: 'Gross Income per Customer',  leading_or_lagging: 'lagging' },
       ],
     },
     {
@@ -585,52 +790,65 @@
         { name: 'Cost to Income Ratio', leading_or_lagging: 'lagging' },
         { name: 'Operating Expenses',   leading_or_lagging: 'lagging' },
         { name: 'Opex Intensity',       leading_or_lagging: 'lagging' },
-        { name: 'Expenses per Employee',leading_or_lagging: 'lagging' },
+        { name: 'Expenses per Employee', leading_or_lagging: 'lagging' },
+        { name: 'Pre-Provision Profit', leading_or_lagging: 'lagging' },
       ],
     },
     {
       name: 'Resilience',
-      description: 'Metrics indicating the bank\'s ability to absorb shocks and maintain operations through credit and funding stress.',
+      description: 'Metrics measuring balance sheet strength, capital adequacy, and the bank\'s capacity to absorb shocks.',
       metrics: [
-        { name: 'CET1 Ratio',                      leading_or_lagging: 'leading' },
-        { name: 'Capital Headroom',                leading_or_lagging: 'leading' },
-        { name: 'Provisioning Coverage',           leading_or_lagging: 'leading' },
-        { name: 'Credit Impairment Rate',          leading_or_lagging: 'lagging' },
-        { name: 'Loan-to-Deposit Ratio',           leading_or_lagging: 'leading' },
+        { name: 'CET1 Ratio',              leading_or_lagging: 'leading' },
+        { name: 'Capital Headroom',        leading_or_lagging: 'leading' },
+        { name: 'Total Capital Ratio',     leading_or_lagging: 'leading' },
+        { name: 'Provisioning Coverage',   leading_or_lagging: 'leading' },
+        { name: 'Core Funding Ratio (CFR)', leading_or_lagging: 'leading' },
+        { name: 'NPL Ratio',               leading_or_lagging: 'lagging' },
       ],
     },
     {
       name: 'Innovation',
-      description: 'Metrics that signal investment in non-traditional revenue and shift away from purely interest-based income.',
+      description: 'Metrics reflecting the bank\'s success in diversifying revenue beyond traditional interest income.',
       metrics: [
-        { name: 'Non-Interest Income Share', leading_or_lagging: 'leading' },
-        { name: 'Fees and Commission Income',leading_or_lagging: 'lagging' },
-        { name: 'Profit per Employee',       leading_or_lagging: 'lagging' },
+        { name: 'Non-Interest Income Share', leading_or_lagging: 'lagging' },
+        { name: 'Fees and Commission Income', leading_or_lagging: 'lagging' },
+        { name: 'Trading and Hedging Gains', leading_or_lagging: 'lagging' },
+        { name: 'Return on Assets',          leading_or_lagging: 'lagging' },
       ],
     },
     {
       name: 'Returns',
-      description: 'Metrics capturing the financial returns delivered to shareholders and the underlying capital efficiency of the franchise.',
+      description: 'Metrics measuring value creation for shareholders and capital efficiency.',
       metrics: [
-        { name: 'Return on Equity',    leading_or_lagging: 'lagging' },
-        { name: 'Return on Assets',    leading_or_lagging: 'lagging' },
-        { name: 'RORWA',               leading_or_lagging: 'lagging' },
-        { name: 'Pre-Provision Profit',leading_or_lagging: 'lagging' },
-        { name: 'NIM',                 leading_or_lagging: 'lagging' },
+        { name: 'Return on Equity',  leading_or_lagging: 'lagging' },
+        { name: 'Return on Assets',  leading_or_lagging: 'lagging' },
+        { name: 'NIM',               leading_or_lagging: 'lagging' },
+        { name: 'RORWA',             leading_or_lagging: 'lagging' },
+        { name: 'Profit After Tax',  leading_or_lagging: 'lagging' },
+        { name: 'Profit per Employee', leading_or_lagging: 'lagging' },
       ],
     },
   ];
 
-  /* Build reverse lookup: metric name → pillar name (e.g. 'NIM' → 'Returns') */
+  /* Build reverse lookup: metric name → pillar name (e.g. 'NIM' → 'Returns').
+     Note: pillar metrics intentionally include metrics not in regular chart tabs
+     (e.g. 'Net Loans and Advances', 'Deposits'). KEY_METRICS only covers tab metrics. */
   const PILLAR_BY_METRIC = {};
   for (const pillar of STRATEGY_PILLARS) {
     for (const m of pillar.metrics) PILLAR_BY_METRIC[m.name] = pillar.name;
   }
-  // Note: pillar metrics intentionally include metrics not present in the regular
-  // chart tabs (e.g. 'Net Loans and Advances', 'Deposits') — those metrics are only
-  // shown in the scorecard view, not in chart tabs. KEY_METRICS only covers tab metrics.
 
-  const KEY_METRICS = Object.values(TABS).filter(Boolean).flat();
+  /* ── Golden metrics config (W-0093) ─────────────────────────────────────── */
+  const GOLDEN_METRICS = [
+    { metric: 'CET1 Ratio',           label: 'CET1' },
+    { metric: 'Return on Equity',     label: 'ROE'  },
+    { metric: 'Cost to Income Ratio', label: 'CTI'  },
+    { metric: 'NIM',                  label: 'NIM'  },
+    { metric: 'NPL Ratio',            label: 'NPL'  },
+    { metric: 'Core Funding Ratio (CFR)', label: 'CFR' },
+  ];
+
+  const KEY_METRICS = Object.values(TABS).flat();
 
   const METRIC_LABELS = {
     'Cost to Income Ratio':            'Cost to Income (%)',
@@ -892,6 +1110,9 @@
   let showRangeBand   = localStorage.getItem('showRangeBand')   === 'true';
   let showTrendFlags  = localStorage.getItem('showTrendFlags')  === 'true';
   let rankingViewMode = localStorage.getItem('rankingViewMode') || 'rank';
+  let activeMetricGroup = localStorage.getItem('metricGroup') || 'All Metrics';
+  let correlationCache  = null;  // { banks, period, result } — invalidated on selection change
+  let pcaCache          = null;  // same pattern
 
   // NZ/global events inlined for static-site delivery.
   const NZ_EVENTS = [
@@ -1030,6 +1251,7 @@
       buildSnapshotPeriodSelector();
       loadFromHash();
       applyRangePreset(rangePreset, false);
+      buildMarketCtxMetricSel();
       render();
     } catch (err) {
       statusEl.textContent = 'No data yet. Trigger the fetch-data then process-data workflows.';
@@ -1041,6 +1263,7 @@
       if (ocrResp.ok) {
         ocrRows = await ocrResp.json();
         render();
+        if (localStorage.getItem('marketContextOpen') === 'true') renderMarketContext();
       }
     } catch (err) {
       console.warn('OCR data load failed:', err);
@@ -1130,16 +1353,24 @@
   function buildTabBar() {
     const bar = document.getElementById('tab-bar');
     bar.innerHTML = '';
+    const ANALYSIS_TABS = new Set(['correlations', 'scorecard', 'pca']);
     for (const tabName of Object.keys(TABS)) {
       const btn = document.createElement('button');
       btn.className = 'tab-btn' + (tabName === activeTab ? ' active' : '');
-      btn.textContent = tabName;
+      btn.textContent = tabName === 'scorecard' ? 'strategy scorecard'
+                      : tabName === 'pca'        ? 'dimensionality reduction'
+                      : tabName;
+      btn.dataset.tabName = tabName;
       btn.addEventListener('click', () => {
         activeTab = tabName;
         localStorage.setItem('activeTab', activeTab);
         bar.querySelectorAll('.tab-btn').forEach(b =>
-          b.classList.toggle('active', b.textContent === activeTab));
-        renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+          b.classList.toggle('active', b.dataset.tabName === activeTab));
+        const vp = getVisiblePeriods();
+        if (activeTab === 'correlations') renderCorrelations(lastLookup, lastVisible, vp);
+        else if (activeTab === 'scorecard') renderScorecard(lastLookup, lastVisible, vp);
+        else if (activeTab === 'pca')       renderPca(lastLookup, lastVisible, vp);
+        else renderCharts(lastLookup, lastVisible, vp);
         syncUrlHash();
       });
       bar.appendChild(btn);
@@ -1255,7 +1486,11 @@
     lastLookup = lookup;
     lastVisible = visible;
     const visiblePeriods = getVisiblePeriods();
+    // Invalidate analysis caches when bank selection or period changes
+    correlationCache = null;
+    pcaCache         = null;
     renderKpiRow(lookup, visible);
+    renderGoldenMetrics(lookup, visible);
     renderNarrative(lookup, visible);
     renderCharts(lookup, visible, visiblePeriods);
     renderSnapshot(lookup, visible);
@@ -1286,7 +1521,7 @@
         if (banks.length > 0) selectedEntities = new Set(banks);
       }
       if (params.has('range')) rangePreset = params.get('range');
-      if (params.has('tab') && params.get('tab') in TABS) activeTab = params.get('tab');
+      if (params.has('tab') && (TABS[params.get('tab')] !== undefined)) activeTab = params.get('tab');
       if (params.has('mode')) chartMode = params.get('mode') === 'indexed' ? 'indexed' : 'normal';
     } catch (err) { console.warn('Failed to load state from URL hash:', err); }
   }
@@ -1473,6 +1708,11 @@
     const grid = document.getElementById('chart-grid');
     grid.innerHTML = '';
 
+    // Special tabs handled by their own renderers
+    if (activeTab === 'correlations') { renderCorrelations(lookup, visible, visiblePeriods); return; }
+    if (activeTab === 'scorecard')    { renderScorecard(lookup, visible, visiblePeriods);    return; }
+    if (activeTab === 'pca')          { renderPca(lookup, visible, visiblePeriods);          return; }
+
     // Indexed mode notice
     const existingNote = document.getElementById('indexed-mode-note');
     if (existingNote) existingNote.remove();
@@ -1490,13 +1730,12 @@
       return;
     }
 
-    // Strategy Scorecard tab uses its own renderer
-    if (activeTab === 'scorecard') {
-      renderScorecard(lookup, visible, grid);
-      return;
-    }
-
-    const tabMetrics    = TABS[activeTab] || [];
+    const tabMetricsRaw = TABS[activeTab] || [];
+    // Apply metric group filter (W-0092): hide metrics not in the selected group
+    const groupFilter = METRIC_GROUPS[activeMetricGroup];
+    const tabMetrics  = groupFilter
+      ? tabMetricsRaw.filter(m => groupFilter.includes(m))
+      : tabMetricsRaw;
     const ocrLookup     = buildOcrLookup();
     const ocrEvents     = getOcrEvents(visiblePeriods);
     const nzEventLines  = showNzEvents
@@ -1655,8 +1894,19 @@
         };
       }
 
-      const tooltipCallback = ctx =>
-        ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`;
+      const tooltipCallback = ctx => {
+        let line = ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}`;
+        // W-0099: append controllability and pillar context
+        const ctrl   = CONTROLLABILITY[metric];
+        const pillar = PILLAR_BY_METRIC[metric];
+        if (ctrl || pillar) {
+          const parts = [];
+          if (ctrl)   parts.push(`controllability: ${ctrl}`);
+          if (pillar) parts.push(`pillar: ${pillar}`);
+          line += ` [${parts.join(', ')}]`;
+        }
+        return line;
+      };
 
       const chartConfig = {
         type: 'line',
@@ -2319,183 +2569,6 @@
     return card;
   }
 
-  /* ── Strategy Scorecard (W-0096 / W-0097) ──────────────────────────────── */
-  // STRATEGY_PILLARS is inlined from config/strategy_pillars.yaml for static-site delivery
-  // (the site has no build step and cannot parse YAML). If you update strategy_pillars.yaml,
-  // update this constant too. They are authoritative together; the YAML is the human-editable
-  // source and the JS constant is the runtime copy.
-  function renderScorecard(lookup, visible, grid) {
-    const latestPeriod = allPeriods[allPeriods.length - 1];
-    const prevPeriod   = allPeriods.length >= 2 ? allPeriods[allPeriods.length - 2] : null;
-
-    if (!latestPeriod) {
-      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem 0;">No data available.</p>';
-      return;
-    }
-
-    const multiBank = visible.length > 1;
-
-    // Action buttons
-    const actions = document.createElement('div');
-    actions.className = 'scorecard-actions';
-    actions.innerHTML = `
-      <button class="range-btn" id="sc-export-csv">↓ Export CSV</button>
-      <button class="range-btn" id="sc-print">🖨 Print / Save as PDF</button>`;
-    grid.appendChild(actions);
-
-    // Mode note for multi-bank
-    if (multiBank) {
-      const note = document.createElement('div');
-      note.className = 'scorecard-mode-note';
-      note.textContent = `Showing individual values for ${visible.length} selected banks. Bars show position relative to the min–max range across selected banks.`;
-      grid.appendChild(note);
-    }
-
-    // Pillar cards
-    const pillarGrid = document.createElement('div');
-    pillarGrid.className = 'pillar-grid';
-    grid.appendChild(pillarGrid);
-
-    for (const pillar of STRATEGY_PILLARS) {
-      const card = document.createElement('div');
-      card.className = 'pillar-card';
-
-      let innerHtml = `
-        <div class="pillar-card-title">${escHtml(pillar.name)}</div>
-        <div class="pillar-card-desc">${escHtml(pillar.description)}</div>`;
-
-      let hasAnyData = false;
-
-      for (const { name: metric, leading_or_lagging: lag } of pillar.metrics) {
-        const lagBadge = `<span class="lag-badge">${lag === 'leading' ? 'lead' : 'lag'}</span>`;
-
-        if (multiBank) {
-          // ── Multi-bank view: one row per bank ───────────────────────────
-          const bankVals = visible.map(e => ({
-            entity: e,
-            val:  lookup[e]?.[latestPeriod]?.[metric],
-            prev: prevPeriod ? lookup[e]?.[prevPeriod]?.[metric] : null,
-          }));
-          const defined = bankVals.filter(b => b.val != null);
-          if (!defined.length) continue;
-          hasAnyData = true;
-
-          const allVals = defined.map(b => b.val);
-          const rangeMin = Math.min(...allVals);
-          const rangeMax = Math.max(...allVals);
-
-          let bankRows = '';
-          for (const { entity, val, prev } of bankVals) {
-            if (val == null) continue;
-            const trend = prev == null ? '—'
-              : val > prev + 0.005 ? '▲'
-              : val < prev - 0.005 ? '▼'
-              : '→';
-            const trendColor = trend === '▲'
-              ? (HIGHER_IS_BETTER.has(metric) ? 'var(--teal)' : '#e05252')
-              : trend === '▼'
-              ? (HIGHER_IS_BETTER.has(metric) ? '#e05252' : 'var(--teal)')
-              : 'var(--text-muted)';
-            const pct = rangeMax > rangeMin
-              ? Math.round(((val - rangeMin) / (rangeMax - rangeMin)) * 100)
-              : 50;
-            const color = bankColor(entity);
-            bankRows += `
-              <div class="pillar-bank-row">
-                <span class="pillar-bank-swatch" style="background:${color};"></span>
-                <span class="pillar-bank-name">${escHtml(entity)}</span>
-                <span class="pillar-bank-val">${val.toFixed(1)}</span>
-                <span class="pillar-trend" style="color:${trendColor}">${trend}</span>
-                <div class="pillar-bar-wrap-sm"><div class="pillar-bar-sm" style="width:${pct}%;background:${color};"></div></div>
-              </div>`;
-          }
-
-          innerHtml += `
-            <div class="pillar-metric-section">
-              <div class="pillar-metric-header">
-                <span class="pillar-metric-header-name">${escHtml(metric)}</span>
-                ${lagBadge}
-              </div>
-              ${bankRows}
-            </div>`;
-
-        } else {
-          // ── Single-bank view: value + trend + peer percentile bar ────────
-          const entity = visible[0];
-          const val  = lookup[entity]?.[latestPeriod]?.[metric];
-          const prev = prevPeriod ? lookup[entity]?.[prevPeriod]?.[metric] : null;
-          if (val == null) continue;
-          hasAnyData = true;
-
-          const trend = prev == null ? '—'
-            : val > prev + 0.005 ? '▲'
-            : val < prev - 0.005 ? '▼'
-            : '→';
-          const trendColor = trend === '▲'
-            ? (HIGHER_IS_BETTER.has(metric) ? 'var(--teal)' : '#e05252')
-            : trend === '▼'
-            ? (HIGHER_IS_BETTER.has(metric) ? '#e05252' : 'var(--teal)')
-            : 'var(--text-muted)';
-
-          // Peer bar: position relative to ALL entities in dataset for this metric
-          const peerVals = allEntities
-            .map(e => lookup[e]?.[latestPeriod]?.[metric])
-            .filter(v => v != null);
-          const pMin = peerVals.length ? Math.min(...peerVals) : val;
-          const pMax = peerVals.length ? Math.max(...peerVals) : val;
-          const pct  = pMax > pMin ? Math.round(((val - pMin) / (pMax - pMin)) * 100) : 50;
-
-          innerHtml += `
-            <div class="pillar-metric-row">
-              <span class="pillar-metric-name">${escHtml(metric)}</span>
-              <span class="pillar-trend" style="color:${trendColor}">${trend}</span>
-              <span style="font-size:var(--text-xs);color:var(--text-muted);min-width:38px;text-align:right;">${val.toFixed(1)}</span>
-              <div class="pillar-bar-wrap"><div class="pillar-bar" style="width:${pct}%;"></div></div>
-              ${lagBadge}
-            </div>`;
-        }
-      }
-
-      if (!hasAnyData) continue;
-      card.innerHTML = innerHtml;
-      pillarGrid.appendChild(card);
-    }
-
-    // Wire buttons
-    grid.querySelector('#sc-export-csv')?.addEventListener('click', () => exportScorecardCsv(lookup, visible));
-    grid.querySelector('#sc-print')?.addEventListener('click', () => window.print());
-  }
-
-  function exportScorecardCsv(lookup, visible) {
-    const latestPeriod = allPeriods[allPeriods.length - 1];
-    const prevPeriod   = allPeriods.length >= 2 ? allPeriods[allPeriods.length - 2] : null;
-    const rows = ['bank,pillar,metric,latest_value,prior_value,trend,leading_or_lagging'];
-    const safe = v => (v == null ? '' : String(v).replace(/,/g, ';'));
-    for (const entity of visible) {
-      for (const pillar of STRATEGY_PILLARS) {
-        for (const { name: metric, leading_or_lagging: lag } of pillar.metrics) {
-          const cur  = lookup[entity]?.[latestPeriod]?.[metric];
-          const prev = prevPeriod ? lookup[entity]?.[prevPeriod]?.[metric] : null;
-          if (cur == null) continue;
-          const trend = prev == null ? '—'
-            : cur > prev + 0.005 ? '▲'
-            : cur < prev - 0.005 ? '▼'
-            : '→';
-          rows.push(`${safe(entity)},${safe(pillar.name)},${safe(metric)},${cur},${prev ?? ''},${trend},${lag}`);
-        }
-      }
-    }
-    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    // Period is already 'YYYY-QN' format (e.g. '2024-Q3') — use directly for the filename.
-    // Fallback 'no-data' is used only when no data has loaded (latestPeriod is empty string).
-    const q = latestPeriod || 'no-data';
-    a.download = `strategy-scorecard-${q}.csv`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
   /* ── Ranking table ────────────────────────────────────────────────────── */
   function renderRankingTable(lookup, visible) {
     const selPeriod = getSnapshotPeriod();
@@ -2577,6 +2650,740 @@
       renderRankingTable(lastLookup, lastVisible);
     });
   })();
+
+  /* ── Metric group selector (W-0092) ──────────────────────────────────── */
+  (function initMetricGroupSel() {
+    const sel = document.getElementById('metric-group-sel');
+    if (!sel) return;
+    sel.value = activeMetricGroup;
+    sel.addEventListener('change', () => {
+      activeMetricGroup = sel.value;
+      localStorage.setItem('metricGroup', activeMetricGroup);
+      renderCharts(lastLookup, lastVisible, getVisiblePeriods());
+    });
+  })();
+
+  /* ── Golden Metrics panel (W-0093) ───────────────────────────────────── */
+  let goldenSparklines = [];
+
+  function renderGoldenMetrics(lookup, visible) {
+    const goldenOpen = localStorage.getItem('goldenMetricsOpen') === 'true';
+    const body = document.getElementById('golden-metrics-body');
+    const icon = document.getElementById('golden-metrics-toggle-icon');
+    if (body)  body.style.display = goldenOpen ? '' : 'none';
+    if (icon)  icon.textContent   = goldenOpen ? '▾' : '▸';
+    if (!goldenOpen) return;
+    buildGoldenSparklines(lookup, visible);
+  }
+
+  function buildGoldenSparklines(lookup, visible) {
+    goldenSparklines.forEach(c => c.destroy());
+    goldenSparklines = [];
+    const grid = document.getElementById('golden-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const last8 = allPeriods.slice(-8);
+    for (const { metric, label } of GOLDEN_METRICS) {
+      const card = document.createElement('div');
+      card.className = 'golden-card';
+      const cid = 'golden-spark-' + label.replace(/[^a-z0-9]/gi, '_');
+      card.innerHTML = `<div class="g-label">${escHtml(label)}</div><div class="g-wrap"><canvas id="${cid}"></canvas></div>`;
+      grid.appendChild(card);
+      const datasets = visible
+        .map(entity => ({
+          label: entity,
+          data: last8.map(p => lookup[entity]?.[p]?.[metric] ?? null),
+          borderColor: bankColor(entity),
+          backgroundColor: 'transparent',
+          borderWidth: 1.5, pointRadius: 0, tension: 0, spanGaps: true,
+        }))
+        .filter(ds => ds.data.some(v => v != null));
+      const ctx = document.getElementById(cid);
+      if (!ctx) continue;
+      const spark = new Chart(ctx, {
+        type: 'line',
+        data: { labels: last8, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1,
+              titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+              callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) : '—'}` },
+            },
+          },
+          scales: {
+            x: { display: false },
+            y: { display: false },
+          },
+        },
+      });
+      goldenSparklines.push(spark);
+    }
+  }
+
+  (function initGoldenToggle() {
+    const toggle = document.getElementById('golden-metrics-toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', () => {
+      const isOpen = localStorage.getItem('goldenMetricsOpen') === 'true';
+      localStorage.setItem('goldenMetricsOpen', isOpen ? 'false' : 'true');
+      const body = document.getElementById('golden-metrics-body');
+      const icon = document.getElementById('golden-metrics-toggle-icon');
+      body.style.display = isOpen ? 'none' : '';
+      icon.textContent   = isOpen ? '▸' : '▾';
+      if (!isOpen) buildGoldenSparklines(lastLookup, lastVisible);
+      else { goldenSparklines.forEach(c => c.destroy()); goldenSparklines = []; }
+    });
+  })();
+
+  /* ── Market Context (W-0095) ─────────────────────────────────────────── */
+  let marketCtxChart = null;
+
+  function toggleMarketContext() {
+    const isOpen = localStorage.getItem('marketContextOpen') === 'true';
+    localStorage.setItem('marketContextOpen', isOpen ? 'false' : 'true');
+    const body = document.getElementById('market-context-body');
+    const icon = document.getElementById('market-ctx-icon');
+    if (body) body.style.display = isOpen ? 'none' : '';
+    if (icon) icon.textContent   = isOpen ? '▸' : '▾';
+    if (!isOpen) renderMarketContext();
+    else { if (marketCtxChart) { marketCtxChart.destroy(); marketCtxChart = null; } }
+    // Close nav dropdown
+    const nav = document.getElementById('analysis-nav');
+    if (nav) nav.removeAttribute('open');
+  }
+
+  function buildMarketCtxMetricSel() {
+    const sel = document.getElementById('market-ctx-metric-sel');
+    if (!sel) return;
+    sel.innerHTML = '';
+    const vp = getVisiblePeriods();
+    // Populate with metrics visible in current tab, or all KEY_METRICS
+    const metricList = (TABS[activeTab] && TABS[activeTab] !== null)
+      ? TABS[activeTab]
+      : KEY_METRICS;
+    for (const m of metricList) {
+      const opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = METRIC_LABELS[m] || m;
+      sel.appendChild(opt);
+    }
+    sel.addEventListener('change', renderMarketContext);
+  }
+
+  function renderMarketContext() {
+    const isOpen = localStorage.getItem('marketContextOpen') === 'true';
+    if (!isOpen) return;
+    const sel = document.getElementById('market-ctx-metric-sel');
+    const metric = sel ? sel.value : 'NIM';
+    const vp = getVisiblePeriods();
+    const ocrLookup = buildOcrLookup();
+    if (marketCtxChart) { marketCtxChart.destroy(); marketCtxChart = null; }
+    const datasets = lastVisible.map(entity => ({
+      label: entity,
+      data: vp.map(p => lastLookup[entity]?.[p]?.[metric] ?? null),
+      borderColor: bankColor(entity),
+      backgroundColor: 'transparent',
+      borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: true, yAxisID: 'y',
+    })).filter(ds => ds.data.some(v => v != null));
+    if (ocrRows.length > 0) {
+      const ocrData = vp.map(p => ocrLookup[p] ?? null);
+      if (ocrData.some(v => v != null)) {
+        datasets.push({
+          label: 'OCR (%)', data: ocrData,
+          borderColor: '#555', backgroundColor: 'transparent',
+          borderWidth: 1.5, borderDash: [5, 3],
+          pointRadius: 0, tension: 0, spanGaps: true, yAxisID: 'yOCR',
+        });
+      }
+    }
+    const canvas = document.getElementById('market-ctx-canvas');
+    if (!canvas) return;
+    const scalesConfig = {
+      x: { ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666', maxRotation: 45, autoSkip: true, maxTicksLimit: 16 }, grid: { display: false }, border: { color: '#252b33' } },
+      y: { ticks: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, color: '#666' }, grid: { color: '#252b33' }, border: { color: '#252b33' } },
+    };
+    if (ocrRows.length > 0) {
+      scalesConfig.yOCR = {
+        type: 'linear', position: 'right',
+        title: { display: true, text: 'OCR (%)', color: '#555', font: { size: 9, family: "'IBM Plex Mono', monospace" } },
+        ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#555' },
+        grid: { drawOnChartArea: false }, border: { color: '#252b33' },
+      };
+    }
+    marketCtxChart = new Chart(canvas, {
+      type: 'line',
+      data: { labels: vp, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, boxWidth: 10, padding: 8, color: '#666' } },
+          tooltip: { backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1, titleColor: '#e6e6e6', bodyColor: '#e6e6e6' },
+        },
+        scales: scalesConfig,
+      },
+    });
+  }
+
+  (function initMarketContextToggle() {
+    const toggle = document.getElementById('market-context-toggle');
+    if (!toggle) return;
+    const isOpen = localStorage.getItem('marketContextOpen') === 'true';
+    const body = document.getElementById('market-context-body');
+    const icon = document.getElementById('market-ctx-icon');
+    if (body) body.style.display = isOpen ? '' : 'none';
+    if (icon) icon.textContent   = isOpen ? '▾' : '▸';
+    toggle.addEventListener('click', toggleMarketContext);
+  })();
+
+  /* ── Correlations tab (W-0094) ───────────────────────────────────────── */
+  function pearsonR(xs, ys) {
+    const n = xs.length;
+    if (n < 2) return null;
+    const mx = xs.reduce((a, b) => a + b, 0) / n;
+    const my = ys.reduce((a, b) => a + b, 0) / n;
+    let num = 0, sdx = 0, sdy = 0;
+    for (let i = 0; i < n; i++) {
+      const dx = xs[i] - mx, dy = ys[i] - my;
+      num += dx * dy; sdx += dx * dx; sdy += dy * dy;
+    }
+    const denom = Math.sqrt(sdx * sdy);
+    return denom === 0 ? null : num / denom;
+  }
+
+  function renderCorrelations(lookup, visible, visiblePeriods) {
+    charts.forEach(c => c.destroy());
+    charts = [];
+    chartMeta = [];
+    const grid = document.getElementById('chart-grid');
+    grid.innerHTML = '';
+
+    if (visible.length < 2) {
+      grid.innerHTML = `<p style="color:var(--text-muted);padding:2rem 0;">Select at least 2 banks to compute correlations.</p>`;
+      return;
+    }
+
+    const groupFilter = METRIC_GROUPS[activeMetricGroup];
+    const metrics = groupFilter
+      ? KEY_METRICS.filter(m => groupFilter.includes(m))
+      : KEY_METRICS;
+
+    // Build flat series per metric across all visible banks and periods
+    const seriesData = {};
+    for (const m of metrics) {
+      const vals = [];
+      for (const p of visiblePeriods) {
+        for (const e of visible) {
+          const v = lookup[e]?.[p]?.[m];
+          if (v != null) vals.push(v);
+        }
+      }
+      if (vals.length >= 4) seriesData[m] = vals;
+    }
+    const activeMetrics = Object.keys(seriesData);
+
+    if (activeMetrics.length < 2) {
+      grid.innerHTML = `<p style="color:var(--text-muted);padding:2rem 0;">Insufficient data to compute correlations for the current selection.</p>`;
+      return;
+    }
+
+    // Compute correlation matrix
+    const n = activeMetrics.length;
+    const matrix = Array.from({ length: n }, () => new Array(n).fill(null));
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (i === j) { matrix[i][j] = 1; continue; }
+        if (j < i) { matrix[i][j] = matrix[j][i]; continue; }
+        // Align paired values: use entity+period as key
+        const pairsMap = {};
+        for (const p of visiblePeriods) {
+          for (const e of visible) {
+            const vi = lookup[e]?.[p]?.[activeMetrics[i]];
+            const vj = lookup[e]?.[p]?.[activeMetrics[j]];
+            if (vi != null && vj != null) {
+              const key = `${e}|${p}`;
+              pairsMap[key] = { x: vi, y: vj };
+            }
+          }
+        }
+        const pairs = Object.values(pairsMap);
+        if (pairs.length >= 4) {
+          matrix[i][j] = pearsonR(pairs.map(p => p.x), pairs.map(p => p.y));
+        }
+      }
+    }
+
+    // Find high-correlation pairs
+    const highPairs = [];
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const r = matrix[i][j];
+      if (r != null && Math.abs(r) > 0.85) highPairs.push({ m1: activeMetrics[i], m2: activeMetrics[j], r });
+    }
+    highPairs.sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+
+    // Render
+    const shortLabels = activeMetrics.map(m => m.length > 20 ? m.slice(0, 18) + '..' : m);
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'width:100%;';
+
+    // Heatmap table
+    const corrWrap = document.createElement('div');
+    corrWrap.className = 'corr-wrap';
+    const tbl = document.createElement('table');
+    tbl.className = 'corr-table';
+    const head = document.createElement('thead');
+    const htr = document.createElement('tr');
+    htr.appendChild(Object.assign(document.createElement('th'), { textContent: '' }));
+    shortLabels.forEach(l => {
+      const th = document.createElement('th');
+      th.textContent = l;
+      htr.appendChild(th);
+    });
+    head.appendChild(htr);
+    tbl.appendChild(head);
+
+    const tbody = document.createElement('tbody');
+    for (let i = 0; i < n; i++) {
+      const tr = document.createElement('tr');
+      const th = document.createElement('th');
+      th.textContent = shortLabels[i];
+      tr.appendChild(th);
+      for (let j = 0; j < n; j++) {
+        const td = document.createElement('td');
+        const r = matrix[i][j];
+        if (r == null) {
+          td.textContent = '—';
+          td.style.color = '#444';
+        } else {
+          td.textContent = r.toFixed(2);
+          // Diverging colour: red = -1, white = 0, teal = +1
+          const t = (r + 1) / 2; // 0 to 1
+          const rC = Math.round(255 * (1 - t));
+          const gC = Math.round(195 * t + 30 * (1 - t));
+          const bC = Math.round(165 * t);
+          td.style.background = `rgb(${rC},${gC},${bC})`;
+          td.style.color = Math.abs(r) > 0.5 ? '#fff' : '#888';
+          if (i !== j && Math.abs(r) > 0.85) td.classList.add('corr-high');
+        }
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    tbl.appendChild(tbody);
+    corrWrap.appendChild(tbl);
+    wrapper.appendChild(corrWrap);
+
+    // High-correlation pairs list
+    if (highPairs.length > 0) {
+      const listEl = document.createElement('div');
+      listEl.style.cssText = 'margin-top:1rem;font-size:var(--text-xs);color:var(--text-muted);';
+      listEl.innerHTML = `<div style="margin-bottom:0.35rem;letter-spacing:0.06em;">highly correlated pairs (|r| > 0.85):</div>` +
+        highPairs.map(p => `<div style="margin-bottom:0.2rem;">▸ ${escHtml(p.m1)} — ${escHtml(p.m2)}: r = ${p.r.toFixed(3)}</div>`).join('');
+      wrapper.appendChild(listEl);
+    } else {
+      const noHigh = document.createElement('p');
+      noHigh.style.cssText = 'font-size:var(--text-xs);color:var(--text-muted);margin-top:0.75rem;';
+      noHigh.textContent = 'No highly-correlated pairs (|r| > 0.85) in the current selection.';
+      wrapper.appendChild(noHigh);
+    }
+
+    grid.appendChild(wrapper);
+  }
+
+  /* ── Strategy Scorecard tab (W-0096 / W-0097) ─────────────────────────── */
+  // STRATEGY_PILLARS is inlined from config/strategy_pillars.yaml for static-site delivery.
+  // If you update strategy_pillars.yaml, update the STRATEGY_PILLARS constant above too.
+  function renderScorecard(lookup, visible, visiblePeriods) {
+    charts.forEach(c => c.destroy());
+    charts = [];
+    chartMeta = [];
+    const grid = document.getElementById('chart-grid');
+    grid.innerHTML = '';
+
+    const latestPeriod = allPeriods[allPeriods.length - 1];
+    const prevPeriod   = allPeriods.length >= 2 ? allPeriods[allPeriods.length - 2] : null;
+    if (!latestPeriod) {
+      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem 0;">No data available.</p>';
+      return;
+    }
+
+    const multiBank = visible.length > 1;
+
+    // Export button bar
+    const actions = document.createElement('div');
+    actions.className = 'scorecard-actions';
+    actions.innerHTML = `
+      <button class="range-btn" id="sc-export-csv">↓ Export CSV</button>
+      <button class="range-btn" id="sc-print">🖨 Print / Save as PDF</button>`;
+    grid.appendChild(actions);
+
+    // Mode note for multi-bank
+    if (multiBank) {
+      const note = document.createElement('div');
+      note.className = 'scorecard-mode-note';
+      note.textContent = `Showing individual values for ${visible.length} selected banks. Bars show position relative to the min–max range across selected banks.`;
+      grid.appendChild(note);
+    }
+
+    // Pillar cards
+    const pillarGrid = document.createElement('div');
+    pillarGrid.className = 'pillar-grid';
+    grid.appendChild(pillarGrid);
+
+    for (const pillar of STRATEGY_PILLARS) {
+      const card = document.createElement('div');
+      card.className = 'pillar-card';
+
+      let innerHtml = `
+        <div class="pillar-card-title">${escHtml(pillar.name)}</div>
+        <div class="pillar-card-desc">${escHtml(pillar.description)}</div>`;
+
+      let hasAnyData = false;
+
+      for (const { name: metric, leading_or_lagging: lag } of pillar.metrics) {
+        const lagBadge = `<span class="lag-badge">${lag === 'leading' ? 'lead' : 'lag'}</span>`;
+
+        if (multiBank) {
+          // ── Multi-bank view: one row per bank per metric ─────────────────
+          const bankVals = visible.map(e => ({
+            entity: e,
+            val:  lookup[e]?.[latestPeriod]?.[metric],
+            prev: prevPeriod ? lookup[e]?.[prevPeriod]?.[metric] : null,
+          }));
+          const defined = bankVals.filter(b => b.val != null);
+          if (!defined.length) continue;
+          hasAnyData = true;
+
+          const allVals = defined.map(b => b.val);
+          const rangeMin = Math.min(...allVals);
+          const rangeMax = Math.max(...allVals);
+
+          let bankRows = '';
+          for (const { entity, val, prev } of bankVals) {
+            if (val == null) continue;
+            const trend = prev == null ? '—'
+              : val > prev + 0.005 ? '▲'
+              : val < prev - 0.005 ? '▼'
+              : '→';
+            const trendColor = trend === '▲'
+              ? (HIGHER_IS_BETTER.has(metric) ? 'var(--teal)' : '#e05252')
+              : trend === '▼'
+              ? (HIGHER_IS_BETTER.has(metric) ? '#e05252' : 'var(--teal)')
+              : 'var(--text-muted)';
+            const pct = rangeMax > rangeMin
+              ? Math.round(((val - rangeMin) / (rangeMax - rangeMin)) * 100)
+              : 50;
+            const color = bankColor(entity);
+            bankRows += `
+              <div class="pillar-bank-row">
+                <span class="pillar-bank-swatch" style="background:${color};"></span>
+                <span class="pillar-bank-name">${escHtml(entity)}</span>
+                <span class="pillar-bank-val">${val.toFixed(1)}</span>
+                <span class="pillar-trend" style="color:${trendColor}">${trend}</span>
+                <div class="pillar-bar-wrap-sm"><div class="pillar-bar-sm" style="width:${pct}%;background:${color};"></div></div>
+              </div>`;
+          }
+
+          innerHtml += `
+            <div class="pillar-metric-section">
+              <div class="pillar-metric-header">
+                <span class="pillar-metric-header-name">${escHtml(metric)}</span>
+                ${lagBadge}
+              </div>
+              ${bankRows}
+            </div>`;
+
+        } else {
+          // ── Single-bank view: value + trend + peer percentile bar ────────
+          const entity = visible[0];
+          const val  = lookup[entity]?.[latestPeriod]?.[metric];
+          const prev = prevPeriod ? lookup[entity]?.[prevPeriod]?.[metric] : null;
+          if (val == null) continue;
+          hasAnyData = true;
+
+          const trend = prev == null ? '—'
+            : val > prev + 0.005 ? '▲'
+            : val < prev - 0.005 ? '▼'
+            : '→';
+          const trendColor = trend === '▲'
+            ? (HIGHER_IS_BETTER.has(metric) ? 'var(--teal)' : '#e05252')
+            : trend === '▼'
+            ? (HIGHER_IS_BETTER.has(metric) ? '#e05252' : 'var(--teal)')
+            : 'var(--text-muted)';
+
+          // Peer bar: position relative to ALL entities in the dataset
+          const peerVals = allEntities
+            .map(e => lookup[e]?.[latestPeriod]?.[metric])
+            .filter(v => v != null);
+          const pMin = peerVals.length ? Math.min(...peerVals) : val;
+          const pMax = peerVals.length ? Math.max(...peerVals) : val;
+          const pct  = pMax > pMin ? Math.round(((val - pMin) / (pMax - pMin)) * 100) : 50;
+
+          innerHtml += `
+            <div class="pillar-metric-row">
+              <span class="pillar-metric-name">${escHtml(metric)}</span>
+              <span class="pillar-trend" style="color:${trendColor}">${trend}</span>
+              <span style="font-size:var(--text-xs);color:var(--text-muted);min-width:38px;text-align:right;">${val.toFixed(1)}</span>
+              <div class="pillar-bar-wrap"><div class="pillar-bar" style="width:${pct}%;"></div></div>
+              ${lagBadge}
+            </div>`;
+        }
+      }
+
+      if (!hasAnyData) continue;
+      card.innerHTML = innerHtml;
+      pillarGrid.appendChild(card);
+    }
+
+    // Wire export buttons
+    grid.querySelector('#sc-export-csv')?.addEventListener('click', () => exportScorecardCsv(lookup, visible));
+    grid.querySelector('#sc-print')?.addEventListener('click', () => window.print());
+  }
+
+  function exportScorecardCsv(lookup, visible) {
+    const latestPeriod = allPeriods[allPeriods.length - 1];
+    const prevPeriod   = allPeriods.length >= 2 ? allPeriods[allPeriods.length - 2] : null;
+    const rows = ['bank,pillar,metric,latest_value,prior_value,trend,leading_or_lagging'];
+    for (const entity of visible) {
+      for (const pillar of STRATEGY_PILLARS) {
+        for (const { name: metric, leading_or_lagging: lag } of pillar.metrics) {
+          const cur  = lookup[entity]?.[latestPeriod]?.[metric];
+          const prev = prevPeriod ? lookup[entity]?.[prevPeriod]?.[metric] : null;
+          if (cur == null) continue;
+          const trend = prev == null ? '' : cur > prev + 0.005 ? '▲' : cur < prev - 0.005 ? '▼' : '→';
+          const safe = s => `"${String(s ?? '').replace(/"/g, '""')}"`;
+          rows.push(`${safe(entity)},${safe(pillar.name)},${safe(metric)},${cur},${prev ?? ''},${trend},${lag}`);
+        }
+      }
+    }
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const period = latestPeriod || 'unknown';
+    const link = document.createElement('a');
+    link.download = `strategy-scorecard-${period}.csv`;
+    link.href = url;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /* ── PCA / Dimensionality Reduction tab (W-0098) ─────────────────────── */
+  /**
+   * Power-iteration PCA in vanilla JS.
+   * data: array of n observations, each with p numeric features (no nulls).
+   * k: number of principal components to extract.
+   * Returns { eigenvectors: k×p, scores: n×k, variance: k-length, totalVariance }.
+   */
+  function runPca(data, k) {
+    const n = data.length;
+    const p = data[0].length;
+    if (n < 2 || p < 2) return null;
+
+    // Centre columns
+    const means = new Array(p).fill(0);
+    for (const row of data) for (let j = 0; j < p; j++) means[j] += row[j];
+    for (let j = 0; j < p; j++) means[j] /= n;
+    const centred = data.map(row => row.map((v, j) => v - means[j]));
+
+    // Covariance matrix (p×p)
+    const cov = Array.from({ length: p }, () => new Array(p).fill(0));
+    for (const row of centred) {
+      for (let i = 0; i < p; i++) for (let j = 0; j < p; j++) cov[i][j] += row[i] * row[j];
+    }
+    for (let i = 0; i < p; i++) for (let j = 0; j < p; j++) cov[i][j] /= (n - 1);
+
+    // Power iteration to extract top k eigenvectors
+    const eigenvectors = [];
+    const eigenvalues  = [];
+    const covCopy = cov.map(r => [...r]);
+
+    for (let comp = 0; comp < Math.min(k, p); comp++) {
+      let v = new Array(p).fill(0).map((_, i) => i === comp % p ? 1 : 0);
+      for (let iter = 0; iter < 200; iter++) {
+        // Av
+        const Av = new Array(p).fill(0);
+        for (let i = 0; i < p; i++) for (let j = 0; j < p; j++) Av[i] += covCopy[i][j] * v[j];
+        const norm = Math.sqrt(Av.reduce((s, x) => s + x * x, 0));
+        if (norm < 1e-12) break;
+        const vNew = Av.map(x => x / norm);
+        const diff = vNew.reduce((s, x, i) => s + (x - v[i]) ** 2, 0);
+        v = vNew;
+        if (diff < 1e-12) break;
+      }
+      // Eigenvalue = vT Cov v
+      const lambda = v.reduce((s, vi, i) => s + vi * covCopy[i].reduce((ss, cij, j) => ss + cij * v[j], 0), 0);
+      eigenvectors.push(v);
+      eigenvalues.push(lambda);
+      // Deflate: Cov = Cov - lambda * v * vT
+      for (let i = 0; i < p; i++) for (let j = 0; j < p; j++) covCopy[i][j] -= lambda * v[i] * v[j];
+    }
+
+    // Project data onto eigenvectors (scores)
+    const scores = centred.map(row =>
+      eigenvectors.map(ev => row.reduce((s, x, j) => s + x * ev[j], 0))
+    );
+
+    const totalVar = eigenvalues.reduce((s, x) => s + x, 0);
+    return { eigenvectors, scores, variance: eigenvalues, totalVariance: totalVar };
+  }
+
+  function renderPca(lookup, visible, visiblePeriods) {
+    charts.forEach(c => c.destroy());
+    charts = [];
+    chartMeta = [];
+    const grid = document.getElementById('chart-grid');
+    grid.innerHTML = '';
+
+    if (visible.length < 3) {
+      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem 0;">Select at least 3 banks to run dimensionality reduction.</p>';
+      return;
+    }
+
+    const groupFilter = METRIC_GROUPS[activeMetricGroup];
+    const metrics = (groupFilter
+      ? KEY_METRICS.filter(m => groupFilter.includes(m))
+      : KEY_METRICS
+    ).filter(m => visible.some(e => visiblePeriods.some(p => lookup[e]?.[p]?.[m] != null)));
+
+    if (metrics.length < 4) {
+      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem 0;">Select at least 4 metrics (or expand the metric group) to run dimensionality reduction.</p>';
+      return;
+    }
+
+    // Build data matrix: one row per bank using latest available value per metric
+    const latestPeriod = allPeriods[allPeriods.length - 1];
+    const rows = [];
+    const rowEntities = [];
+    for (const entity of visible) {
+      const row = metrics.map(m => lookup[entity]?.[latestPeriod]?.[m]);
+      if (row.every(v => v != null)) {
+        rows.push(row);
+        rowEntities.push(entity);
+      }
+    }
+
+    if (rows.length < 3) {
+      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem 0;">Insufficient complete data rows for the selected banks and metrics at the latest period.</p>';
+      return;
+    }
+
+    const k = Math.min(6, metrics.length, rows.length - 1);
+    const pca = runPca(rows, k);
+    if (!pca) {
+      grid.innerHTML = '<p style="color:var(--text-muted);padding:2rem 0;">PCA could not be computed.</p>';
+      return;
+    }
+
+    const variancePct = pca.variance.map(v => pca.totalVariance > 0 ? (v / pca.totalVariance * 100) : 0);
+    const pc12VarPct = variancePct.slice(0, 2).reduce((a, b) => a + b, 0);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pca-grid';
+
+    // 1. Scree plot
+    const screeCard = document.createElement('div');
+    screeCard.className = 'pca-card';
+    const screeId = 'pca-scree';
+    screeCard.innerHTML = `<h3>scree plot — variance explained per component</h3><div class="pca-chart-wrap"><canvas id="${screeId}"></canvas></div>`;
+    wrapper.appendChild(screeCard);
+
+    // 2. 2D projection
+    const projCard = document.createElement('div');
+    projCard.className = 'pca-card';
+    const projId = 'pca-proj';
+    projCard.innerHTML = `<h3>2D projection — PC1 vs PC2 (${pc12VarPct.toFixed(1)}% variance)</h3><div class="pca-chart-wrap"><canvas id="${projId}"></canvas></div>`;
+    wrapper.appendChild(projCard);
+
+    grid.appendChild(wrapper);
+
+    // Render scree plot
+    const screeCtx = document.getElementById(screeId);
+    const screeChart = new Chart(screeCtx, {
+      type: 'bar',
+      data: {
+        labels: pca.variance.map((_, i) => `PC${i + 1}`),
+        datasets: [{
+          label: 'Variance explained (%)',
+          data: variancePct.map(v => Math.round(v * 10) / 10),
+          backgroundColor: '#00C3A5aa',
+          borderColor: '#00C3A5',
+          borderWidth: 1,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1, titleColor: '#e6e6e6', bodyColor: '#e6e6e6' },
+        },
+        scales: {
+          x: { ticks: { color: '#666', font: { size: 10, family: "'IBM Plex Mono', monospace" } }, grid: { color: '#252b33' } },
+          y: {
+            title: { display: true, text: '% variance', color: '#666', font: { size: 9 } },
+            ticks: { color: '#666', font: { size: 10, family: "'IBM Plex Mono', monospace" } }, grid: { color: '#252b33' },
+          },
+        },
+      },
+    });
+    charts.push(screeChart);
+
+    // Render 2D scatter
+    const projCtx = document.getElementById(projId);
+    const scatterDatasets = rowEntities.map((entity, i) => ({
+      type: 'scatter',
+      label: entity,
+      data: [{ x: pca.scores[i][0], y: pca.scores[i][1], entity }],
+      backgroundColor: bankColor(entity) + 'cc',
+      borderColor: bankColor(entity),
+      borderWidth: 1.5,
+      pointRadius: 7,
+      pointHoverRadius: 9,
+    }));
+
+    const projChart = new Chart(projCtx, {
+      type: 'scatter',
+      data: { datasets: scatterDatasets },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, boxWidth: 8, padding: 8, color: '#666' } },
+          tooltip: {
+            backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1, titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+            callbacks: {
+              label: ctx => ` ${ctx.raw.entity} (PC1: ${ctx.raw.x.toFixed(2)}, PC2: ${ctx.raw.y.toFixed(2)})`,
+            },
+          },
+        },
+        scales: {
+          x: { title: { display: true, text: `PC1 (${variancePct[0].toFixed(1)}%)`, color: '#666', font: { size: 9 } }, ticks: { color: '#666', font: { size: 10, family: "'IBM Plex Mono', monospace" } }, grid: { color: '#252b33' } },
+          y: { title: { display: true, text: `PC2 (${(variancePct[1] || 0).toFixed(1)}%)`, color: '#666', font: { size: 9 } }, ticks: { color: '#666', font: { size: 10, family: "'IBM Plex Mono', monospace" } }, grid: { color: '#252b33' } },
+        },
+      },
+    });
+    charts.push(projChart);
+  }
+
+  /* ── Analysis nav helper (W-0100) ────────────────────────────────────── */
+  function activateAnalysisTab(tab) {
+    activeTab = tab;
+    localStorage.setItem('activeTab', activeTab);
+    const bar = document.getElementById('tab-bar');
+    if (bar) bar.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.tabName === activeTab));
+    document.getElementById('charts-section')?.scrollIntoView({ behavior: 'smooth' });
+    const vp = getVisiblePeriods();
+    if (tab === 'correlations') renderCorrelations(lastLookup, lastVisible, vp);
+    else if (tab === 'scorecard') renderScorecard(lastLookup, lastVisible, vp);
+    else if (tab === 'pca')       renderPca(lastLookup, lastVisible, vp);
+    else renderCharts(lastLookup, lastVisible, vp);
+    syncUrlHash();
+    // Close dropdown
+    const nav = document.getElementById('analysis-nav');
+    if (nav) nav.removeAttribute('open');
+  }
 
   /* ── Utilities ────────────────────────────────────────────────────────── */
   function escHtml(str) {

@@ -1,15 +1,15 @@
 # Progress
 
 > Session logs and completion notes.
-Last updated: 2026-05-02 (W-0038, W-0039, W-0066, W-0072, W-0073)
+Last updated: 2026-05-02 (W-0091 through W-0100)
 
 ---
 
 ## Current Status
 
-**Phase:** Backlog clearance — navigation, drill-down pages, prose review
-**Active work:** Complete (W-0038, W-0039, W-0066, W-0072, W-0073 done)
-**Next phase:** Phase 18 (Labour/Productivity metrics — S-0012 spike)
+**Phase:** Phase 20 — Analysis Tools and Strategic Context
+**Active work:** Complete (W-0091 through W-0100 done)
+**Next phase:** TBD
 
 ---
 
@@ -22,6 +22,41 @@ Last updated: 2026-05-02 (W-0038, W-0039, W-0066, W-0072, W-0073)
 | 3 | Visualisation and Deployment | In progress (W-0013 manual step remaining) |
 | 4 | Qualitative Data Extraction | Deferred |
 | 19 | UI Layout and Information Architecture | Done |
+| 20 | Analysis Tools and Strategic Context | Done |
+
+---
+
+## Work Log
+
+### 2026-05-02 — Phase 20: Analysis Tools and Strategic Context (W-0091 through W-0100)
+
+**Items completed:**
+
+- **W-0091**: `config/metrics.yaml` extended with `controllability` section (High / Medium / Low / Hybrid for every canonical metric). `config/metric_groups.yaml` created with three groups: Management Controllable, Market-Driven, Productivity-Focused. `glossary.md` updated with controllability level definitions.
+
+- **W-0092**: "Group" dropdown added to sticky control bar (after Share fieldset). Options: All Metrics, Management Controllable, Market-Driven, Productivity-Focused. Filter persisted to `localStorage["metricGroup"]`. When a group other than All Metrics is active, `renderCharts()` skips metrics not in the group. METRIC_GROUPS const inlined in `index.html`.
+
+- **W-0093**: Collapsible "Golden Metrics" sparkline panel added below KPI row. Six sparklines (CET1, ROE, CTI, NIM, NPL, CFR) rendered as compact 8-quarter Chart.js lines. Panel defaults to collapsed; state persisted to localStorage. Destroyed/rebuilt on open/close to avoid canvas reuse issues.
+
+- **W-0094**: "Correlations" tab added (after productivity). Renders a Pearson correlation heatmap (diverging colour: red = -1, white = 0, teal = +1) for all selected banks and visible periods. Highly-correlated pairs (|r| > 0.85) listed below the matrix. Respects the metric group filter.
+
+- **W-0095**: Collapsible "Market Context" section added below the ranking table. Shows a user-selected metric vs OCR overlay (OCR on right axis). Metric selector populated with current tab's metrics. State persisted. Reachable via Analysis ▾ dropdown or by scrolling.
+
+- **W-0096**: "Strategy Scorecard" tab added. STRATEGY_PILLARS const (5 pillars: Customer, Efficiency, Resilience, Innovation, Returns) inlined in `index.html` from `config/strategy_pillars.yaml`. Scorecard renders pillar cards with sector-average value, QoQ trend arrow (coloured by good-direction), peer percentile bar, and leading/lagging badge.
+
+- **W-0097**: Export CSV and Print buttons added inside Strategy Scorecard tab. CSV export generates `strategy-scorecard-{period}.csv` with bank|pillar|metric|latest_value|prior_value|trend|leading_or_lagging columns. Print button triggers `window.print()`. Print stylesheet added to hide nav/controls/tabs and show only pillar grid.
+
+- **W-0098**: "Dimensionality Reduction" tab added. Vanilla-JS power-iteration PCA computes top 6 principal components from latest-period bank data. Scree plot (bar chart of % variance explained per component) and 2D scatter projection (PC1 vs PC2) rendered side-by-side. Respects metric group filter.
+
+- **W-0099**: Chart tooltips extended to append `[controllability: X, pillar: Y]` context lines. `docs/glossary.html` gains controllability (colour-coded) and pillar badges on every metric term via a small JS injection at page load.
+
+- **W-0100**: "Analysis ▾" `<details>/<summary>` dropdown added to the site nav on `docs/index.html`. Dropdown lists Correlations, Dimensionality Reduction, Strategy Scorecard, and Market Context — each activates the corresponding tab/section and scrolls into view.
+
+**Mini-retro:**
+- All 10 items were frontend-only changes (HTML/CSS/JS) plus config YAML files. No Python pipeline changes were required — all 218 tests pass.
+- The PCA implementation uses power iteration (no external library) with deflation, which is reliable for the small p (≤30 metrics) and n (≤26 banks) sizes involved.
+- W-0091 established the controlled vocabulary (controllability levels) before downstream items consumed it, preventing the ad-hoc divergence that would have occurred if each tab had its own classification.
+- Root cause for duplicated badge data in glossary.html: static HTML can't directly read YAML, so the JS injection approach (inline const → badge) is the least-surprising pattern for a static site. A build step that generates JSON sidecars from YAML would be more maintainable at scale.
 
 ---
 

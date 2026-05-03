@@ -52,3 +52,66 @@ mappings:
     DBB.QIJ10: "Top 5 Non-Bank Credit Exposures"
     DBB.QIJ30: "Top 5 Bank Credit Exposures"
     DBB.QIJ40: "Bank Exposures ≥10% of CET1"
+
+# Controllability classification for each canonical metric.
+# How much a bank's management can directly influence the metric's value.
+# Valid values: High | Medium | Low | Hybrid
+# See glossary.md for definitions of each controllability level.
+controllability:
+  # --- Capital adequacy ---
+  "CET1 Ratio":                     "High"
+  "Tier 1 Capital Ratio":           "High"
+  "Total Capital Ratio":            "High"
+  "Total Risk-Weighted Assets":     "Medium"
+  "Capital Headroom":               "High"
+  "Risk Density":                   "Medium"
+
+  # --- Asset quality ---
+  "NPL Ratio":                      "Low"
+  "Total Non-Performing Loans":     "Low"
+  "Individual Provisions":          "Medium"
+  "Collective Provisions":          "Medium"
+  "Provisioning Coverage":          "Medium"
+  "Credit Impairment Rate":         "Low"
+
+  # --- Profitability ---
+  "Return on Assets":               "Medium"
+  "Return on Equity":               "Medium"
+  "NIM":                            "Hybrid"
+  "Net Interest Income":            "Hybrid"
+  "Trading and Hedging Gains":      "Low"
+  "Fees and Commission Income":     "High"
+  "Other Income":                   "Medium"
+  "Operating Expenses":             "High"
+  "Profit After Tax":               "Medium"
+  "Cost to Income Ratio":           "High"
+  "RORWA":                          "Medium"
+  "Pre-Provision Profit":           "Medium"
+  "Non-Interest Income Share":      "Medium"
+  "Opex Intensity":                 "High"
+
+  # --- Balance sheet ---
+  "Total Assets":                   "Medium"
+  "Cash Position":                  "Medium"
+  "Net Loans and Advances":         "Medium"
+  "Deposits":                       "Low"
+  "Equity":                         "High"
+  "Loan-to-Deposit Ratio":          "Medium"
+
+  # --- Liquidity ---
+  "Core Funding Ratio (CFR)":       "Medium"
+  "1-Month Mismatch Ratio":         "Low"
+  "1-Week Mismatch Ratio":          "Low"
+
+  # --- Credit concentration ---
+  "Top 5 Non-Bank Credit Exposures": "High"
+  "Top 5 Bank Credit Exposures":     "High"
+  "Bank Exposures ≥10% of CET1":     "High"
+
+  # --- Productivity ---
+  "Profit per Employee":            "Medium"
+  "Gross Income per Employee":      "Medium"
+  "Expenses per Employee":          "High"
+  "Profit per Customer":            "Medium"
+  "Gross Income per Customer":      "Medium"
+  "Expenses per Customer":          "High"

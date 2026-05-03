@@ -1,0 +1,61 @@
+# Metric groups for the dashboard "Group" filter.
+# Three curated views that let analysts focus on a specific analytical lens.
+# Metric names must match canonical names in glossary.md and metrics.yaml exactly.
+#
+# These groups are consumed by docs/index.html (inlined as METRIC_GROUPS const).
+
+groups:
+  Management Controllable:
+    description: >
+      Metrics that management can directly influence through strategic and
+      operational decisions — cost management, capital allocation, pricing,
+      and credit concentration limits.
+    metrics:
+      - "Cost to Income Ratio"
+      - "Operating Expenses"
+      - "Opex Intensity"
+      - "CET1 Ratio"
+      - "Tier 1 Capital Ratio"
+      - "Total Capital Ratio"
+      - "Capital Headroom"
+      - "Fees and Commission Income"
+      - "Core Funding Ratio (CFR)"
+      - "Top 5 Non-Bank Credit Exposures"
+      - "Top 5 Bank Credit Exposures"
+      - "Bank Exposures ≥10% of CET1"
+      - "RORWA"
+      - "Expenses per Employee"
+      - "Expenses per Customer"
+
+  Market-Driven:
+    description: >
+      Metrics primarily determined by macroeconomic conditions, the OCR cycle,
+      and borrower behaviour — not management decisions.
+    metrics:
+      - "NIM"
+      - "Net Interest Income"
+      - "Trading and Hedging Gains"
+      - "NPL Ratio"
+      - "Total Non-Performing Loans"
+      - "Credit Impairment Rate"
+      - "1-Month Mismatch Ratio"
+      - "1-Week Mismatch Ratio"
+      - "Deposits"
+
+  Productivity-Focused:
+    description: >
+      Metrics that measure how efficiently the bank converts resources (people,
+      capital, customers) into financial outcomes.
+    metrics:
+      - "Return on Assets"
+      - "Return on Equity"
+      - "Pre-Provision Profit"
+      - "Non-Interest Income Share"
+      - "Profit per Employee"
+      - "Gross Income per Employee"
+      - "Expenses per Employee"
+      - "Profit per Customer"
+      - "Gross Income per Customer"
+      - "Expenses per Customer"
+      - "Cost to Income Ratio"
+      - "RORWA"
