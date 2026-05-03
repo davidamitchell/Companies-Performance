@@ -264,6 +264,7 @@
     .chart-nav { text-align: right; margin-top: 0.35rem; }
     .chart-nav-link { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.05em; }
     .chart-nav-link:hover, .chart-nav-link:focus { color: var(--teal); outline: none; }
+    .chart-desc { font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.35rem; line-height: 1.55; }
 
     /* NZ events legend */
     .nz-legend {
@@ -405,6 +406,33 @@
     .pca-card { background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.15rem; }
     .pca-card h3 { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 0.5rem; }
     .pca-chart-wrap { position: relative; height: 240px; }
+    .pca-explain-banner {
+      grid-column: 1 / -1;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 0.85rem 1.15rem; font-size: var(--text-xs); color: var(--text-muted); line-height: 1.65;
+    }
+    .pca-explain-banner p { margin: 0 0 0.4rem; }
+    .pca-explain-banner p:last-child { margin-bottom: 0; }
+    .pca-card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .pca-card-hd h3 { margin-bottom: 0; }
+    .pca-toggle-label {
+      font-size: var(--text-xs); color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.3rem; cursor: pointer; white-space: nowrap;
+    }
+    .pca-card-note { font-size: var(--text-xs); color: var(--text-muted); margin-top: 0.6rem; line-height: 1.6; }
+    .pca-loadings-card {
+      grid-column: 1 / -1;
+      background: var(--surface); border: 1px solid var(--border); padding: 0.85rem 1.15rem;
+    }
+    .pca-loadings-card > h3 { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+    .pca-loadings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 0.6rem; }
+    .pca-loadings-col h4 { font-size: var(--text-xs); color: var(--teal); letter-spacing: 0.06em; margin-bottom: 0.35rem; }
+    .pca-loading-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem; }
+    .pca-loading-name { font-size: var(--text-xs); color: var(--text-muted); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .pca-loading-track { height: 4px; background: var(--border); flex: 0 0 50px; border-radius: 2px; overflow: hidden; }
+    .pca-loading-fill { height: 100%; border-radius: 2px; }
+    .pca-loading-val { font-size: var(--text-xs); color: var(--text); white-space: nowrap; min-width: 3rem; text-align: right; }
+    .pca-highlight-teal { color: var(--teal); }
 
     /* ── Analysis nav dropdown (W-0100) ─────────────────────────────────── */
     .analysis-nav { position: relative; }
@@ -1758,6 +1786,9 @@
 
       const card = document.createElement('div');
       card.className = 'chart-card';
+      const metricNote = METRIC_INFO[metric]?.note || '';
+      const metricGood = METRIC_INFO[metric]?.good || '';
+      const descText = metricNote ? escHtml(metricNote) + (metricGood ? ` <em>${escHtml(metricGood)}</em>` : '') : '';
       card.innerHTML = `
         <div class="chart-card-hd">
           <h3>${titleHtml}</h3>
@@ -1768,7 +1799,8 @@
           </div>
         </div>
         <div class="chart-wrap"><canvas id="chart-${i}"></canvas></div>
-        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a>${mSlug ? `<a href="metric.html?m=${mSlug}" class="chart-nav-link">metric detail →</a>` : ''}</div>`;
+        <div class="chart-nav"><a href="#snapshot-section" class="chart-nav-link">snapshot ↓</a>${mSlug ? `<a href="metric.html?m=${mSlug}" class="chart-nav-link">metric detail →</a>` : ''}</div>
+        ${descText ? `<div class="chart-desc">${descText}</div>` : ''}`;
       grid.appendChild(card);
 
       card.addEventListener('click', e => {
@@ -3279,22 +3311,41 @@
 
     const variancePct = pca.variance.map(v => pca.totalVariance > 0 ? (v / pca.totalVariance * 100) : 0);
     const pc12VarPct = variancePct.slice(0, 2).reduce((a, b) => a + b, 0);
+    const cumulative  = variancePct.map((_, i) => variancePct.slice(0, i + 1).reduce((a, b) => a + b, 0));
 
     const wrapper = document.createElement('div');
     wrapper.className = 'pca-grid';
 
+    // Explanation banner (spans both columns)
+    const explainEl = document.createElement('div');
+    explainEl.className = 'pca-explain-banner';
+    explainEl.innerHTML = `
+      <p><strong>Principal Component Analysis (PCA)</strong> compresses <strong>${metrics.length} metrics</strong> across <strong>${rowEntities.length} banks</strong> into a small number of uncorrelated directions (components), ranked by how much variance in the data each one captures. It reveals which banks are similar to each other and which are outliers — without looking at each metric individually.</p>
+      <p>Snapshot period: <strong>${latestPeriod}</strong> &nbsp;·&nbsp; Metric group: <strong>${activeMetricGroup}</strong> &nbsp;·&nbsp; To change what's analysed, adjust bank selection, metric group, or period range.</p>`;
+    wrapper.appendChild(explainEl);
+
     // 1. Scree plot
     const screeCard = document.createElement('div');
     screeCard.className = 'pca-card';
-    const screeId = 'pca-scree';
-    screeCard.innerHTML = `<h3>scree plot — variance explained per component</h3><div class="pca-chart-wrap"><canvas id="${screeId}"></canvas></div>`;
+    const screeId  = 'pca-scree';
+    const cumulId  = 'pca-cumul-chk';
+    screeCard.innerHTML = `
+      <div class="pca-card-hd">
+        <h3>scree plot — variance explained per component</h3>
+        <label class="pca-toggle-label"><input type="checkbox" id="${cumulId}" checked> cumulative line</label>
+      </div>
+      <div class="pca-chart-wrap"><canvas id="${screeId}"></canvas></div>
+      <p class="pca-card-note">Each bar shows what % of total variance across all selected metrics is captured by one component. PC1 captures the most, PC2 the next most, and so on. Look for the <em>elbow</em> — the point where each additional component captures much less. The <span class="pca-highlight-teal">teal line</span> shows cumulative variance: if PC1+PC2 together explain &gt;70% of variance, the 2D scatter below gives a reliable summary of the data structure.</p>`;
     wrapper.appendChild(screeCard);
 
     // 2. 2D projection
     const projCard = document.createElement('div');
     projCard.className = 'pca-card';
     const projId = 'pca-proj';
-    projCard.innerHTML = `<h3>2D projection — PC1 vs PC2 (${pc12VarPct.toFixed(1)}% variance)</h3><div class="pca-chart-wrap"><canvas id="${projId}"></canvas></div>`;
+    projCard.innerHTML = `
+      <h3>2D projection — PC1 vs PC2 (${pc12VarPct.toFixed(1)}% variance)</h3>
+      <div class="pca-chart-wrap"><canvas id="${projId}"></canvas></div>
+      <p class="pca-card-note"><strong>Nearby banks are similar</strong> across all selected metrics. <strong>Distant banks differ</strong>. An isolated bank is a performance outlier. The axes are <em>combinations</em> of the original metrics — see the loadings table below to understand what each axis represents. Hover a point to see that bank's coordinates.</p>`;
     wrapper.appendChild(projCard);
 
     grid.appendChild(wrapper);
@@ -3305,23 +3356,44 @@
       type: 'bar',
       data: {
         labels: pca.variance.map((_, i) => `PC${i + 1}`),
-        datasets: [{
-          label: 'Variance explained (%)',
-          data: variancePct.map(v => Math.round(v * 10) / 10),
-          backgroundColor: '#00C3A5aa',
-          borderColor: '#00C3A5',
-          borderWidth: 1,
-        }],
+        datasets: [
+          {
+            label: 'Variance explained (%)',
+            data: variancePct.map(v => Math.round(v * 10) / 10),
+            backgroundColor: '#00C3A5aa',
+            borderColor: '#00C3A5',
+            borderWidth: 1,
+          },
+          {
+            type: 'line',
+            label: 'Cumulative (%)',
+            data: cumulative.map(v => Math.round(v * 10) / 10),
+            borderColor: '#00C3A5',
+            borderWidth: 2,
+            pointRadius: 4,
+            pointBackgroundColor: '#00C3A5',
+            backgroundColor: 'transparent',
+            tension: 0,
+          },
+        ],
       },
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,
         plugins: {
-          legend: { display: false },
-          tooltip: { backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1, titleColor: '#e6e6e6', bodyColor: '#e6e6e6' },
+          legend: { labels: { font: { size: 10, family: "'IBM Plex Mono', monospace" }, boxWidth: 8, padding: 8, color: '#666' } },
+          tooltip: {
+            backgroundColor: '#161b22', borderColor: '#252b33', borderWidth: 1, titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+            callbacks: {
+              label: ctx => ctx.dataset.label === 'Cumulative (%)'
+                ? ` cumulative: ${ctx.parsed.y}%`
+                : ` ${ctx.parsed.y}% of variance`,
+            },
+          },
         },
         scales: {
           x: { ticks: { color: '#666', font: { size: 10, family: "'IBM Plex Mono', monospace" } }, grid: { color: '#252b33' } },
           y: {
+            min: 0, max: 100,
             title: { display: true, text: '% variance', color: '#666', font: { size: 9 } },
             ticks: { color: '#666', font: { size: 10, family: "'IBM Plex Mono', monospace" } }, grid: { color: '#252b33' },
           },
@@ -3329,6 +3401,12 @@
       },
     });
     charts.push(screeChart);
+
+    // Wire up cumulative line toggle
+    document.getElementById(cumulId).addEventListener('change', e => {
+      screeChart.setDatasetVisibility(1, e.target.checked);
+      screeChart.update();
+    });
 
     // Render 2D scatter
     const projCtx = document.getElementById(projId);
@@ -3364,6 +3442,36 @@
       },
     });
     charts.push(projChart);
+
+    // Loadings table: top contributing metrics per component
+    const MAX_DISPLAYED_COMPONENTS = 3;
+    const numPcs = Math.min(MAX_DISPLAYED_COMPONENTS, pca.eigenvectors.length);
+    const loadingsCard = document.createElement('div');
+    loadingsCard.className = 'pca-loadings-card';
+    let lHtml = `<h3>metric contributions (loadings)</h3>
+      <p class="pca-card-note" style="margin-top:0;margin-bottom:0.65rem;">Which metrics drive each component — the most important inputs to each axis. Larger absolute value = stronger influence. + and − show opposite directions within the same component (e.g. metrics at opposite ends of a spectrum).</p>
+      <div class="pca-loadings-grid">`;
+    for (let pc = 0; pc < numPcs; pc++) {
+      const evec  = pca.eigenvectors[pc];
+      const pairs = metrics
+        .map((m, j) => ({ name: METRIC_LABELS[m] || m, val: evec[j] }))
+        .sort((a, b) => Math.abs(b.val) - Math.abs(a.val))
+        .slice(0, 5);
+      lHtml += `<div class="pca-loadings-col"><h4>PC${pc + 1} — ${variancePct[pc].toFixed(1)}% variance</h4>`;
+      for (const { name, val } of pairs) {
+        const barPct  = Math.round(Math.abs(val) * 100);
+        const barColor = val >= 0 ? '#00C3A5' : '#e57373';
+        lHtml += `<div class="pca-loading-row">
+          <div class="pca-loading-name" title="${escHtml(name)}">${escHtml(name)}</div>
+          <div class="pca-loading-track"><div class="pca-loading-fill" style="width:${barPct}%;background:${barColor};"></div></div>
+          <div class="pca-loading-val">${val >= 0 ? '+' : ''}${val.toFixed(2)}</div>
+        </div>`;
+      }
+      lHtml += `</div>`;
+    }
+    lHtml += `</div>`;
+    loadingsCard.innerHTML = lHtml;
+    wrapper.appendChild(loadingsCard);
   }
 
   /* ── Analysis nav helper (W-0100) ────────────────────────────────────── */
