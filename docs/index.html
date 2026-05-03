@@ -3207,6 +3207,10 @@
    * Power-iteration PCA in vanilla JS.
    * data: array of n observations, each with p numeric features (no nulls).
    * k: number of principal components to extract.
+   * Each column is z-score standardised (mean=0, std=1) before analysis so
+   * that metrics measured in different units contribute equally.  Columns
+   * with zero variance are treated as zero after centring (they carry no
+   * information and would otherwise produce a division-by-zero).
    * Returns { eigenvectors: k×p, scores: n×k, variance: k-length, totalVariance }.
    */
   function runPca(data, k) {
@@ -3214,15 +3218,24 @@
     const p = data[0].length;
     if (n < 2 || p < 2) return null;
 
-    // Centre columns
+    // Centre columns (compute means)
     const means = new Array(p).fill(0);
     for (const row of data) for (let j = 0; j < p; j++) means[j] += row[j];
     for (let j = 0; j < p; j++) means[j] /= n;
-    const centred = data.map(row => row.map((v, j) => v - means[j]));
 
-    // Covariance matrix (p×p)
+    // Compute per-column standard deviations and standardise (z-score).
+    // n-1 (Bessel's correction) is used here to stay consistent with the
+    // sample covariance matrix below; variance percentages are invariant to
+    // the n vs n-1 choice because they are eigenvalue ratios.
+    const stds = new Array(p).fill(0);
+    for (const row of data) for (let j = 0; j < p; j++) stds[j] += (row[j] - means[j]) ** 2;
+    for (let j = 0; j < p; j++) stds[j] = Math.sqrt(stds[j] / (n - 1));
+    // Columns with zero variance carry no information; treat as zero after centring
+    const standardised = data.map(row => row.map((v, j) => stds[j] > 0 ? (v - means[j]) / stds[j] : 0));
+
+    // Covariance matrix of the standardised data (= correlation matrix of original)
     const cov = Array.from({ length: p }, () => new Array(p).fill(0));
-    for (const row of centred) {
+    for (const row of standardised) {
       for (let i = 0; i < p; i++) for (let j = 0; j < p; j++) cov[i][j] += row[i] * row[j];
     }
     for (let i = 0; i < p; i++) for (let j = 0; j < p; j++) cov[i][j] /= (n - 1);
@@ -3254,7 +3267,7 @@
     }
 
     // Project data onto eigenvectors (scores)
-    const scores = centred.map(row =>
+    const scores = standardised.map(row =>
       eigenvectors.map(ev => row.reduce((s, x, j) => s + x * ev[j], 0))
     );
 
@@ -3321,6 +3334,7 @@
     explainEl.className = 'pca-explain-banner';
     explainEl.innerHTML = `
       <p><strong>Principal Component Analysis (PCA)</strong> compresses <strong>${metrics.length} metrics</strong> across <strong>${rowEntities.length} banks</strong> into a small number of uncorrelated directions (components), ranked by how much variance in the data each one captures. It reveals which banks are similar to each other and which are outliers — without looking at each metric individually.</p>
+      <p>Each metric is <strong>z-score standardised</strong> (mean=0, std=1) before analysis so that metrics measured in different units (e.g. ratios vs. monetary amounts) contribute equally. This is equivalent to performing PCA on the correlation matrix.</p>
       <p>Snapshot period: <strong>${latestPeriod}</strong> &nbsp;·&nbsp; Metric group: <strong>${activeMetricGroup}</strong> &nbsp;·&nbsp; To change what's analysed, adjust bank selection, metric group, or period range.</p>`;
     wrapper.appendChild(explainEl);
 
