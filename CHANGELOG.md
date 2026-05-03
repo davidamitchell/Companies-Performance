@@ -9,6 +9,12 @@ New entries go under `## [Unreleased]` at the top. On release, move them to a da
 
 ## [Unreleased]
 
+### Added
+- **W-0096**: Strategy Scorecard tab added to `docs/index.html`. Five pillar cards (Customer, Efficiency, Resilience, Innovation, Returns) each show per-metric data organised by leading/lagging tag. When a single bank is selected: value + QoQ trend arrow + peer-percentile bar (all banks as peers). When multiple banks are selected: per-bank rows with individual values, trends, and colour-coded mini-bars — no averaging across organisations. Design decision documented in ADR-0007.
+- **W-0097**: Export Scorecard (CSV) button inside the Strategy Scorecard tab exports `bank,pillar,metric,latest_value,prior_value,trend,leading_or_lagging` per row for all selected banks. Print / Save as PDF button triggers `window.print()` with a print stylesheet.
+- `config/strategy_pillars.yaml` — authoritative YAML source for pillar definitions, metric mappings, and leading/lagging tags.
+- ADR-0007: Strategy Scorecard — Per-Bank Comparison over Sector Average.
+
 ### Changed
 - `backlog.md` renamed to `BACKLOG.md` and `progress.md` renamed to `PROGRESS.md` to align with `davidamitchell/Research` conventions (ADR-0002).
 

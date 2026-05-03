@@ -518,3 +518,22 @@ All ten items are strictly additive — no existing tabs, charts, filters, or ex
 ### Why
 
 Issue requested: decompose and refine the Phase 20 feature set into clean, coherent, additive backlog items. Items are sequenced by dependency (W-0091 config unblocks W-0092, W-0096, W-0099; W-0096 unblocks W-0097; W-0094/W-0095/W-0096/W-0098 unblock W-0100).
+
+---
+
+## 2026-05-03 — Strategy Scorecard implemented with per-bank comparison (W-0096, W-0097)
+
+### What changed
+
+- Added `scorecard` tab to `docs/index.html` TABS constant (special tab with `null` metric list, dispatched from `renderCharts()`).
+- `renderScorecard()` function renders five pillar cards (Customer, Efficiency, Resilience, Innovation, Returns) from the `STRATEGY_PILLARS` constant.
+- **Multi-bank mode** (2+ banks selected): each metric becomes a section header with one row per selected bank showing coloured swatch, bank name, individual value, QoQ trend arrow, and a mini proportional bar. No averaging.
+- **Single-bank mode**: each metric shows value, QoQ trend, peer-percentile bar relative to all banks in the dataset, and lead/lag badge.
+- Export CSV button: per-bank rows with `bank,pillar,metric,latest_value,prior_value,trend,leading_or_lagging`.
+- Print / Save as PDF button via `window.print()` with print stylesheet.
+- Created `config/strategy_pillars.yaml` as authoritative YAML source (inlined to JS for static-site delivery).
+- ADR-0007 documents the per-bank vs sector-average design decision and the choice of table rows over grouped bar charts.
+
+### Why
+
+PR #35 revealed that the scorecard averaged data across selected organisations, destroying the comparative signal that the rest of the dashboard is built around. The fix is architectural: the scorecard must show individual bank values in multi-bank mode, consistent with every other tab.

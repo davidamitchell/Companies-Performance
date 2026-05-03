@@ -1,0 +1,83 @@
+# Strategy pillars configuration
+# Maps canonical metric names (from config/metrics.yaml) to five purpose pillars.
+# Each metric is tagged as leading (predictive) or lagging (reflective).
+#
+# Canonical metric names must match glossary.md exactly.
+# This file is the authoritative source; the JS constant STRATEGY_PILLARS in
+# docs/index.html is inlined from this file for static-site delivery and must
+# be kept in sync when this file changes.
+
+pillars:
+  - name: Customer
+    description: >
+      Metrics reflecting the quality of customer outcomes and the bank's ability
+      to serve customers reliably over the long term.
+    metrics:
+      - name: NPL Ratio
+        leading_or_lagging: lagging
+      - name: Core Funding Ratio (CFR)
+        leading_or_lagging: leading
+      - name: Net Loans and Advances
+        leading_or_lagging: lagging
+      - name: Deposits
+        leading_or_lagging: leading
+      - name: Gross Income per Customer
+        leading_or_lagging: lagging
+
+  - name: Efficiency
+    description: >
+      Metrics measuring how effectively the bank translates revenue into profit
+      by managing its operating cost base.
+    metrics:
+      - name: Cost to Income Ratio
+        leading_or_lagging: lagging
+      - name: Operating Expenses
+        leading_or_lagging: lagging
+      - name: Opex Intensity
+        leading_or_lagging: lagging
+      - name: Expenses per Employee
+        leading_or_lagging: lagging
+
+  - name: Resilience
+    description: >
+      Metrics indicating the bank's ability to absorb shocks and maintain
+      operations through credit and funding stress.
+    metrics:
+      - name: CET1 Ratio
+        leading_or_lagging: leading
+      - name: Capital Headroom
+        leading_or_lagging: leading
+      - name: Provisioning Coverage
+        leading_or_lagging: leading
+      - name: Credit Impairment Rate
+        leading_or_lagging: lagging
+      - name: Loan-to-Deposit Ratio
+        leading_or_lagging: leading
+
+  - name: Innovation
+    description: >
+      Metrics that signal investment in non-traditional revenue and shift away
+      from purely interest-based income.
+    metrics:
+      - name: Non-Interest Income Share
+        leading_or_lagging: leading
+      - name: Fees and Commission Income
+        leading_or_lagging: lagging
+      - name: Profit per Employee
+        leading_or_lagging: lagging
+
+  - name: Returns
+    description: >
+      Metrics capturing the financial returns delivered to shareholders and the
+      underlying capital efficiency of the franchise.
+    metrics:
+      - name: Return on Equity
+        leading_or_lagging: lagging
+      - name: Return on Assets
+        leading_or_lagging: lagging
+      - name: RORWA
+        leading_or_lagging: lagging
+      - name: Pre-Provision Profit
+        leading_or_lagging: lagging
+      - name: NIM
+        leading_or_lagging: lagging
